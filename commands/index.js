@@ -1,3 +1,3 @@
 module.exports = {
-    Ping: require('./ping'),
+  Ping: require('./ping'),
 };
