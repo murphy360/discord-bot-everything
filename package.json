@@ -9,10 +9,13 @@
   "author": "Michiel Mulders",
   "license": "ISC",
   "dependencies": {
+    "avconv": "^3.1.0",
     "discord.js": ">=11.6.4",
     "dotenv": ">=8.2.0",
+    "ffmpeg": "^0.0.4",
     "opusscript": "0.0.8",
     "uws": ">=200.0.0",
+    "yt-search": "^2.7.6",
     "ytdl-core": ">=4.5.0"
   }
 }
