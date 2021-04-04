@@ -3,7 +3,7 @@ module.exports = {
   description: 'Play!',
   execute(msg, args) {
     if(!args[1]){
-      msg.reply('Hey ${memberName}, you need to tell me what to play');
+      msg.reply('Hey ' + user + ', you need to tell me what to play');
       return;
     }	 
 	
