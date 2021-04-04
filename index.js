@@ -16,14 +16,22 @@ Object.keys(botCommands).map(key => {
   bot.commands.set(botCommands[key].name, botCommands[key]);
 });
 
-bot.on('ready', () => {
-  console.info(`Logged in as ${bot.user.tag}!`);
+  bot.on('ready', () => {
+     console.info(`Logged in as ${bot.user.tag}!`);
 });
 
 bot.on('message', msg => {
   const args = msg.content.split(" ");
-  const command = args[0].toLowerCase();
-  console.info(`Called command: ${command}`);
+  var botName = args[0].toLowerCase().replace(/\D/g,'');
+  console.info('botname: ' + botName + ' ' + bot.user.id);
+
+  if(bot.user.id != botName){
+  
+      console.info('Not My Name');
+      return;
+  }
+  const command = args[1].toLowerCase();
+  console.info(`index.js - Called command: ${command}`);
 
   if (!bot.commands.has(command)) return;
 
