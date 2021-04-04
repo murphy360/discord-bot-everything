@@ -1,10 +1,6 @@
-# How to Build Your First Discord Bot with Node.js
+# Discord Bot for Everything
 
-Michiel Mulders shows you how to install and set up a new Discord bot, which is made easier thanks to the API offered by the Discord.js package.
-
-This is the **advanced branch**, demonstrating how to implement a command handler.
-
-Link to article on SitePoint: [https://www.sitepoint.com/discord-bot-node-js/](https://www.sitepoint.com/discord-bot-node-js/)
+Forked from https://github.com/sitepoint-editors/discord-bot-sitepoint
 
 ## Requirements
 
