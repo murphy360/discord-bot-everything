@@ -3,8 +3,14 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
 const botCommands = require('./commands');
+const ytdl = require("ytdl-core");
 const TOKEN = process.env.TOKEN;
 bot.login(TOKEN);
+
+var servers = {};
+var version = '0.1';
+
+const PREFIX = '!';
 
 Object.keys(botCommands).map(key => {
   bot.commands.set(botCommands[key].name, botCommands[key]);
@@ -15,8 +21,8 @@ bot.on('ready', () => {
 });
 
 bot.on('message', msg => {
-  const args = msg.content.split(/ +/);
-  const command = args.shift().toLowerCase();
+  const args = msg.content.split(" ");
+  const command = args[0].toLowerCase();
   console.info(`Called command: ${command}`);
 
   if (!bot.commands.has(command)) return;
