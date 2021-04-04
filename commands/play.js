@@ -24,26 +24,30 @@ module.exports = {
     //make sure theres data to work with 0 bot name 1 command 2 search phrase	  
     if(!args[2]) return message.channel.send('What would you like to play? I need a second argument.');
 
-
+    //join voice channel
     const connection = await voiceChannel.join();
 
+   //Function to search asynconously ytSearch 	  
     const videoFinder = async (query) => {
 	const videoResult = await ytSearch(query);
 	return(videoResult.videos.length > 1) ? videoResult.videos[0] : null;
     }
 
+    //get first video from list TODO clean up the argument added here	  
     const video = await videoFinder(args.join(' '));
 
+    //if you get a return play it in the voiceChannel and leave
     if(video){
 	const stream = ytdl(video.url, {filter: 'audioonly'});
 	connection.play(stream, {seek:0, volume: 1})
 	    .on('finish', () =>{
 		voiceChannel.leave();
-		message.channel.send('Peace Out!');
+		message.channel.send('Peace Out! :microphone:');
 	    });
   	await message.reply(`:thumbsup: Now Playing ***${video.title}***`)
 
     }else{
+	voiceChannel.leave();    
 	message.channel.send('No Video Found');
 
     }
