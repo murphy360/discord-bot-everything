@@ -26,14 +26,15 @@ module.exports = {
 		sentMsg.react(REACT[i]);
 	     }
              const filter = (reaction, user) => {
-		     console.info("filter called"); 
-		     return true;
+		     console.info(reaction.emoji.id);
+		     console.info(reaction.emoji.id === '\u0031\u20E3');
+		     return reaction.emoji.name === '1' && !user.bot;
 	    };
 	     sentMsg.awaitReactions(filter, { time: 30000, errors: ['time'] })
 		    .then(collected => {
 			console.info("collected");
 			const reaction = collected.first();
-			console.info(reaction.emojo);
+			console.info(reaction.emoji);
 		    })
 		    .catch(collected => {
 			console.log("times up");
