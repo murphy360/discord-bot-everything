@@ -6,14 +6,17 @@ module.exports = {
   description: 'Trivia! based on Open Trivia DB',
   async execute(msg, args) {
     var numRounds = args[2];
+    var winners = new Map();
 
     const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
     const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
     var triviaObject = JSON.parse(file);
     
     function executeRound(triviaObj, roundNumber) {
-
-	console.info(triviaObject.results[roundNumber].correct_answer);
+	var winnerFlag = false;
+	var winner = '';
+	var correctAnswer = triviaObject.results[roundNumber].correct_answer;
+	console.info(correctAnswer);
     	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
     	triviaObject.results[roundNumber].incorrect_answers.sort();  
 
@@ -36,19 +39,45 @@ module.exports = {
              const filter = (reaction, user) => {
 		     return reaction.emoji.name === correct_react && !user.bot;
 	    };
-	     const collector = sentMsg.createReactionCollector(filter, { time: 15000 });
+	     const collector = sentMsg.createReactionCollector(filter, { time: 60000 });
 	     
 	     collector.on('collect', (reaction, user) => {
-                msg.channel.send(user.username + 'Got the right answer!!!');
+                  
+		  if(winners.has(user.username) && !winnerFlag){
+			winners.set(user.username, winners.get(user.username)+1);
+			winnerFlag = true;
+			winner = user.username;  
+		  }else if (!winnerFlag){
+			winners.set(user.username, 1);
+			winnerFlag = true;
+			winner = user.username;
+		  }
+		  
 	     });
 
 	     collector.on('end', collected => {
 		numRounds--;
 		if(numRounds >= 0) {
+			msg.channel.send("----------------");
+			msg.channel.send("----------------");
+			if(winner != ''){
+				msg.channel.send('Winner: ' + winner + '- Score: ' + winners.get(winner));
+			}else{
+
+				msg.channel.send('That was a hard one! The correct answer was: ' + correctAnswer);
+			}
 			msg.channel.send("\n\n\nNext Round");
 			executeRound(triviaObject, numRounds);
 		}else{
+			msg.channel.send("----------------");
+			msg.channel.send("----------------");
+			msg.channel.send("----------------");
 			msg.channel.send("Game Over");
+			msg.channel.send("----------------");
+			winners.forEach( (value, key) => {
+				msg.channel.send(key+': '+ value);  
+
+			});
 		}
 	     });
 	    });
