@@ -17,6 +17,15 @@ module.exports = {
     console.info(triviaObject);
     triviaObject.results[0].incorrect_answers.push(triviaObject.results[0].correct_answer);
     triviaObject.results[0].incorrect_answers.sort();  
+
+    var correct_react = ""
+
+    for (let i=0;i<triviaObject.results[0].incorrect_answers.length;i++) {
+      if (triviaObject.results[0].incorrect_answers[i] == triviaObject.results[0].correct_answer) {
+        correct_react = REACT[i];
+      }
+    }
+
     msg.channel.send(
 	    'Category: ' + triviaObject.results[0].category + '\n' + 
 	    'Difficulty: ' + triviaObject.results[0].difficulty + '\n' + 
@@ -26,8 +35,8 @@ module.exports = {
 		sentMsg.react(REACT[i]);
 	     }
              const filter = (reaction, user) => {
-		     console.info(reaction.emoji.id);
-		     console.info(reaction.emoji.id === '\u0031\u20E3');
+		     console.info(reaction.emoji.name);
+		     console.info(reaction.emoji.name === correct_react);
 		     return reaction.emoji.name === '1' && !user.bot;
 	    };
 	     sentMsg.awaitReactions(filter, { time: 30000, errors: ['time'] })
