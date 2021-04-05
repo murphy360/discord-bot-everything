@@ -58,9 +58,9 @@ module.exports = {
 	     collector.on('end', collected => {
 		numRounds--;
 		if(winner != ''){
-		        msg.channel.send('```Winner: ' + winner + '- Score: ' + winners.get(winner)+'**```');
+		        msg.channel.send('```Winner: ' + winner + ' - Score: ' + winners.get(winner)+'\nThe correct answer was: '+correctAnswer+'```');
 	        }else{
-                        msg.channel.send('```That was a hard one! The correct answer was: ' + correctAnswer+'```');
+                        msg.channel.send('```That was a hard one!\nThe correct answer was: ' + correctAnswer+'```');
                 }
 
 		if(numRounds >= 0) {
