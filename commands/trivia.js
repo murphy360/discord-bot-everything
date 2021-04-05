@@ -29,9 +29,9 @@ module.exports = {
     	}
 
     	msg.channel.send(
-	    'Category: ' + triviaObject.results[roundNumber].category + '\n' + 
+	    '```Category: ' + triviaObject.results[roundNumber].category + '\n' + 
 	    'Difficulty: ' + triviaObject.results[roundNumber].difficulty + '\n' + 
-	    'Question: ' + triviaObject.results[roundNumber].question).then(sentMsg => {
+	    'Question: ' + triviaObject.results[roundNumber].question+'```').then(sentMsg => {
 
 	     for (let i=0;i < triviaObject.results[roundNumber].incorrect_answers.length;i++) {
 		sentMsg.react(REACT[i]);
@@ -58,13 +58,13 @@ module.exports = {
 	     collector.on('end', collected => {
 		numRounds--;
 		if(numRounds >= 0) {
-			msg.channel.send("----------------");
-			msg.channel.send("----------------");
+//			msg.channel.send("----------------");
+//			msg.channel.send("----------------");
 			if(winner != ''){
-				msg.channel.send('Winner: ' + winner + '- Score: ' + winners.get(winner));
+				msg.channel.send('```Winner: ' + winner + '- Score: ' + winners.get(winner)+'**```');
 			}else{
 
-				msg.channel.send('That was a hard one! The correct answer was: ' + correctAnswer);
+				msg.channel.send('```That was a hard one! The correct answer was: ' + correctAnswer+'```');
 			}
 			msg.channel.send("\n\n\nNext Round");
 			executeRound(triviaObject, numRounds);
@@ -86,7 +86,7 @@ module.exports = {
       		let j=i+1;
       		msg.channel.send(j + '. ' + triviaObject.results[numRounds].incorrect_answers[i]);
     }
-	
+    
     }
 
   numRounds--;
