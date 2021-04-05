@@ -14,7 +14,6 @@ module.exports = {
     const file = await fetch('https://opentdb.com/api.php?amount='+amount).then(response => response.text());
     const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
     var triviaObject = JSON.parse(file);
-    console.info(triviaObject);
     triviaObject.results[0].incorrect_answers.push(triviaObject.results[0].correct_answer);
     triviaObject.results[0].incorrect_answers.sort();  
     msg.channel.send(
@@ -26,18 +25,19 @@ module.exports = {
 		sentMsg.react(REACT[i]);
 	     }
              const filter = (reaction, user) => {
-		     console.info(reaction.emoji.id);
-		     console.info(reaction.emoji.id === '\u0031\u20E3');
-		     return reaction.emoji.name === '1' && !user.bot;
+		     //console.info(reaction.emoji.id);
+		     console.info(reaction.emoji.name === '\u0031\u20E3' && !user.bot);
+		     return reaction.emoji.name === '\u0031\u20E3' && !user.bot;
 	    };
 	     sentMsg.awaitReactions(filter, { time: 30000, errors: ['time'] })
 		    .then(collected => {
 			console.info("collected");
-			const reaction = collected.first();
-			console.info(reaction.emoji);
+			//const reaction = collected.first();
+			//console.info(reaction.emoji);
 		    })
 		    .catch(collected => {
 			console.log("times up");
+			msg.channel.send("Times Up!");
 		    });
 	    });
 

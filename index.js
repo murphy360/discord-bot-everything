@@ -29,11 +29,8 @@ bot.on('ready', () => {
 bot.on('message', msg => {
   const args = msg.content.split(" ");
   var botName = args[0].toLowerCase().replace(/\D/g,'');
-  console.info('botname: ' + botName + ' ' + bot.user.id);
 
   if(bot.user.id != botName){
-  
-      console.info('Not My Name');
       return;
   }
   const command = args[1].toLowerCase();
