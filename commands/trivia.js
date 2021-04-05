@@ -12,7 +12,7 @@ module.exports = {
 
     //const { file } = await fetch('https://opentdb.com/api.php?amount='+amount).then(response => response.json());
     const file = await fetch('https://opentdb.com/api.php?amount='+amount).then(response => response.text());
-    //const REACT=[‘u0031\u20E3’,‘u0032\u20E3’,‘u0033\u20E3’,‘u0034\u20E3’];
+    const REACT=['u0031\u20E3', 'u0032\u20E3','u0033\u20E3','u0034\u20E3'];
     var triviaObject = JSON.parse(file);
     console.info(triviaObject);
     triviaObject.results[0].incorrect_answers.push(triviaObject.results[0].correct_answer);
@@ -21,11 +21,15 @@ module.exports = {
 	    'Category: ' + triviaObject.results[0].category + '\n' + 
 	    'Difficulty: ' + triviaObject.results[0].difficulty + '\n' + 
 	    'Question: ' + triviaObject.results[0].question).then(sentMsg => {
-		
-		sentMsg.react('\u0031\u20E3');
-		sentMsg.react('\u0032\u20E3');
-		sentMsg.react('\u0033\u20E3');
-		sentMsg.react('\u0034\u20E3');
+
+	     for (let i=0;i<triviaObject.results[0].incorrect_answers.length;i++) {
+		sentMsg.react(REACT[i]);
+	     }
+	    
+//		sentMsg.react('\u0031\u20E3');
+//		sentMsg.react('\u0032\u20E3');
+//		sentMsg.react('\u0033\u20E3');
+//		sentMsg.react('\u0034\u20E3');
 
 	    }).then(async function(asyncMessage) {
 		await asyncMessage.react('\u0031\u20E3');
