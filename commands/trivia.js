@@ -19,7 +19,8 @@ module.exports = {
 	console.info(correctAnswer);
     	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
     	triviaObject.results[roundNumber].incorrect_answers.sort();  
-
+	var points = triviaObject.results[roundNumber].incorrect_answers.length * 5;
+	console.info("Points = " + points);
     	var correct_react = ""
 
     	for (let i=0;i<triviaObject.results[roundNumber].incorrect_answers.length;i++) {
@@ -43,14 +44,20 @@ module.exports = {
 	     
 	     collector.on('collect', (reaction, user) => {
                   
-		  if(winners.has(user.username) && !winnerFlag){
-			winners.set(user.username, winners.get(user.username)+1);
-			winnerFlag = true;
+		  if(!winners.has(user.username)){
+			winners.set(user.username, 0);
+                        msg.channel.send(user.username + ' has entered the game');
+		  }
+		  if(!winnerFlag){
+			winners.set(user.username, winners.get(user.username)+points);
+			points = points - 5;
+			winnerFlag = true;  
 			winner = user.username;  
-		  }else if (!winnerFlag){
-			winners.set(user.username, 1);
-			winnerFlag = true;
-			winner = user.username;
+		  }else if (points > 5){
+			winners.set(user.username, winners.get(user.username)+points);
+			points = points - 5;
+		  }else if (points > 5) {
+			winners.set(user.username, winners.get(user.username)+points);
 		  }
 		  
 	     });
@@ -58,7 +65,7 @@ module.exports = {
 	     collector.on('end', collected => {
 		numRounds--;
 		if(winner != ''){
-		        msg.channel.send('```Winner: ' + winner + '- Score: ' + winners.get(winner)+'**```');
+		        msg.channel.send('```Winner: ' + winner + '- Score: ' + winners.get(winner)+'```');
 	        }else{
                         msg.channel.send('```That was a hard one! The correct answer was: ' + correctAnswer+'```');
                 }
