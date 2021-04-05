@@ -35,18 +35,17 @@ module.exports = {
 	     }
              const filter = (reaction, user) => {
 		     console.info(reaction.emoji.name === '\u0031\u20E3' && !user.bot);
-		     return reaction.emoji.name === '\u0031\u20E3' && !user.bot;
+		     return reaction.emoji.name === correct_react && !user.bot;
 	    };
-	     sentMsg.awaitReactions(filter, { time: 30000, errors: ['time'] })
-		    .then(collected => {
-			console.info("collected");
-			//const reaction = collected.first();
-			//console.info(reaction.emoji);
-		    })
-		    .catch(collected => {
-			console.log("times up");
-			msg.channel.send("Times Up!");
-		    });
+	     const collector = sentMsg.createReactionCollector(filter, { time: 15000 });
+	     
+	     collector.on('collect', (reaction, user) => {
+		console.info( "Collected" );
+	     });
+
+	     collector.on('end', collected => {
+		console.info( 'Collected ' + collected.size + ' items' );
+	     });
 	    });
 
     for (let i=0;i<triviaObject.results[0].incorrect_answers.length;i++) {
