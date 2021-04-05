@@ -1,4 +1,6 @@
-const fetch = require('node-fetch');
+const fetch = require('node-fetch')
+const Discord = require('discord.js')
+const { ReactionCollector } = require('discord.js')
 module.exports = {
   name: 'trivia',
   description: 'Trivia! based on Open Trivia DB',
@@ -17,37 +19,36 @@ module.exports = {
     let asyncMessage = await msg.channel.send(
 	    'Category: ' + triviaObject.results[0].category + '\n' + 
 	    'Difficulty: ' + triviaObject.results[0].difficulty + '\n' + 
-	    'Question: ' + triviaObject.results[0].question);
-    asyncMessage.react(":one:");
+	    'Question: ' + triviaObject.results[0].question.replace('&quot;','"').then(sentMsg => {
+		
+		sentMsg.react('\u0031\u20E3');
+		sentMsg.react('\u0032\u20E3');
+		sentMsg.react('\u0033\u20E3');
+		sentMsg.react('\u0034\u20E3');
+
+	    });
+   
     msg.channel.send('1. ' + triviaObject.results[0].incorrect_answers[0]);
     msg.channel.send('2. ' + triviaObject.results[0].incorrect_answers[1]);
     msg.channel.send('3. ' + triviaObject.results[0].incorrect_answers[2]);  
     msg.channel.send('4. ' + triviaObject.results[0].incorrect_answers[3]);
-    asyncMessage.react(':one:'); 
-    await asyncMessage.react(':one:');
-    await asyncMessage.react(':two:');
-    await asyncMessage.react(':three:');
-    await asyncMessage.react(':four:');
+    
 
-    const filter_trivia = (reaction, user) => {
-	return reaction.emoji.name === ':one:' || reaction.emoji.name === ':two:' || reaction.emoji.name === ':three:' || reaction.emoji.name === ':four:';
+    const filter = (reaction, user) => {
+	console.info("in the filter");
+	return 1;
+	    //return reaction.emoji.name === '\u0031\u20E3' || reaction.emoji.name === '\u0032\u20E3' || reaction.emoji.name === '\u0033\u20E3' || reaction.emoji.name === '\u0034\u20E3';
 
-    }
+    };
 
-    const collector_trivia = msg.createReactionCollector(filter_trivia, {
-	time: 30000,
-	max: 1
-
+    const collector = asyncMessage.createReactionCollector(filter, { time: 10000, max: 1 });
+	
+    collector.on('collect', async (reaction, user) => {
+	console.info('collected something');
     });
 
-    collector_trivia.on('collect', async (reaction, user) => {
-	if (reaction.emoji.name === ':one'){
-		consone.info('one');
-
-
-
-	}
-
+    collector.on('end', collected => {
+	console.info('collected end');
     });
   },
 };
