@@ -57,16 +57,15 @@ module.exports = {
 
 	     collector.on('end', collected => {
 		numRounds--;
-		if(numRounds >= 0) {
-//			msg.channel.send("----------------");
-//			msg.channel.send("----------------");
-			if(winner != ''){
-				msg.channel.send('```Winner: ' + winner + '- Score: ' + winners.get(winner)+'**```');
-			}else{
+		if(winner != ''){
+		        msg.channel.send('```Winner: ' + winner + '- Score: ' + winners.get(winner)+'**```');
+	        }else{
+                        msg.channel.send('```That was a hard one! The correct answer was: ' + correctAnswer+'```');
+                }
 
-				msg.channel.send('```That was a hard one! The correct answer was: ' + correctAnswer+'```');
-			}
-			msg.channel.send("\n\n\nNext Round");
+		if(numRounds >= 0) {
+
+			msg.channel.send("----------------\n\n\nNext Round");
 			executeRound(triviaObject, numRounds);
 		}else{
 			msg.channel.send("----------------");
