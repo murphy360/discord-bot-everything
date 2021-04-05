@@ -65,9 +65,10 @@ module.exports = {
 	     collector.on('end', collected => {
 		numRounds--;
 		if(winner != ''){
-		        msg.channel.send('```Winner: ' + winner + '- Score: ' + winners.get(winner)+'```');
+		        msg.channel.send('```Winner: ' + winner + ' - Score: ' + winners.get(winner)+'\nThe correct answer was: '+correctAnswer+'```');
+
 	        }else{
-                        msg.channel.send('```That was a hard one! The correct answer was: ' + correctAnswer+'```');
+                        msg.channel.send('```That was a hard one!\nThe correct answer was: ' + correctAnswer+'```');
                 }
 
 		if(numRounds >= 0) {
@@ -75,13 +76,13 @@ module.exports = {
 			msg.channel.send("----------------\n\n\nNext Round");
 			executeRound(triviaObject, numRounds);
 		}else{
-			msg.channel.send("----------------");
-			msg.channel.send("----------------");
-			msg.channel.send("----------------");
+//			msg.channel.send("----------------");
+//			msg.channel.send("----------------");
+//			msg.channel.send("----------------");
 			msg.channel.send("Game Over");
-			msg.channel.send("----------------");
+//			msg.channel.send("----------------");
 			winners.forEach( (value, key) => {
-				msg.channel.send(key+': '+ value);  
+				msg.channel.send('```'+key+': '+ value+'```');  
 
 			});
 		}
