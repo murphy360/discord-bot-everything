@@ -68,13 +68,13 @@ module.exports = {
 			msg.channel.send("----------------\n\n\nNext Round");
 			executeRound(triviaObject, numRounds);
 		}else{
-			msg.channel.send("----------------");
-			msg.channel.send("----------------");
-			msg.channel.send("----------------");
+//			msg.channel.send("----------------");
+//			msg.channel.send("----------------");
+//			msg.channel.send("----------------");
 			msg.channel.send("Game Over");
-			msg.channel.send("----------------");
+//			msg.channel.send("----------------");
 			winners.forEach( (value, key) => {
-				msg.channel.send(key+': '+ value);  
+				msg.channel.send('```'+key+': '+ value+'```');  
 
 			});
 		}
