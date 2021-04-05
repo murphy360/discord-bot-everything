@@ -41,6 +41,7 @@ module.exports = {
 	     
 	     collector.on('collect', (reaction, user) => {
 		console.info( "Collected" );
+                msg.channel.send(user.username + 'Got the right answer!!!');
 	     });
 
 	     collector.on('end', collected => {
