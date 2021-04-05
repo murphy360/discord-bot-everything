@@ -11,8 +11,11 @@ module.exports = {
     const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
     const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
     var triviaObject = JSON.parse(file);
+
+    var curRound=0;
     
     function executeRound(triviaObj, roundNumber) {
+	curRound++;
 	var winnerFlag = false;
 	var winner = '';
 	var correctAnswer = triviaObject.results[roundNumber].correct_answer;
@@ -28,6 +31,8 @@ module.exports = {
         		correct_react = REACT[i];
       		}
     	}
+
+        msg.channel.send("\n\nRound #"+curRound)
 
     	msg.channel.send(
 	    '```Category: ' + triviaObject.results[roundNumber].category + '\n' + 
@@ -73,7 +78,7 @@ module.exports = {
 
 		if(numRounds >= 0) {
 
-			msg.channel.send("----------------\n\n\nNext Round");
+//			msg.channel.send("----------------\n\n\nNext Round");
 			executeRound(triviaObject, numRounds);
 		}else{
 //			msg.channel.send("----------------");
