@@ -16,16 +16,24 @@ module.exports = {
     console.info(triviaObject);
     triviaObject.results[0].incorrect_answers.push(triviaObject.results[0].correct_answer);
     triviaObject.results[0].incorrect_answers.sort();  
-    let asyncMessage = await msg.channel.send(
+    var asyncMessage = msg.channel.send(
 	    'Category: ' + triviaObject.results[0].category + '\n' + 
 	    'Difficulty: ' + triviaObject.results[0].difficulty + '\n' + 
-	    'Question: ' + triviaObject.results[0].question.replace('&quot;','"').then(sentMsg => {
+	    'Question: ' + triviaObject.results[0].question).then(sentMsg => {
 		
 		sentMsg.react('\u0031\u20E3');
 		sentMsg.react('\u0032\u20E3');
 		sentMsg.react('\u0033\u20E3');
 		sentMsg.react('\u0034\u20E3');
 
+	    }).then(async function(asyncMessage) {
+		await asyncMessage.react('\u0031\u20E3');
+		const filter = (reaction, user) => {
+			return reaction.emoji.name === '\u0031\u20E3';
+		};
+		const collector = asyncMessage.createReactionCollector(filter, {
+			time:15000
+		});
 	    });
    
     msg.channel.send('1. ' + triviaObject.results[0].incorrect_answers[0]);
@@ -34,16 +42,7 @@ module.exports = {
     msg.channel.send('4. ' + triviaObject.results[0].incorrect_answers[3]);
     
 
-    const filter = (reaction, user) => {
-	console.info("in the filter");
-	return 1;
-	    //return reaction.emoji.name === '\u0031\u20E3' || reaction.emoji.name === '\u0032\u20E3' || reaction.emoji.name === '\u0033\u20E3' || reaction.emoji.name === '\u0034\u20E3';
-
-    };
-
-    const collector = asyncMessage.createReactionCollector(filter, { time: 10000, max: 1 });
-	
-    collector.on('collect', async (reaction, user) => {
+    collector.on('collect', (reaction, user) => {
 	console.info('collected something');
     });
 
