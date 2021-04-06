@@ -65,6 +65,25 @@ module.exports = {
 	return message;
     }
 
+    function getQuestionEmbed(triviaOjb, roundNumber, qNum) {
+	choices=""
+	for (let i=0; i < triviaObject.results[numRounds].incorrect_answers.length ; i++) {
+                j=i+1;
+                choices += "\n" + j + ". " + triviaObject.results[numRounds].incorrect_answers[i];
+        }
+
+	const q = new Discord.MessageEmbed()
+	  .setColor('#0099ff')
+	  .setTitle('Question #'+qNum)
+	  .setAuthor('Trivia Game')
+	  .addFields({name: 'Choices', value: choices},
+		     {name: 'Category', value: triviaObject.results[roundNumber].category, inline: true},
+		     {name: 'Difficulty', value: triviaObject.results[roundNumber].difficulty, inline: true}
+	  )
+	  .setDescription(triviaObject.results[roundNumber].question)
+
+	return q;
+    }
 
     function executeRound(triviaObj, roundNumber) {
 	curRound++;
@@ -96,18 +115,18 @@ module.exports = {
           msg.channel.send(' \n\n**Round #'+curRound+' of '+args[2]+'**');
 	}
 
-    	msg.channel.send(getQuestionMessage(triviaObj, roundNumber)).then(sentMsg => {
+    	msg.channel.send(getQuestionEmbed(triviaObj, roundNumber, curRound)).then(sentMsg => {
 
 	     for (let i=0;i < triviaObject.results[roundNumber].incorrect_answers.length;i++) {
 		sentMsg.react(REACT[i]);
 	     }
 
-
-	timer(60);
+	     timer(60);
 
              const filter = (reaction, user) => {
 		     return reaction.emoji.name === correct_react && !user.bot;
-	    };
+	     };
+
 	     const collector = sentMsg.createReactionCollector(filter, { time: 60000 });
 	     
 	     collector.on('collect', (reaction, user) => {
@@ -140,19 +159,16 @@ module.exports = {
                 }
 
 		if(numRounds >= 0) {
-
-//			msg.channel.send("----------------\n\n\nNext Round");
 			executeRound(triviaObject, numRounds);
 		}else{
-//			msg.channel.send("----------------");
-//			msg.channel.send("----------------");
-//			msg.channel.send("----------------");
 			msg.channel.send("Game Over");
-//			msg.channel.send("----------------");
-			winners.forEach( (value, key) => {
-				msg.channel.send('```'+key+': '+ value+'```');  
 
+			scoreboard="";
+			winners.forEach( (value, key) => {
+				scoreboard+=key+': '+ value+'\n';  
 			});
+
+			msg.channel.send("```"+scoreboard+"```");
 		}
 	     });
 	    });
