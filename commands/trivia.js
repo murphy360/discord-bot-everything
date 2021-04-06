@@ -1,3 +1,4 @@
+
 const fetch = require('node-fetch')
 const Discord = require('discord.js')
 const { ReactionCollector } = require('discord.js')
@@ -24,27 +25,29 @@ module.exports = {
     }
 
 
-    async function timer() {
+    function timer(time) {
 
-        var v=60;
-        const pBar = await msg.channel.send(getBar(v,60,30));
+	let pBar = function(theBar) {
+		time-=5;
+                if (time == 0) {
+			theBar.edit("```Time is Up!```");
+			clearInterval(p)
+			return;
+		} else {
+			theBar.edit(getBar(time,60,30));
+		}
+        }
 
-        var b  = setInterval(function() {
-                if (v == 0) { pBar.delete(); clearInterval(b); return; }
-                v--;
-                pBar.edit(getBar(v,60,30));
-                console.info('time: '+v);
-        },1000);
-
+	msg.channel.send(getBar(time,60,30)).then(msg => { p = setInterval(pBar,5000,msg) });
     }
-
+ 
     function getBar(value, maxValue, size) {
-	const percentage = value / maxValue; // Calculate the percentage of the bar
-	const progress = Math.round((size * percentage)); // Calculate the number of square caracters to fill the progress side.
-	const emptyProgress = size - progress; // Calculate the number of dash caracters to fill the empty progress side.
-	const progressText = '▇'.repeat(progress); // Repeat is creating a string with progress * caracters in it
-	const emptyProgressText = ' '.repeat(emptyProgress); // Repeat is creating a string with empty progress * caracters in it
-	const bar = '```[' + progressText + emptyProgressText + '] :' + value + '```'; // Creating the bar
+	const percentage = value / maxValue;
+	const progress = Math.round((size * percentage));
+	const emptyProgress = size - progress;
+	const progressText = '▇'.repeat(progress);
+	const emptyProgressText = ' '.repeat(emptyProgress);
+	const bar = '```[' + progressText + emptyProgressText + '] :' + value + '```';
 	return bar;
     }
     
@@ -69,7 +72,12 @@ module.exports = {
 	var correctAnswer = triviaObject.results[roundNumber].correct_answer;
 	console.info(correctAnswer);
     	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
-    	if (triviaObject.results[roundNumber].incorrect_answers.length > 2) {triviaObject.results[roundNumber].incorrect_answers.sort()};  
+
+	triviaObject.results[roundNumber].incorrect_answers.sort();
+    	if (triviaObject.results[roundNumber].incorrect_answers.length == 2) {
+		triviaObject.results[roundNumber].incorrect_answers.reverse()
+	}
+
 	var points = triviaObject.results[roundNumber].incorrect_answers.length * 5;
 	console.info("Points = " + points);
     	var correct_react = ""
@@ -94,7 +102,7 @@ module.exports = {
 	     }
 
 
-	timer();
+	timer(60);
 
              const filter = (reaction, user) => {
 		     return reaction.emoji.name === correct_react && !user.bot;
