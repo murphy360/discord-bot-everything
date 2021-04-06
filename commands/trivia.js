@@ -82,9 +82,9 @@ module.exports = {
 
 	if (args[2] == 1) {
         } else if (curRound == args[2]) {
-	  msg.channel.send('\n\n**Final Round**');
+	  msg.channel.send(' \n\n**Final Round**');
 	} else {
-          msg.channel.send('\n\n**Round #'+curRound+' of '+args[2]+'**');
+          msg.channel.send(' \n\n**Round #'+curRound+' of '+args[2]+'**');
 	}
 
     	msg.channel.send(getQuestionMessage(triviaObj, roundNumber)).then(sentMsg => {
