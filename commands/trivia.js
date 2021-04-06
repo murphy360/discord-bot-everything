@@ -56,8 +56,7 @@ module.exports = {
 		      'Question: ' + triviaObject.results[roundNumber].question+'```';
 
 	for (let i=0; i < triviaObject.results[numRounds].incorrect_answers.length ; i++) {
-                let j=i+1;
-                message += j + ". " + triviaObject.results[numRounds].incorrect_answers[i] + '\n';
+                message += REACT[i] + " - " + triviaObject.results[numRounds].incorrect_answers[i] + '\n';
 	}	
 	return message;
     }
