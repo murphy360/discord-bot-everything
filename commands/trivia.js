@@ -25,7 +25,7 @@ module.exports = {
         const pBar = await msg.channel.send(getBar(v,60,30));
 
         var b  = setInterval(function() {
-                if (v == 0) { pBar.delete(); clearInterval(b); }
+                if (v == 0) { pBar.delete(); clearInterval(b); return; }
                 v--;
                 pBar.edit(getBar(v,60,30));
                 console.info('time: '+v);
