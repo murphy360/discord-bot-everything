@@ -47,7 +47,21 @@ module.exports = {
 	const bar = '```[' + progressText + emptyProgressText + '] :' + value + '```'; // Creating the bar
 	return bar;
     }
-//    rules();
+    
+    /* Prints the string reuquired to sent a trivia question   
+     */
+    function getQuestionMessage(triviaObj, roundNumber) {
+	var message = '```Category: ' + triviaObject.results[roundNumber].category + '\n' +
+		      'Difficulty: ' + triviaObject.results[roundNumber].difficulty + '\n' +
+		      'Question: ' + triviaObject.results[roundNumber].question+'```';
+
+	for (let i=0; i < triviaObject.results[numRounds].incorrect_answers.length ; i++) {
+                let j=i+1;
+                message += j + ". " + triviaObject.results[numRounds].incorrect_answers[i] + '\n';
+	}	
+	return message;
+    }
+
 
     function executeRound(triviaObj, roundNumber) {
 	curRound++;
@@ -74,10 +88,7 @@ module.exports = {
           msg.channel.send('\n\n**Round #'+curRound+' of '+args[2]+'**');
 	}
 
-    	msg.channel.send(
-	    '```Category: ' + triviaObject.results[roundNumber].category + '\n' + 
-	    'Difficulty: ' + triviaObject.results[roundNumber].difficulty + '\n' + 
-	    'Question: ' + triviaObject.results[roundNumber].question+'```').then(sentMsg => {
+    	msg.channel.send(getQuestionMessage(triviaObj, roundNumber)).then(sentMsg => {
 
 	     for (let i=0;i < triviaObject.results[roundNumber].incorrect_answers.length;i++) {
 		sentMsg.react(REACT[i]);
@@ -138,13 +149,6 @@ module.exports = {
 	     });
 	    });
 
-    for (let i=0; i < triviaObject.results[numRounds].incorrect_answers.length ; i++) {
-      		let j=i+1;
-      		msg.channel.send(j + '. ' + triviaObject.results[numRounds].incorrect_answers[i]);
-    }
-
-    
-    
     }
 
   numRounds--;
