@@ -70,7 +70,7 @@ module.exports = {
 	var correctAnswer = triviaObject.results[roundNumber].correct_answer;
 	console.info(correctAnswer);
     	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
-    	triviaObject.results[roundNumber].incorrect_answers.sort();  
+    	if (triviaObject.results[roundNumber].incorrect_answers.length > 2) {triviaObject.results[roundNumber].incorrect_answers.sort()};  
 	var points = triviaObject.results[roundNumber].incorrect_answers.length * 5;
 	console.info("Points = " + points);
     	var correct_react = ""
