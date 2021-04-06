@@ -53,10 +53,10 @@ module.exports = {
     function getQuestionMessage(triviaObj, roundNumber) {
 	var message = '```Category: ' + triviaObject.results[roundNumber].category + '\n' +
 		      'Difficulty: ' + triviaObject.results[roundNumber].difficulty + '\n' +
-		      'Question: ' + triviaObject.results[roundNumber].question+'\n```';
+		      'Question: ' + triviaObject.results[roundNumber].question+'```';
 
 	for (let i=0; i < triviaObject.results[numRounds].incorrect_answers.length ; i++) {
-                message += REACT[i] + " - " + triviaObject.results[numRounds].incorrect_answers[i] + '\n';
+                message += "\n\" + REACT[i] + " - " + triviaObject.results[numRounds].incorrect_answers[i];
 	}	
 	return message;
     }
