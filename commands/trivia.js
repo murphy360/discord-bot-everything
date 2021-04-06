@@ -5,6 +5,11 @@ module.exports = {
   name: 'trivia',
   description: 'Trivia! based on Open Trivia DB',
   async execute(msg, args) {
+    if(args[2].toLowerCase() === 'rules'){
+	msg.channel.send('RULES\n\n\nFirst correct answer gets the most points, subsequent answers will get ddecreasing points.  \n\n\nClick on numbered emojis to answer.');
+	return;    
+    }
+
     var numRounds = args[2];
     var winners = new Map();
 
