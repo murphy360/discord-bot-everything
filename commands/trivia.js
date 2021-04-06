@@ -14,6 +14,36 @@ module.exports = {
 
     var curRound=0;
     
+    function rules() {
+      msg.channel.send('+----------------------------------------------------+');
+    }
+
+
+    async function timer() {
+
+        var v=60;
+        const pBar = await msg.channel.send(getBar(v,60,30));
+
+        var b  = setInterval(function() {
+                if (v == 0) { pBar.delete(); clearInterval(b); }
+                v--;
+                pBar.edit(getBar(v,60,30));
+                console.info('time: '+v);
+        },1000);
+
+    }
+
+    function getBar(value, maxValue, size) {
+	const percentage = value / maxValue; // Calculate the percentage of the bar
+	const progress = Math.round((size * percentage)); // Calculate the number of square caracters to fill the progress side.
+	const emptyProgress = size - progress; // Calculate the number of dash caracters to fill the empty progress side.
+	const progressText = '▇'.repeat(progress); // Repeat is creating a string with progress * caracters in it
+	const emptyProgressText = ' '.repeat(emptyProgress); // Repeat is creating a string with empty progress * caracters in it
+	const bar = '```[' + progressText + emptyProgressText + '] :' + value + '```'; // Creating the bar
+	return bar;
+    }
+//    rules();
+
     function executeRound(triviaObj, roundNumber) {
 	curRound++;
 	var winnerFlag = false;
@@ -32,7 +62,12 @@ module.exports = {
       		}
     	}
 
-        msg.channel.send("\n\nRound #"+curRound)
+	if (args[2] == 1) {
+        } else if (curRound == args[2]) {
+	  msg.channel.send('\n\n**Final Round**');
+	} else {
+          msg.channel.send('\n\n**Round #'+curRound+' of '+args[2]+'**');
+	}
 
     	msg.channel.send(
 	    '```Category: ' + triviaObject.results[roundNumber].category + '\n' + 
@@ -42,6 +77,10 @@ module.exports = {
 	     for (let i=0;i < triviaObject.results[roundNumber].incorrect_answers.length;i++) {
 		sentMsg.react(REACT[i]);
 	     }
+
+
+	timer();
+
              const filter = (reaction, user) => {
 		     return reaction.emoji.name === correct_react && !user.bot;
 	    };
@@ -98,6 +137,8 @@ module.exports = {
       		let j=i+1;
       		msg.channel.send(j + '. ' + triviaObject.results[numRounds].incorrect_answers[i]);
     }
+
+    
     
     }
 
