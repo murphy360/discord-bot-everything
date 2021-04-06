@@ -81,6 +81,7 @@ module.exports = {
 		     {name: 'Difficulty', value: triviaObject.results[roundNumber].difficulty, inline: true}
 	  )
 	  .setDescription(triviaObject.results[roundNumber].question)
+	  .setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png')
 
 	return q;
     }
@@ -109,10 +110,10 @@ module.exports = {
     	}
 
 	if (args[2] == 1) {
-        } else if (curRound == args[2]) {
+       	} else if (curRound == args[2]) {
 	  msg.channel.send(' \n\n**Final Round**');
 	} else {
-          msg.channel.send(' \n\n**Round #'+curRound+' of '+args[2]+'**');
+       	  msg.channel.send(' \n\n**Round #'+curRound+' of '+args[2]+'**');
 	}
 
     	msg.channel.send(getQuestionEmbed(triviaObj, roundNumber, curRound)).then(sentMsg => {
