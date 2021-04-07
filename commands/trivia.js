@@ -26,10 +26,10 @@ module.exports = {
     }
 
 
-    function timer(time) {
+    function timer(time,interval) {
 
 	let pBar = function(theBar) {
-		time-=5;
+		time-=interval;
                 if (time == 0) {
 			theBar.edit("```Time is Up!```");
 			clearInterval(p)
@@ -39,7 +39,9 @@ module.exports = {
 		}
         }
 
-	msg.channel.send(getBar(time,60,30)).then(msg => { p = setInterval(pBar,5000,msg) });
+	let intv=interval*1000;
+
+	msg.channel.send(getBar(time,60,30)).then(msg => { p = setInterval(pBar,intv,msg) });
     }
  
     function getBar(value, maxValue, size) {
@@ -48,7 +50,7 @@ module.exports = {
 	const emptyProgress = size - progress;
 	const progressText = '▇'.repeat(progress);
 	const emptyProgressText = ' '.repeat(emptyProgress);
-	const bar = '```[' + progressText + emptyProgressText + '] :' + value + '```';
+	const bar = '```[' + progressText + emptyProgressText + ']```';
 	return bar;
     }
     
@@ -132,7 +134,7 @@ module.exports = {
 		sentMsg.react(REACT[i]);
 	     }
 
-	     timer(60);
+	     timer(60,5);
 
              const filter = (reaction, user) => {
 		     return reaction.emoji.name === correct_react && !user.bot;
