@@ -172,7 +172,7 @@ module.exports = {
 		numRounds--;
 
 		const ending = new Discord.MessageEmbed()
-			.setAuthor("Round Results")
+			.setTitle("Round Results")
 			.setColor("#0099ff")
 		if(winner != ''){
 		        ending.addFields({name: 'Winner', value: winner, inline: true},  
