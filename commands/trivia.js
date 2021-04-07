@@ -65,6 +65,13 @@ module.exports = {
 	return message;
     }
 
+    function cleanText(dirtyText) {
+	var cleanText = dirtyText;
+	cleanText = cleanText.replace(/&quot;/g, '\\"');
+	return cleanText;
+	
+    }
+
     function getQuestionEmbed(triviaOjb, roundNumber, qNum) {
 	choices=""
 	for (let i=0; i < triviaObject.results[numRounds].incorrect_answers.length ; i++) {
@@ -80,7 +87,7 @@ module.exports = {
 		     {name: 'Category', value: triviaObject.results[roundNumber].category, inline: true},
 		     {name: 'Difficulty', value: triviaObject.results[roundNumber].difficulty, inline: true}
 	  )
-	  .setDescription(triviaObject.results[roundNumber].question)
+	  .setDescription(cleanText(triviaObject.results[roundNumber].question))
 	  .setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png')
 
 	return q;
