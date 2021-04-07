@@ -164,12 +164,21 @@ module.exports = {
 
 	     collector.on('end', collected => {
 		numRounds--;
-		if(winner != ''){
-		        msg.channel.send('```Winner: ' + winner + ' - Score: ' + winners.get(winner)+'\nThe correct answer was: '+correctAnswer+'```');
 
+		const ending = new Discord.MessageEmbed()
+			.setAuthor("Round Results")
+			.setColor("#0099ff")
+		if(winner != ''){
+		        ending.addFields({name: 'Winner', value: winner, inline: true},  
+				  {name: 'Score', value: winners.get(winner), inline: true},
+                                  {name: 'The Correct Answer was:', value: correctAnswer}
+			)
 	        }else{
-                        msg.channel.send('```That was a hard one!\nThe correct answer was: ' + correctAnswer+'```');
+			ending.setDescription("That was a hard one!")
+			ending.addFields({name: 'The Correct Answer was:', value: correctAnswer})
                 }
+
+		msg.channel.send(ending)
 
 		if(numRounds >= 0) {
 			executeRound(triviaObject, numRounds);
