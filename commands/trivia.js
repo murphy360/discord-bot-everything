@@ -92,13 +92,12 @@ module.exports = {
 
 	const q = new Discord.MessageEmbed()
 	  .setColor('#0099ff')
-	  .setTitle('Question #'+qNum)
-	  .setAuthor('Trivia Game')
+	  .setAuthor('Question #'+qNum)
 	  .addFields({name: 'Choices', value: choices},
 		     {name: 'Category', value: cleanText(triviaObject.results[roundNumber].category), inline: true},
 		     {name: 'Difficulty', value: cleanText(triviaObject.results[roundNumber].difficulty), inline: true}
 	  )
-	  .setDescription(cleanText(triviaObject.results[roundNumber].question))
+	  .setTitle(cleanText(triviaObject.results[roundNumber].question))
 	  .setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png')
 
 	return q;
