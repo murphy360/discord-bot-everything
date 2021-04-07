@@ -1,4 +1,5 @@
 
+const he = require('he')
 const fetch = require('node-fetch')
 const Discord = require('discord.js')
 const { ReactionCollector } = require('discord.js')
@@ -67,7 +68,8 @@ module.exports = {
 
     function cleanText(dirtyText) {
 	var cleanText = dirtyText;
-	cleanText = cleanText.replace(/&quot;/g, '\\"');
+	cleanText = he.decode(dirtyText);
+	 //cleanText = cleanText.replace(/&quot;/g, '\\"');
 	return cleanText;
 	
     }
