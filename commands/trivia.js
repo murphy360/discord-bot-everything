@@ -176,12 +176,15 @@ module.exports = {
 		}else{
 			msg.channel.send("Game Over");
 
-			scoreboard="";
+			scoreboard="```";
 			winners.forEach( (value, key) => {
 				scoreboard+=key+': '+ value+'\n';  
 			});
-
-			msg.channel.send("```"+scoreboard+"```");
+			if (scoreboard == "```") {
+				msg.channel.send(scoreboard+"No one answered correctly in this game```");
+			} else {
+				msg.channel.send(scoreboard+"```");
+			}
 		}
 	     });
 	    });
