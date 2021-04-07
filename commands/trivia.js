@@ -99,7 +99,7 @@ module.exports = {
 	  )
 	  .setTitle(cleanText(triviaObject.results[roundNumber].question))
 	  .setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png')
-
+	  .setFooter("Questions provided by https://opentdb.com","https://opentdb.com/images/logo.png")
 	return q;
     }
 
