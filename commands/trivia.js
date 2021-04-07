@@ -69,25 +69,26 @@ module.exports = {
     function cleanText(dirtyText) {
 	var cleanText = dirtyText;
 	cleanText = he.decode(dirtyText);
-	 //cleanText = cleanText.replace(/&quot;/g, '\\"');
+	//cleanText = cleanText.replace(/&deg;/g, ' degrees');
 	return cleanText;
 	
     }
 
     function getQuestionEmbed(triviaOjb, roundNumber, qNum) {
-	choices=""
-	for (let i=0; i < triviaObject.results[numRounds].incorrect_answers.length ; i++) {
-                j=i+1;
+	choices = ""
+	for (let i = 0; i < triviaObject.results[numRounds].incorrect_answers.length ; i++) {
+                j = i+1;
                 choices += "\n" + j + ". " + triviaObject.results[numRounds].incorrect_answers[i];
         }
+	choices = cleanText(choices);
 
 	const q = new Discord.MessageEmbed()
 	  .setColor('#0099ff')
 	  .setTitle('Question #'+qNum)
 	  .setAuthor('Trivia Game')
 	  .addFields({name: 'Choices', value: choices},
-		     {name: 'Category', value: triviaObject.results[roundNumber].category, inline: true},
-		     {name: 'Difficulty', value: triviaObject.results[roundNumber].difficulty, inline: true}
+		     {name: 'Category', value: cleanText(triviaObject.results[roundNumber].category), inline: true},
+		     {name: 'Difficulty', value: cleanText(triviaObject.results[roundNumber].difficulty), inline: true}
 	  )
 	  .setDescription(cleanText(triviaObject.results[roundNumber].question))
 	  .setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png')
