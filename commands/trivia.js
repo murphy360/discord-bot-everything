@@ -8,7 +8,7 @@ module.exports = {
   description: 'Trivia! based on Open Trivia DB',
   async execute(msg, args) {
     if(args[2].toLowerCase() === 'rules'){
-	msg.channel.send('RULES\n\n\nFirst correct answer gets the most points, subsequent answers will get ddecreasing points.  \n\n\nClick on numbered emojis to answer.');
+	rules();
 	return;    
     }
 
@@ -22,7 +22,13 @@ module.exports = {
     var curRound=0;
     
     function rules() {
-      msg.channel.send('+----------------------------------------------------+');
+
+	const rules = new Discord.MessageEmbed()
+		.setTitle("Trivia Rules")
+		.setColor("#0099ff")
+		.setDescription("Welcome to Trivia. This was created by Corey Murphy and Christian Acord")
+		.addField("How to Play","When the question is displayed react with the corresponding number to the correct (or incorrect) answer.")
+ 	msg.channel.send(rules);
     }
 
 
@@ -199,7 +205,7 @@ module.exports = {
 	    });
 
     }
-
+  rules();
   numRounds--;
   executeRound(triviaObject, numRounds);
 
