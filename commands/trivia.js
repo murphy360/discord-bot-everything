@@ -3,6 +3,7 @@ const fetch = require('node-fetch')
 const Discord = require('discord.js')
 const { ReactionCollector } = require('discord.js')
 const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
+var leaderbd = new Map();
 
 module.exports = {
 	name: 'trivia',
@@ -243,7 +244,7 @@ module.exports = {
 					if (winner != '') {
 				        	ending.addFields({name: 'Winner', value: winner, inline: true},  
 								 {name: 'Score', value: winners.get(winner), inline: true},
-	        			                         {name: 'The Correct Answer was:', value: correctAnswer}
+	        			                         {name: 'The Correct Answer was:', value: cleanText(correctAnswer)}
 								)
 					} else {
 						ending.setDescription("That was a hard one!")
@@ -269,6 +270,9 @@ module.exports = {
 
 		if (args[2].toLowerCase() === 'rules') {
 			rules();
+			return;
+		} else if (args[2].toLowerCase() === 'leaderboard' || args[2].toLowerCase() === 'scores') {
+			leaderboard(leaderbd, false);
 			return;
 		}
 
