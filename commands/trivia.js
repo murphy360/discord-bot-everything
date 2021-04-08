@@ -1,8 +1,9 @@
-const he = require('he')
-const fetch = require('node-fetch')
-const Sequelize = require('sequelize')
-const Discord = require('discord.js')
-const { ReactionCollector } = require('discord.js')
+const he = require('he');
+const fetch = require('node-fetch');
+const Sequelize = require('sequelize');
+const Discord = require('discord.js');
+const { Users, Games } = require ('./../dbObjects');
+const { ReactionCollector } = require('discord.js');
 const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
 var leaderbd = new Map();
 
