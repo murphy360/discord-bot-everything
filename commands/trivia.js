@@ -1,5 +1,6 @@
 const he = require('he')
 const fetch = require('node-fetch')
+const Sequelize = require('sequelize')
 const Discord = require('discord.js')
 const { ReactionCollector } = require('discord.js')
 const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
@@ -59,7 +60,7 @@ module.exports = {
 			const progressText = '▇'.repeat(progress);
 			const emptyProgressText = ' '.repeat(emptyProgress);
 			const bar = '```[' + progressText + emptyProgressText + ']```';
-	
+
 			return bar;
 	    	}
     
