@@ -101,6 +101,63 @@ module.exports = {
 		}
 
 
+	/***** LEADERBOARD: Display the final leaderboard *****/
+
+		function leaderboard(w,game) {
+
+			if (game) {
+				msg.channel.send("```The game has ended```");
+
+	                        players=""
+        	                scores=""
+	
+        	                w.forEach( (value, key) => {
+                	                players+=key+"\n";
+                        	        scores+=value+"\n";
+        	                });
+
+				if ( players == "" ) {
+					players="None"
+					scores="N/A"
+				}
+	
+				const leaders = new Discord.MessageEmbed()
+					.setTitle("Leader Board")
+					.setDescription("Scoreboard for the last game")
+					.setColor("#0099ff")
+					.addFields({name: "Players", value: players, inline: true},
+						   {name: "Scores", value: scores, inline: true}
+					          );
+
+				msg.channel.send(leaders);
+			} else {
+				// Build overall Leaderboard here
+
+				players=""
+                                scores=""
+
+                                w.forEach( (value, key) => {
+                                        players+=key+"\n";
+                                        scores+=value+"\n";
+                                });
+
+				if ( players == "" ) {
+					players="None"
+					scores="N/A"
+				}
+
+                                const leaders = new Discord.MessageEmbed()
+                                        .setTitle("Leader Board")
+                                        .setDescription("Current all-time trivia leaderboard stats")
+                                        .setColor("#0099ff")
+                                        .addFields({name: "Players", value: players, inline:true},
+                                                   {name: "Scores", value: scores, inline: true}
+                                                  );
+
+                                msg.channel.send(leaders);
+			}
+		}
+
 
 	/***** EXECUTEROUND: Run a round of trivia *****/
 
@@ -143,11 +200,11 @@ module.exports = {
 
 			msg.channel.send(getQuestionEmbed(triviaObj, roundNumber, curRound)).then(sentMsg => {
 
-			for (let i=0;i < triviaObject.results[roundNumber].incorrect_answers.length;i++) {
-				sentMsg.react(REACT[i]);
-			}
+				for (let i=0;i < triviaObject.results[roundNumber].incorrect_answers.length;i++) {
+					sentMsg.react(REACT[i]);
+				}
 
-			timer(60,5);
+				timer(60,5);
 
 		        const filter = (reaction, user) => {
 				if (!winners.has(user.username) && !user.bot) {
@@ -157,91 +214,77 @@ module.exports = {
 				return reaction.emoji.name === correct_react && !user.bot;
 			};
 
-			const collector = sentMsg.createReactionCollector(filter, { time: 60000 });
+				const collector = sentMsg.createReactionCollector(filter, { time: 60000 });
 	    
-			collector.on('collect', (reaction, user) => {
+				collector.on('collect', (reaction, user) => {
                  
-				if (!winners.has(user.username)) {
-					winners.set(user.username, 0);
-			                //msg.channel.send(user.username + ' has entered the game');
-				}
 
-				if (!winnerFlag) {
-					winners.set(user.username, winners.get(user.username)+points);
-					points = points - 5;
-					winnerFlag = true;  
-					winner = user.username;  
-				} else if (points > 5) {
-					winners.set(user.username, winners.get(user.username)+points);
-					points = points - 5;
-				} else if (points == 5) {
-					winners.set(user.username, winners.get(user.username)+points);
-				}
-		  
-			});
-
-			collector.on('end', collected => {
-				numRounds--;
-
-				const ending = new Discord.MessageEmbed()
-					.setTitle("Round Results")
-					.setColor("#0099ff")
-
-				if (winner != '') {
-			        	ending.addFields({name: 'Winner', value: winner, inline: true},  
-							 {name: 'Score', value: winners.get(winner), inline: true},
-	        		                         {name: 'The Correct Answer was:', value: correctAnswer}
-							)
-				} else {
-					ending.setDescription("That was a hard one!")
-					ending.addFields({name: 'The Correct Answer was:', value: correctAnswer})
-				}
-
-				msg.channel.send(ending)
-
-				if (numRounds >= 0) {
-					executeRound(triviaObject, numRounds);
-				} else {
-					msg.channel.send("Game Over");
-
-					scoreboard="```";
-
-					winners.forEach( (value, key) => {
-						scoreboard+=key+': '+ value+'\n';  
-					});
-	
-					if (scoreboard == "```") {
-						msg.channel.send(scoreboard+"No one answered correctly in this game```");
-					} else {
-						msg.channel.send(scoreboard+"```");
+					if (!winnerFlag) {
+						winners.set(user.username, winners.get(user.username)+points);
+						points = points - 5;
+						winnerFlag = true;  
+						winner = user.username;  
+					} else if (points > 5) {
+						winners.set(user.username, winners.get(user.username)+points);
+						points = points - 5;
+					} else if (points == 5) {
+						winners.set(user.username, winners.get(user.username)+points);
 					}
-				}
-			});
-	    	});
+		  
+				});
 
-	}
+				collector.on('end', collected => {
+					numRounds--;
+
+					const ending = new Discord.MessageEmbed()
+						.setTitle("Round Results")
+						.setColor("#0099ff")
+
+					if (winner != '') {
+				        	ending.addFields({name: 'Winner', value: winner, inline: true},  
+								 {name: 'Score', value: winners.get(winner), inline: true},
+	        			                         {name: 'The Correct Answer was:', value: correctAnswer}
+								)
+					} else {
+						ending.setDescription("That was a hard one!")
+						ending.addFields({name: 'The Correct Answer was:', value: correctAnswer})
+					}
+
+					msg.channel.send(ending)
+
+					if (numRounds >= 0) {
+						executeRound(triviaObject, numRounds);
+					} else {
+	
+						leaderboard(winners, true);
+
+					}
+				});
+		    	});
+
+		}
 
 
 /********** EXECUTION CODE **********/
 
-	if (args[2].toLowerCase() === 'rules') {
+		if (args[2].toLowerCase() === 'rules') {
+			rules();
+			return;
+		}
+
+		var numRounds = args[2];
+		var winners = new Map();
+
+		const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
+
+		var triviaObject = JSON.parse(file);
+
+		var curRound=0;
+
 		rules();
-		return;
-	}
 
-	var numRounds = args[2];
-	var winners = new Map();
-
-	const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
-
-	var triviaObject = JSON.parse(file);
-
-	var curRound=0;
-
-	rules();
-
-	numRounds--;
-	executeRound(triviaObject, numRounds);
+		numRounds--;
+		executeRound(triviaObject, numRounds);
 
 	},
 };
