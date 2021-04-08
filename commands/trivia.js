@@ -150,6 +150,10 @@ module.exports = {
 			timer(60,5);
 
 		        const filter = (reaction, user) => {
+				if (!players.has(user.username) && !user.bot) {
+					players.set(user.username,1);                                 
+					msg.channel.send(user.username + ' has entered the game');
+		                }
 				return reaction.emoji.name === correct_react && !user.bot;
 			};
 
@@ -159,7 +163,7 @@ module.exports = {
                  
 				if (!winners.has(user.username)) {
 					winners.set(user.username, 0);
-			                msg.channel.send(user.username + ' has entered the game');
+			                //msg.channel.send(user.username + ' has entered the game');
 				}
 
 				if (!winnerFlag) {
@@ -227,6 +231,7 @@ module.exports = {
 
 	var numRounds = args[2];
 	var winners = new Map();
+        var players = new Map();
 
 	const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
 

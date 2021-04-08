@@ -17,12 +17,12 @@ Object.keys(botCommands).map(key => {
 bot.on('ready', () => {
   const channelID = "828303498994647134"
   bot.channels.cache.get(channelID).send('I have arrived!');
-  bot.channels.cache.each(channel => console.info(channel.id));
+  //bot.channels.cache.each(channel => console.info(channel.id));
 
 });
 
 //Callback when bot reads a message
-//Split by whitespac
+//Split by whitespace
 //Check that someone mentioned @botName in first postion (Ignore if not)
 //Check that position 2 [1] has command that the bot can recognize
 //Try to execute command catch erros as well as you can. 
