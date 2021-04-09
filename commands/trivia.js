@@ -343,7 +343,7 @@ module.exports = {
 				return reaction.emoji.name === correct_react && !user.bot;
 			};
 
-				const collector = sentMsg.createReactionCollector(filter, { time: 15000 });
+				const collector = sentMsg.createReactionCollector(filter, { time: 60000 });
 	    
 				collector.on('collect', (reaction, user) => {
                  
@@ -425,7 +425,7 @@ module.exports = {
 		var curRound=0;
 
 		rules();
-		//logServer(msg);
+		logServer(msg);
 		numRounds--;
 		executeRound(triviaObject, numRounds);
 		//sequelize.close();
