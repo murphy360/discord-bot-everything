@@ -2,7 +2,7 @@ const he = require('he');
 const fetch = require('node-fetch');
 const Sequelize = require('sequelize');
 const Discord = require('discord.js');
-const { Users, Games } = require ('./../dbObjects');
+const { Users, Games, GamesPlayed } = require ('./../dbObjects');
 const { ReactionCollector } = require('discord.js');
 const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
 var leaderbd = new Map();
@@ -102,8 +102,43 @@ module.exports = {
 	
 			return q;
 		}
+/**
+		async function recordGame(message, winners){
+			try {
+				const game = Games.create({
+					game_id: message.id,
+				});
 
+				winners.forEach( (value, key) => {
+					if (!await userTable.findOne({ where: { user_id: key } })){
+						const user = userTable.create({
+							user_id: key,
+						});
+					}
+					const gamePlayed = await gamePlayedTable.findOne({
+						where: { user_id: key, game_id: message.id },
+					});
+					if (gamePlayed) {
+						return message.channel.send('This entry already exists...'+message.id);
+				
+					}else {
+						const newGamePlayed = gamePlayedTable.create({ user_id: key, game_id: message_id);
+						return message.channel.send(key + ' linked to: ' + message.id);
+						
+					}
 
+				});
+
+				message.channel.send('Game DB Entry Created: ' + message.id);
+                        }catch (e) {
+				if (e.name === 'SequelizeUniqueConstraintError') {
+					return message.reply('That game_id already exists.');
+				}
+				return message.reply('Something went wrong with adding a game.');
+                        }
+}	
+		}
+**/
 	/***** LEADERBOARD: Display the final leaderboard *****/
 
 		function leaderboard(w,game) {
@@ -258,7 +293,21 @@ module.exports = {
 					if (numRounds >= 0) {
 						executeRound(triviaObject, numRounds);
 					} else {
-	
+				
+						//recordGame(winners,msg);
+						try {
+							const game = Games.create({
+								game_id: message.id,
+							});
+							const foundGame = Games.findOne({
+								where: { game_id: message.id },
+							});
+							msg.channel.send(foundGame);
+						}catch (e) {
+
+							msg.channel.send(e);
+						}
+					
 						leaderboard(winners, true);
 
 					}
