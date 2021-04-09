@@ -343,7 +343,7 @@ module.exports = {
 				return reaction.emoji.name === correct_react && !user.bot;
 			};
 
-				const collector = sentMsg.createReactionCollector(filter, { time: 60000 });
+				const collector = sentMsg.createReactionCollector(filter, { time: 15000 });
 	    
 				collector.on('collect', (reaction, user) => {
                  
@@ -363,14 +363,13 @@ module.exports = {
 
 				collector.on('end', collected => {
 					numRounds--;
+					console.info('on end');
 					const ending = new Discord.MessageEmbed()
 						.setTitle("Round Results")
 					        .setColor("#0099ff")
 					
-					let winnerObj = client.users.fetch(winner);
-					winnerObj.then(function(result1) {
 
-
+					console.info('winner: ' + winner);
 					if (winner != '') {
 						let winnerObj = client.users.fetch(winner);
 						winnerObj.then(function(result1) {
@@ -403,7 +402,7 @@ module.exports = {
 				});
 		   
 			});
-		})
+		}
 
 
 /********** EXECUTION CODE **********/
