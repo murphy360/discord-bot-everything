@@ -14,11 +14,12 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 
 const Games = require('./../models/Games')(sequelize, Sequelize.DataTypes);
 const Users = require('./../models/Users')(sequelize, Sequelize.DataTypes);
+const Servers = require('./../models/Users')(sequelize, Sequelize.DataTypes);
 
 module.exports = {
 	name: 'trivia',
 	description: 'Trivia! based on Open Trivia DB',
-	async execute(msg, args) {
+	async execute(msg, args, client) {
 
 
 /********** FUNCTION DEFINITIONS **********/
@@ -110,73 +111,37 @@ module.exports = {
 	
 			return q;
 		}
-/**
-		async function recordGame(message, winners){
-			try {
-				const game = Games.create({
-					game_id: message.id,
-				});
 
-				winners.forEach( (value, key) => {
-					if (!await userTable.findOne({ where: { user_id: key } })){
-						const user = userTable.create({
-							user_id: key,
-						});
-					}
-					const gamePlayed = await gamePlayedTable.findOne({
-						where: { user_id: key, game_id: message.id },
-					});
-					if (gamePlayed) {
-						return message.channel.send('This entry already exists...'+message.id);
-				
-					}else {
-						const newGamePlayed = gamePlayedTable.create({ user_id: key, game_id: message_id);
-						return message.channel.send(key + ' linked to: ' + message.id);
-						
-					}
 
-				});
-
-				message.channel.send('Game DB Entry Created: ' + message.id);
-                        }catch (e) {
-				if (e.name === 'SequelizeUniqueConstraintError') {
-					return message.reply('That game_id already exists.');
-				}
-				return message.reply('Something went wrong with adding a game.');
-                        }
-}	
-		}
-**/
 	/***** LEADERBOARD: Display the final leaderboard *****/
 
-		async function leaderboard(w,game) {
+		async function leaderboard(w, game) {
+		
 
 			if (game) {
-				msg.channel.send("```The game has ended```");
 
 	                        players=""
-        	                scores=""
-	
-        	                w.forEach( (value, key) => {
-                	                players+=key+"\n";
-                        	        scores+=value+"\n";
-        	                });
+				scores=""
 
-				if ( players == "" ) {
-					players="None"
+				if ( w.size <= 0 ) {
+			        	players="None"
 					scores="N/A"
-				}
-	
-				const gamesList = await Games.findAll().then(games => {
+				}else {
 
-					msg.channel.send('All Time Games: ' + JSON.stringify(games));
-				});
-
-				const playerList = await Users.findAll().then(users => {
-
-					msg.channel.send('All Time Users: ' + JSON.stringify(users));
-				});
 				
+
+        	                	w.forEach( (value, key) => {
+						let j = client.users.fetch(key);
+						j.then(function(result1) {
+
+                	                	players+=result1.username+"\n";
+                        	        	scores+=value+"\n";
+						});
+        	                	});
+
+				}
+
+				await reportStats(msg, client);	
 
 				const leaders = new Discord.MessageEmbed()
 					.setTitle("Leader Board")
@@ -194,9 +159,14 @@ module.exports = {
                                 scores=""
 
                                 w.forEach( (value, key) => {
-                                        players+=key+"\n";
-                                        scores+=value+"\n";
-                                });
+                                        console.info('adding player string');
+					let j = client.users.fetch(key);
+					j.then(function(result1) {
+						console.info('lookup: ' + result1.username);
+						players+=result1.username+"\n";
+                                        	scores+=value+"\n";
+					});
+				});
 
 				if ( players == "" ) {
 					players="None"
@@ -234,14 +204,80 @@ module.exports = {
 
 			}
 		}
+		
+		async function logServer(message) {
+			try{
+                        	console.info('Logging server: ' + message.guild.name);
+				const newServer = await Servers.create({
+					server_id: message.guild.id,
+					server_name: message.guild.id,
+				});
+				message.channel.send('Hey thanks for the invite! it is my first time on this server!');
+	                }catch(e) {
+		                        if (e.name === 'SequelizeUniqueConstraintError') {
+			                        console.info('That server already exists.');
+			                        return
+			                }
+			                return message.channel.send('Something went wrong with loggin the server');
+	                       
+			}
+		
+		}
+
+		function calculateWinner(winnersMap) {
+			var winner = null;
+			console.info('calcWinner: ' + winner);
+			winnersMap.forEach((value,key)=>{
+				console.info('calcWinner key: ' + key);
+				if(winner == null){
+					winner = key;
+					console.info('calcWinner == null: ' + winner);
+				}else if(value > winnersMap.get(winner)){
+					winner = key;
+					console.info('calcWinner >: ' + winner);
+				}else if(value == winnersMap.get(winner)){
+					console.info('There is a tie');
+				};
+
+			});
+			console.info('calcWinner return: ' + winner);
+			return winner;
+			
+		}
 
 	/*** Log Game: save reference to this game to db ***/
-		async function logGame(message) {
-			console.info('Logging game: ' + message.id);
+		async function logGame(message, winner) {
+			let winnerObj = client.users.fetch(winner);
+			winnerObj.then(function(result1) {
+				
+				msg.channel.send("```Game Over!!!'''" + "\n\n''' Winner: " + result1.username + "'''");
+			});
 			const game = await Games.create({
 				game_id: message.id,
-				//winner: winningUser.id,
+				creator_id: message.author.id,
+				creator_name: message.author.username,
+				game_start: message.createdAt,
+				winner_id: winner,
 			});
+		}
+		
+		async function reportStats(message, client) {
+			const gamesList = await Games.count().then(games => {
+		        	message.channel.send('All Time Games Played: ' + games);
+			});
+
+			const playerList = await Users.count().then(numUsers => {
+                        	msg.channel.send('All Time # of Players: ' + numUsers);
+			});
+
+			const ServerList = await Servers.count().then(numServers => {
+				msg.channel.send('All Time # of Servers: ' + numServers);
+			});
+
+		}
+		async function processRound() {
+
+
 		}
 
 
@@ -293,8 +329,8 @@ module.exports = {
 				timer(60,5);
 
 		        const filter = (reaction, user) => {
-				if (!winners.has(user.username) && !user.bot) {
-					winners.set(user.username,0);                                 
+				if (!winners.has(user.id) && !user.bot) {
+					winners.set(user.id,0);                                 
 					//msg.channel.send(user.username + ' has entered the game');
 					try{
 
@@ -311,60 +347,63 @@ module.exports = {
 	    
 				collector.on('collect', (reaction, user) => {
                  
-
 					if (!winnerFlag) {
-						winners.set(user.username, winners.get(user.username)+points);
+						winners.set(user.id, winners.get(user.id)+points);
 						points = points - 5;
 						winnerFlag = true;  
-						winner = user.username;  
+						winner = user.id;  
 					} else if (points > 5) {
-						winners.set(user.username, winners.get(user.username)+points);
+						winners.set(user.id, winners.get(user.id)+points);
 						points = points - 5;
 					} else if (points == 5) {
-						winners.set(user.username, winners.get(user.username)+points);
+						winners.set(user.id, winners.get(user.id)+points);
 					}
 		  
 				});
 
 				collector.on('end', collected => {
 					numRounds--;
-
 					const ending = new Discord.MessageEmbed()
 						.setTitle("Round Results")
-						.setColor("#0099ff")
+					        .setColor("#0099ff")
+					
+					let winnerObj = client.users.fetch(winner);
+					winnerObj.then(function(result1) {
+
 
 					if (winner != '') {
-				        	ending.addFields({name: 'Winner', value: winner, inline: true},  
+						let winnerObj = client.users.fetch(winner);
+						winnerObj.then(function(result1) {
+
+				        	ending.addFields({name: 'Winner', value: result1.username, inline: true},  
 								 {name: 'Score', value: winners.get(winner), inline: true},
 	        			                         {name: 'The Correct Answer was:', value: cleanText(correctAnswer)}
-								)
+						)
+						});
 					} else {
 						ending.setDescription("That was a hard one!")
 						ending.addFields({name: 'The Correct Answer was:', value: correctAnswer})
 					}
-
 					msg.channel.send(ending)
-
 					if (numRounds >= 0) {
+						console.info('Round: ' + numRounds);
 						executeRound(triviaObject, numRounds);
 					} else {
-				
-						
+					
 						try {
 							console.info('TRY');
-							logGame(msg);
-						}catch (e) {
+							logGame(msg, calculateWinner(winners));
+						} catch (e) {
 							console.info(e);
 							//msg.channel.send(e);
 						}
-					
-						leaderboard(winners, true);
 
+						leaderboard(winners, true);
 					}
 				});
-		    	});
-
-		}
+		   
+			});
+		})
 
 
 /********** EXECUTION CODE **********/
@@ -379,7 +418,7 @@ module.exports = {
 
 		var numRounds = args[2];
 		var winners = new Map();
-
+		console.info('fetch file');
 		const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
 
 		var triviaObject = JSON.parse(file);
@@ -387,7 +426,7 @@ module.exports = {
 		var curRound=0;
 
 		rules();
-
+		//logServer(msg);
 		numRounds--;
 		executeRound(triviaObject, numRounds);
 		//sequelize.close();

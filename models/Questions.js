@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, Sequelize) => {
 	return sequelize.define('questions', {
 		question_id: {
 			type: Sequelize.STRING,

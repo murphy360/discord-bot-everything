@@ -18,22 +18,27 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 
 const Games = require('./models/Games')(sequelize, Sequelize.DataTypes);
 const Users = require('./models/Users')(sequelize, Sequelize.DataTypes);
+const Questions = require('./models/Questions')(sequelize, Sequelize.DataTypes);
+const Responses = require('./models/Responses')(sequelize, Sequelize.DataTypes);
+const Servers = require('./models/Servers')(sequelize, Sequelize.DataTypes);
+
 
 //link up commands found in ./commands/
 Object.keys(botCommands).map(key => {
   bot.commands.set(botCommands[key].name, botCommands[key]);
 });
 
+
 //Callback when bot joins the server TODO channelID should be automatically discovered
 bot.on('ready', () => {
   const channelID = "828303498994647134"
   bot.channels.cache.get(channelID).send('I have arrived!');
-  //bot.channels.cache.each(channel => console.info(channel.id)); 
-  Games.sync({ force: false });
-  Users.sync({ force: false });
-
-  //sequelize.close();
-
+  const toSync = true;
+  Games.sync({ force: toSync });
+  Users.sync({ force: toSync });
+  Questions.sync({ force: toSync });
+  Responses.sync({ force: toSync });
+  Servers.sync({ force: toSync });
 
 });
 
@@ -55,7 +60,7 @@ bot.on('message', msg => {
   if (!bot.commands.has(command)) return;
 
   try {
-	  bot.commands.get(command).execute(msg, args);
+	  bot.commands.get(command).execute(msg, args, bot);
   } catch (error) {
     console.error(error);
     msg.reply('there was an error trying to execute that command!');
