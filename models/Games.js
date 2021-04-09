@@ -1,7 +1,7 @@
-module.exports = (sequelize, DataTypes) => {
- 	return sequelize.define('games', {
+module.exports = (sequelize, Sequelize) => {
+	return sequelize.define('games', {
 		game_id: {
-			type: DataTypes.STRING,
+			type: Sequelize.STRING,
 			primaryKey: true,
 		},
 	}, {

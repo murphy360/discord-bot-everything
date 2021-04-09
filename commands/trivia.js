@@ -2,10 +2,18 @@ const he = require('he');
 const fetch = require('node-fetch');
 const Sequelize = require('sequelize');
 const Discord = require('discord.js');
-const { Users, Games, GamesPlayed } = require ('./../dbObjects');
 const { ReactionCollector } = require('discord.js');
 const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
 var leaderbd = new Map();
+const sequelize = new Sequelize('database', 'user', 'password', {
+	                host: 'localhost',
+	                dialect: 'sqlite',
+	                logging: false,
+	                storage: 'database.sqlite',
+});
+
+const Games = require('./../models/Games')(sequelize, Sequelize.DataTypes);
+const Users = require('./../models/Users')(sequelize, Sequelize.DataTypes);
 
 module.exports = {
 	name: 'trivia',
@@ -141,7 +149,7 @@ module.exports = {
 **/
 	/***** LEADERBOARD: Display the final leaderboard *****/
 
-		function leaderboard(w,game) {
+		async function leaderboard(w,game) {
 
 			if (game) {
 				msg.channel.send("```The game has ended```");
@@ -159,6 +167,17 @@ module.exports = {
 					scores="N/A"
 				}
 	
+				const gamesList = await Games.findAll().then(games => {
+
+					msg.channel.send('All Time Games: ' + JSON.stringify(games));
+				});
+
+				const playerList = await Users.findAll().then(users => {
+
+					msg.channel.send('All Time Users: ' + JSON.stringify(users));
+				});
+				
+
 				const leaders = new Discord.MessageEmbed()
 					.setTitle("Leader Board")
 					.setDescription("Scoreboard for the last game")
@@ -195,11 +214,40 @@ module.exports = {
                                 msg.channel.send(leaders);
 			}
 		}
+		async function logUser(message, user, isWinner) {
+			try{
+
+
+	        		console.info('Logging user: ' + user.id);
+	                	const newUser = await Users.create({
+					user_id: user.id,
+					user_name: user.username,
+				});
+				message.channel.send('Everyone welcome ' + user.username + ' it is their first time playing!'); 
+			
+			}catch(e) {
+				if (e.name === 'SequelizeUniqueConstraintError') {
+					console.info('That user already exists.');
+					return msg.channel.send(user.username + ' has entered the game');
+				}
+				return message.channel.send('Something went wrong with adding a tag.');
+
+			}
+		}
+
+	/*** Log Game: save reference to this game to db ***/
+		async function logGame(message) {
+			console.info('Logging game: ' + message.id);
+			const game = await Games.create({
+				game_id: message.id,
+				//winner: winningUser.id,
+			});
+		}
 
 
 	/***** EXECUTEROUND: Run a round of trivia *****/
 
-		function executeRound(triviaObj, roundNumber) {
+		async function executeRound(triviaObj, roundNumber) {
 			curRound++;
 			var winnerFlag = false;
 			var winner = '';
@@ -247,7 +295,14 @@ module.exports = {
 		        const filter = (reaction, user) => {
 				if (!winners.has(user.username) && !user.bot) {
 					winners.set(user.username,0);                                 
-					msg.channel.send(user.username + ' has entered the game');
+					//msg.channel.send(user.username + ' has entered the game');
+					try{
+
+						logUser(msg, user, false);
+					}catch(e) {
+
+						console.info(e);
+					}
 		                }
 				return reaction.emoji.name === correct_react && !user.bot;
 			};
@@ -294,18 +349,13 @@ module.exports = {
 						executeRound(triviaObject, numRounds);
 					} else {
 				
-						//recordGame(winners,msg);
+						
 						try {
-							const game = Games.create({
-								game_id: message.id,
-							});
-							const foundGame = Games.findOne({
-								where: { game_id: message.id },
-							});
-							msg.channel.send(foundGame);
+							console.info('TRY');
+							logGame(msg);
 						}catch (e) {
-
-							msg.channel.send(e);
+							console.info(e);
+							//msg.channel.send(e);
 						}
 					
 						leaderboard(winners, true);
@@ -340,6 +390,7 @@ module.exports = {
 
 		numRounds--;
 		executeRound(triviaObject, numRounds);
+		//sequelize.close();
 
 	},
 };

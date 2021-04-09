@@ -8,6 +8,17 @@ bot.login(TOKEN);
 
 var version = '0.1';
 
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize('database', 'user', 'password', {
+		host: 'localhost',
+		dialect: 'sqlite',
+		logging: false,
+	 	storage: 'database.sqlite',
+});
+
+const Games = require('./models/Games')(sequelize, Sequelize.DataTypes);
+const Users = require('./models/Users')(sequelize, Sequelize.DataTypes);
+
 //link up commands found in ./commands/
 Object.keys(botCommands).map(key => {
   bot.commands.set(botCommands[key].name, botCommands[key]);
@@ -17,7 +28,12 @@ Object.keys(botCommands).map(key => {
 bot.on('ready', () => {
   const channelID = "828303498994647134"
   bot.channels.cache.get(channelID).send('I have arrived!');
-  //bot.channels.cache.each(channel => console.info(channel.id));
+  //bot.channels.cache.each(channel => console.info(channel.id)); 
+  Games.sync({ force: false });
+  Users.sync({ force: false });
+
+  //sequelize.close();
+
 
 });
 
@@ -39,7 +55,7 @@ bot.on('message', msg => {
   if (!bot.commands.has(command)) return;
 
   try {
-    bot.commands.get(command).execute(msg, args);
+	  bot.commands.get(command).execute(msg, args);
   } catch (error) {
     console.error(error);
     msg.reply('there was an error trying to execute that command!');

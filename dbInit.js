@@ -8,16 +8,21 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 });
 
 const Games = require('./models/Games')(sequelize, Sequelize.DataTypes);
-require('./models/Users')(sequelize, Sequelize.DataTypes);
-require('./models/GamesPlayed')(sequelize, Sequelize.DataTypes);
+const Users = require('./models/Users')(sequelize, Sequelize.DataTypes);
+const Questions = require('./models/Questions')(sequelize, Sequelize.DataTypes);
+const Responses = require('./models/Responses')(sequelize, Sequelize.DataTypes);
+Questions.belongToMany(Games, (through: 'Responses' });
+Games.belongToMany(Questions, (through: 'Responses' });
+Questions.belongToMany(Users, (through: 'Responses' });
+Users.belongToMany(Questions, (through: 'Responses' });
+Games.belongToMany(Users, (through: 'Responses' });
+Users.belongToMany(Games, (through: 'Responses' });
+
+
 
 const force = process.argv.includes('--force') || process.argv.includes('-f');
 
 sequelize.sync({ force }).then(async () => {
-		const game = [
-					Games.upsert({ game_id: '0' }),
-				];
-		await Promise.all(game);
 		console.log('Database synced');
 		sequelize.close();
 }).catch(console.error);
