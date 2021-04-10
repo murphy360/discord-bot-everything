@@ -415,13 +415,14 @@ module.exports = {
 						return true;
 					}else {
 						winners.set(user.id,0);
-						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp); 
+						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp);
+						return false; 
 					}
+					
 		        }
-				return reaction.emoji.name === correct_react && !user.bot;
-			});
+				
 
-			const collector = sentMsg.createReactionCollector(filter, { time: q_time*1000 });
+				const collector = sentMsg.createReactionCollector(filter, { time: q_time*1000 });
 				collector.on('collect', (reaction, user) => {
 					var isWinner = false;
 					if (!winnerFlag) {
@@ -438,16 +439,16 @@ module.exports = {
 					console.info('on end');
 					const ending = new Discord.MessageEmbed()
 						.setTitle("Round Results")
-					    .setColor("#0099ff")
+						.setColor("#0099ff")
 					
 					console.info('winner: ' + winner);
 					if (winner != '') {
 						let winnerObj = client.users.fetch(winner);
 						winnerObj.then(function(result1) {
-				        	ending.addFields(
+							ending.addFields(
 								{name: 'Winner', value: result1.username, inline: true},  
 								{name: 'Score', value: winners.get(winner), inline: true},
-	        			        {name: 'The Correct Answer was:', value: cleanText(correctAnswer)
+								{name: 'The Correct Answer was:', value: cleanText(correctAnswer)
 							});
 						});
 					} else {
@@ -469,6 +470,7 @@ module.exports = {
 						game_in_progress=false;
 					}
 				});
+			});
 		}
 
 /********** EXECUTION CODE **********/
