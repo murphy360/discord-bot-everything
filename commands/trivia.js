@@ -408,7 +408,9 @@ module.exports = {
 						points = points - 5;
 					}
 					//winners is used for tracking total game score
-					winners.set(user.id,winners.get(user.id)+=points);
+					const currentScore = winners.get(user.id);
+					console.info(user.username + ' current score: ' + currentScore + ' plus ' + points);
+					winners.set(user.id, currentScore+points);
 					logResponse(isWinner, points, user, msg, curRound, reaction, questionTimeStamp);
 				});
 
