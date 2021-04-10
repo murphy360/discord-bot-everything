@@ -138,8 +138,8 @@ module.exports = {
 						});
         	    	});
 				}
-			textArray.push(players);
-			textArray.push(scores);
+			textArray[0] = players;
+			textArray[1] = scores;
 
 		}
 	/***** LEADERBOARD: Display the final leaderboard *****/
@@ -151,8 +151,8 @@ module.exports = {
 			if (game) {
 	        	
 				let playerTextArray = await fetchLeaderBoardText(w);
-				let players = playerTextArray.pop();
-				let scores = playerTextArray.pop();
+				let players = playerTextArray[0];
+				let scores = playerTextArray[1];
 
 				var leaderText = "No Winner";
 				if (winner !== null){
