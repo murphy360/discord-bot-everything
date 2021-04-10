@@ -128,6 +128,7 @@ module.exports = {
 	        	players=""
 				scores=""
 				if ( w.size <= 0 ) {
+					console.info('w size 0');
 				    players="None"
 					scores="N/A"
 				} else {
@@ -136,6 +137,7 @@ module.exports = {
 						j.then(function(result1) {
 			               	players+=result1.username+"\n";
                         	scores+=value+"\n";
+							console.info('building end game leaderboard results ' + players);
 						});
         	    	});
 				}
