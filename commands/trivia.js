@@ -404,7 +404,7 @@ module.exports = {
 						points = points - 5;
 					}
 					//winners is used for tracking total game score
-					winners.set(user.id, winners.get(user.id)+=points);
+					winners.set(user.id,10);
 					logResponse(isWinner, points, user, msg, curRound, reaction, questionTimeStamp);
 				});
 
