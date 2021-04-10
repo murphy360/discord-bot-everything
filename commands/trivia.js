@@ -5,6 +5,9 @@ const Discord = require('discord.js');
 const { ReactionCollector } = require('discord.js');
 const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
 var leaderbd = new Map();
+var q_time; // question time variable to shorten waiting time during testing
+var game_in_progres = false;
+
 const sequelize = new Sequelize('database', 'user', 'password', {
 	                host: 'localhost',
 	                dialect: 'sqlite',
@@ -16,10 +19,7 @@ const Games = require('./../models/Games')(sequelize, Sequelize.DataTypes);
 const Users = require('./../models/Users')(sequelize, Sequelize.DataTypes);
 const Servers = require('./../models/Servers')(sequelize, Sequelize.DataTypes);
 const Responses = require('./../models/Responses')(sequelize, Sequelize.DataTypes);
-
-var q_time; // question time variable to shorten waiting time during testing
-
-var game_in_progres = false;
+const Questions = require('./../models/Questions')(sequelize, Sequelize.DataTypes);
 
 module.exports = {
 	name: 'trivia',
@@ -320,6 +320,30 @@ module.exports = {
 			}
 		}
 
+		async function logQuestion(triviaObj, roundNumber){
+			const questionObj = await Questions.findOne({ where:
+				{
+					question: triviaObj.question
+				}});
+
+			if (questionObj !== null){
+				console.info('Existing Question need to link to current round');
+			} else {
+				
+				console.info('New Question: need to log it');
+				const newQuestion = await Questions.create({
+					question: triviaObject.results[roundNumber].question,
+					correct_answer: triviaObject.results[roundNumber].correctAnswer,
+					answer2: triviaObject.results[roundNumber].incorrect_answers[0],
+	       	        answer3: triviaObject.results[roundNumber].incorrect_answers[1],
+	       	        answer4: triviaObject.results[roundNumber].incorrect_answers[2],
+	       	        category: triviaObject.results[roundNumber].category,
+	       	        difficulty: triviaObject.results[roundNumber].difficulty
+				});
+			}
+
+		}
+
 
 	/***** EXECUTEROUND: Run a round of trivia *****/
 
@@ -331,26 +355,27 @@ module.exports = {
 			var winnerFlag = false;
 			var winner = null;
 			var correctAnswer = triviaObject.results[roundNumber].correct_answer;
+			var allAnswers = triviaObject.resuts[roundNumber].incorrect_answers;
 			var questionTimeStamp = Date.now();
 			console.info(correctAnswer);
 
-	    	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
+	    	allAnswers.push(triviaObject.results[roundNumber].correct_answer);
 
-			triviaObj.results[roundNumber].incorrect_answers.sort();
+			allAnswers.sort();
 
 			//if true and false put them in the other order
-			if (triviaObject.results[roundNumber].incorrect_answers.length == 2) {
-				triviaObject.results[roundNumber].incorrect_answers.reverse()
+			if (allAnswers.length == 2) {
+				allAnswers.reverse()
 			}
 
-			var points = triviaObj.results[roundNumber].incorrect_answers.length * 5;
+			var points = allAnswers.length * 5;
 
 			console.info("Points = " + points);
 
 	    	var correct_react = "";
 
-			for (let i=0;i<triviaObj.results[roundNumber].incorrect_answers.length;i++) {
-				if (triviaObj.results[roundNumber].incorrect_answers[i] == triviaObj.results[roundNumber].correct_answer) {
+			for (let i=0;i<allAnswers.length;i++) {
+				if (allAnswers[i] == triviaObj.results[roundNumber].correct_answer) {
 					correct_react = REACT[i];
 				}
 			}
@@ -369,7 +394,7 @@ module.exports = {
 
 			msg.channel.send(getQuestionEmbed(triviaObj, roundNumber, curRound)).then(sentMsg => {
 
-				for (let i=0;i < triviaObj.results[roundNumber].incorrect_answers.length;i++) {
+				for (let i=0;i < allAnswers.length;i++) {
 					sentMsg.react(REACT[i]);
 				}
 				timer(q_time,5,'Time Remaining');
