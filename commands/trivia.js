@@ -204,8 +204,8 @@ module.exports = {
 			if(winnersMap.get(winnerId) === 0){
 				return null;
 			}
-			console.info('calcWinner return: ' + winner);
-			return winner;
+			console.info('calcWinner return: ' + winnerId);
+			return winners.get(winnerId);
 		}
 	
 	/***** adds new user to database *****/
