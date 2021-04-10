@@ -91,7 +91,6 @@ module.exports = {
 		}
 
 
-
 	/***** GETQUESTION EMBED: Display questions to channel with an embed *****/
 
 		function getQuestionEmbed(triviaOjb, roundNumber, qNum) {
@@ -118,7 +117,7 @@ module.exports = {
 			return q;
 		}
 
-		async function fetchLeaderboardText(w){
+		async function fetchLeaderBoardText(w){
 			let textArray = [];
 			let players=""
 			let scores=""
