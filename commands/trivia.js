@@ -190,7 +190,7 @@ module.exports = {
 			console.info('calcWinner: ' + winner);
 			winnersMap.forEach((value,key)=>{
 				console.info('calcWinner key: ' + key);
-				if(winner == null){
+				if(winner == null && (winnersMap.get(key !== 0))){
 					winner = key;
 					console.info('calcWinner == null: ' + winner);
 				}else if(value > winnersMap.get(winner)){
@@ -346,10 +346,10 @@ module.exports = {
 	       	        answer4: chaff2,
 	       	        category: triviaObj.results[roundNumber].category,
 	       	        difficulty: triviaObj.results[roundNumber].difficulty
-				});
-				newQuestion.then(value => {
+				}).then(value => {
 					return value.question_id;
 				});
+				
 			}
 		}
 
