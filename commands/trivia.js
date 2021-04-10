@@ -118,15 +118,10 @@ module.exports = {
 			return q;
 		}
 
-
-	/***** LEADERBOARD: Display the final leaderboard *****/
-
-		async function leaderboard(w, game, winner) {
-		
-
-			if (game) {
-	        	players=""
-				scores=""
+		async function fetchLeaderboardText(w){
+			let textArray = [];
+			let players=""
+			let scores=""
 				if ( w.size <= 0 ) {
 					console.info('w size 0');
 				    players="None"
@@ -144,13 +139,25 @@ module.exports = {
 						});
         	    	});
 				}
+			textArray.push(players);
+			textArray.push(scores);
 
+		}
+	/***** LEADERBOARD: Display the final leaderboard *****/
 
-				var leaderText = "";
+		async function leaderboard(w, game, winner) {
+		
+		
+
+			if (game) {
+	        	
+				let playerTextArray = await fetchLeaderBoardText(w);
+				let players = playerTextArray.pop();
+				let scores = playerTextArray.pop();
+
+				var leaderText = "No Winner";
 				if (winner !== null){
 					leaderText = winner.username;
-				} else {
-					leaderText = "No Winner"
 				}
 
 				console.info('Leader Text: ' + leaderText);
