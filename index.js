@@ -34,7 +34,7 @@ Object.keys(botCommands).map(key => {
 bot.on('ready', () => {
   const channelID = "828303498994647134"
   bot.channels.cache.get(channelID).send('I have arrived!');
-  const toSync = false;
+  const toSync = true;
   Games.sync({ force: toSync });
   Users.sync({ force: toSync });
   Questions.sync({ force: toSync });

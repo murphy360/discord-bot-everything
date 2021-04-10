@@ -3,6 +3,7 @@ const fetch = require('node-fetch');
 const Sequelize = require('sequelize');
 const Discord = require('discord.js');
 const { ReactionCollector } = require('discord.js');
+const Responses = require('../models/Responses');
 const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
 var leaderbd = new Map();
 const sequelize = new Sequelize('database', 'user', 'password', {
@@ -25,7 +26,7 @@ module.exports = {
 /********** FUNCTION DEFINITIONS **********/
 
 
-	/***** RULES: Display Rules in an embed message *****/
+/***** RULES: Display Rules in an embed message *****/
 
 		function rules() {
 
@@ -201,9 +202,9 @@ module.exports = {
 			console.info('calcWinner return: ' + winner);
 			return winner;
 		}
-
+	
 	/***** adds new user to database *****/
-	async function logUser(message, user, isWinner) {
+	async function logUser(message, user) {
 		try{
 			console.info('Logging user: ' + user.id);
 			const newUser = await Users.create({
@@ -255,6 +256,7 @@ module.exports = {
 				creator_name: message.author.username,
 				game_start: message.createdAt,
 				winner_id: winner,
+				server_id: message.guild.id,
 			});
 		}
 		
@@ -272,9 +274,36 @@ module.exports = {
 		}
 
 		/***** decomposing execute Round *****/
-		async function endRound() {
-
-
+		async function checkCorrectAnswer(message, reactionToQuestion, userObj, correct_react, round_number,questionTime) {
+		
+			const firstResponse = await Responses.findOne({
+				where: { 
+					user_id: userObj.id,
+					game_id: message.id,
+					round_number: round_number,
+				} });
+			/*** user has not answered yet and is not a bot so add an entry to db */
+			if (firstResponse === null && !userObj.bot) {
+				try{
+					const correctAnswer = reaction.emoji.name === correct_react;
+					const initialResponse = await Responses.create({
+					game_id: message.id,
+					user_id: userObj.id,
+					round_number: round_number,
+					q_time: questionTime,
+					a_time: reactionToQuestion.createdAt,
+					correct: correctAnswer,
+					score: 0,
+					winner: false,
+				})
+					logUser(msg, userObj);
+				}catch (e) {
+					console.info(e);
+				}
+			}
+			
+			/** Correct answer && not a bot && first response by this user*/
+			return reaction.emoji.name === correct_react && !userObj.bot && firstResponse;
 		}
 
 
@@ -285,13 +314,14 @@ module.exports = {
 			var winnerFlag = false;
 			var winner = '';
 			var correctAnswer = triviaObject.results[roundNumber].correct_answer;
-
+			var questionTimeStamp = Date.now();
 			console.info(correctAnswer);
 
-	    		triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
+	    	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
 
 			triviaObject.results[roundNumber].incorrect_answers.sort();
 
+			//if true and false put them in the other order
 			if (triviaObject.results[roundNumber].incorrect_answers.length == 2) {
 				triviaObject.results[roundNumber].incorrect_answers.reverse()
 			}
@@ -311,7 +341,7 @@ module.exports = {
 
 			if (args[2] == 1) {
 				// DO NOTHING
-	       		} else if (curRound == args[2]) {
+	       	} else if (curRound == args[2]) {
 				 msg.channel.send(' \n\n**Final Round**');
 			} else {
 		       		msg.channel.send(' \n\n**Round #'+curRound+' of '+args[2]+'**');
@@ -324,30 +354,39 @@ module.exports = {
 				}
 				timer(60,5);
 		        const filter = (reaction, user) => {
-				if (!winners.has(user.id) && !user.bot) {
+					const correctOnFirstTry = checkCorrectAnswer(msg, reaction, user, correct_react, curRound, questionTimeStamp);
 					winners.set(user.id,0);                                 
-					try{
-						logUser(msg, user, false);
-					}catch(e) {
-						console.info(e);
-					}
-		        }
-				return reaction.emoji.name === correct_react && !user.bot;
+					return correctOnFirstTry;
 			};
 
 			const collector = sentMsg.createReactionCollector(filter, { time: 60000 });
 				collector.on('collect', (reaction, user) => {
+					var isWinner = false;
 					if (!winnerFlag) {
-						winners.set(user.id, winners.get(user.id)+points);
-						points = points - 5;
-						winnerFlag = true;  
-						winner = user.id;  
+						winnerFlag = true;
+						isWinner = true;	
+							
 					} else if (points > 5) {
-						winners.set(user.id, winners.get(user.id)+points);
+						isWinner = false;
 						points = points - 5;
-					} else if (points == 5) {
-						winners.set(user.id, winners.get(user.id)+points);
+					} else if (points <= 5) {
+						isWinner = false;
+						points = 5;
 					}
+					const [numberOfAffectedRows, affectedRows] = await Responses.update(	
+						{ 
+						  winner: isWinner,
+						  points: points
+						}, {
+						  where: 
+						  {
+							  user_id: user.id,
+							  game_id: msg.id,
+							  round_number: curRound
+						  },
+						  returning: true, // needed for affectedRows to be populated
+						  plain: true // makes sure that the returned instances are just plain objects
+						})	
 				});
 
 				collector.on('end', collected => {
