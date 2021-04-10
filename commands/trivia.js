@@ -185,29 +185,6 @@ module.exports = {
 			}
 		}
 
-		/***** Identify to the winner is *****/
-		function calculateWinner(winnersMap) {
-			var winnerId = null;
-			
-			winnersMap.forEach((value,key)=>{
-				console.info('calcWinner key: ' + key);
-				if(winnerId == null && (value !== 0 )){
-					winnerId = key;
-					console.info('calcWinner == null: ' + winnerId);
-				}else if(value > winnersMap.get(winnerId)){
-					winnerId = key;
-					console.info('calcWinner >: ' + winnerId);
-				}else if(value === winnersMap.get(winnerId)){
-					console.info('There is a tie');
-				};
-			});
-
-			if(winnersMap.get(winnerId) === 0){
-				return null;
-			}
-			console.info('calcWinner return: ' + winnerId);
-			return winnerId;		
-		}
 	
 	/***** adds new user to database *****/
 	async function logUser(message, user) {
@@ -484,16 +461,7 @@ module.exports = {
 						console.info('Round: ' + numRounds);
 						executeRound(triviaObj, numRounds);
 					} else {
-						try {
-							console.info('TRY');
-							theWinner = calculateWinner(winners);
-							let j = client.users.fetch(theWinner);
-							j.then(function(result1) {
-								logGame(result1);
-							});
-						} catch (e) {
-							console.info(e);
-						}
+						logGame(msg, winner);
 						leaderboard(winners, true);
 						game_in_progress=false;
 					}
