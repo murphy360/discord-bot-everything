@@ -132,13 +132,13 @@ module.exports = {
 				    players="None"
 					scores="N/A"
 				} else {
-		        	    w.forEach( (value, key) => {
+		        	w.forEach( (value, key) => {
 						let j = client.users.fetch(key);
 						j.then(function(result1) {
-			                	        players+=result1.username+"\n";
-                        				scores+=value+"\n";
+			               	players+=result1.username+"\n";
+                        	scores+=value+"\n";
 						});
-        	    			});
+        	    	});
 				}
 
 				await reportStats(msg, client);	
