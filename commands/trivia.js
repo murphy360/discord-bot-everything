@@ -314,6 +314,26 @@ module.exports = {
 			return reaction.emoji.name === correct_react && !userObj.bot && firstResponse;
 		}
 
+		async function logResponseScore(isWinner, points, user, message, round) {
+			
+			const response = await Responses.findOne({ where: 
+				{
+					user_id: user.id,
+					game_id: message.id,
+					round_number: round
+			}});
+
+			if (response === null) {
+				console.info('not found');
+			} else {
+				console.info('found, updating winner/points');
+				response.points = points;
+				response.winner = isWinner;
+				await response.save();
+			}
+
+		}
+
 
 	/***** EXECUTEROUND: Run a round of trivia *****/
 
@@ -388,29 +408,11 @@ module.exports = {
 					var isWinner = false;
 					if (!winnerFlag) {
 						winnerFlag = true;
-						isWinner = true;	
-							
-					} else if (points > 5) {
-						isWinner = false;
+						isWinner = true;
+					}else if (points > 5) {
 						points = points - 5;
-					} else if (points <= 5) {
-						isWinner = false;
-						points = 5;
 					}
-					const [numberOfAffectedRows, affectedRows] = Responses.update(	
-						{ 
-						  winner: isWinner,
-						  points: points
-						}, {
-						  where: 
-						  {
-							  user_id: user.id,
-							  game_id: msg.id,
-							  round_number: curRound
-						  },
-						  returning: true, // needed for affectedRows to be populated
-						  plain: true // makes sure that the returned instances are just plain objects
-						})	
+					logResponseScore(isWinner, points, user, msg, curRound);
 				});
 
 				collector.on('end', collected => {
