@@ -141,7 +141,7 @@ module.exports = {
         	    	});
 				}
 
-				await reportStats(msg, client);	
+				//await reportStats(msg, client);	
 
 				const leaders = new Discord.MessageEmbed()
 					.setTitle("Game Results")
