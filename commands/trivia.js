@@ -156,10 +156,12 @@ module.exports = {
 					let asyncPromise = await fetchLeaderBoardText(w);
 					asyncPromise.then(function(playerTextArray) {
 						players = playerTextArray[0];
+						console.info("Players from array: " + players);
 						scores = playerTextArray[1];
 					});
 				} catch (e) {
 					console.info(e.name);
+					console.info(e);
 				}
 				
 				
