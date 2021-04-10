@@ -258,7 +258,7 @@ module.exports = {
 			} else {
 				msg.channel.send("```Game Over!!!\n\nNo Winner!```");
 			}
-			
+
 			const game = await Games.create({
 				game_id: message.id,
 				creator_id: message.author.id,
@@ -268,7 +268,6 @@ module.exports = {
 				winner_id: winner,
 				server_id: message.guild.id,
 			});
-			
 		}
 		
 		/***** Report Stats: Write an embed message with applicable stats *****/
