@@ -352,7 +352,7 @@ module.exports = {
 	       	        difficulty: triviaObj.results[roundNumber].difficulty
 				}).then(value => {
 					console.info('logQuestion return: ' + value.question_id);
-					return value.question_id;
+					return value.id;
 				});
 				
 			}
