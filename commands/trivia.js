@@ -292,7 +292,7 @@ module.exports = {
 				//first time user on this server
 				logUser(msg, user);
 			} else {
-				message.channel.send(user.username + ' has entered the game');
+				console.info('look into the logic of being here in the log Response function')
 			}
 
 			const response = await Responses.findOne({ where: 
@@ -378,6 +378,7 @@ module.exports = {
 					if (!user.bot && !winners.has(user.id)){
 						console.info('adding ' + user.username + ' to winners list');
 						winners.set(user.id,0);
+						message.channel.send(user.username + ' has entered the game');
 						console.info('added ' + user.username + ' to winners list, current score: ' + winners.get(user.id));
 					}
 					// Correct answer and first response and not a bot
