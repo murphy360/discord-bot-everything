@@ -290,7 +290,7 @@ module.exports = {
 			});
 		}
 
-		async function logResponse(isWinner, points, user, message, round, reaction, questionTime, answerTime) {
+		async function logResponse(isWinner, points, user, message, round, reaction, questionTime, answerTime, questionId) {
 			console.info('logResponse');
 			const userObj = await Users.findOne({ where:
 				{
@@ -316,6 +316,7 @@ module.exports = {
 					game_id: message.id,
 					user_id: user.id,
 					round_number: round,
+					question_id: questionId,
 	       	        q_time: questionTime,
 	       	        a_time: answerTime,
 	       	        correct: correctAnswer,
