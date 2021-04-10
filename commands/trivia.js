@@ -205,7 +205,11 @@ module.exports = {
 				return null;
 			}
 			console.info('calcWinner return: ' + winnerId);
-			return winners.get(winnerId);
+			if (winnerId === null){
+				return null;
+			} else { 
+				return winners.get(winnerId);
+			}			
 		}
 	
 	/***** adds new user to database *****/
@@ -482,7 +486,8 @@ module.exports = {
 					} else {
 						try {
 							console.info('TRY');
-							logGame(msg, calculateWinner(winners));
+							theWinner = calculateWinner(winners);
+							logGame(msg,theWinner);
 						} catch (e) {
 							console.info(e);
 						}
