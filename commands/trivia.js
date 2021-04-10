@@ -140,6 +140,7 @@ module.exports = {
 			               	players+=result1.username+"\n";
                         	scores+=value+"\n";
 							console.info('building end game leaderboard results ' + players);
+							console.info('building end game leaderboard results ' + scores);
 						});
         	    	});
 				}
