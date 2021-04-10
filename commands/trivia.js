@@ -282,40 +282,6 @@ module.exports = {
 			});
 		}
 
-		/***** decomposing execute Round *****/
-		async function checkCorrectAnswer(message, reactionToQuestion, userObj, correct_react, round_number,questionTime) {
-			console.info('checkCorrectAnswer');	
-			const firstResponse = await Responses.findOne({
-				where: { 
-					user_id: userObj.id,
-					game_id: message.id,
-					round_number: round_number,
-				} });
-			/*** user has not answered yet and is not a bot so add an entry to db */
-			if (firstResponse === null && !userObj.bot) {
-				console.info('logging first response');
-				try{
-					const correctAnswer = reaction.emoji.name === correct_react;
-					const initialResponse = await Responses.create({
-					game_id: message.id,
-					user_id: userObj.id,
-					round_number: round_number,
-					q_time: questionTime,
-					a_time: reactionToQuestion.createdAt,
-					correct: correctAnswer,
-					score: 0,
-					winner: false,
-				})
-					logUser(msg, userObj);
-				}catch (e) {
-					console.info(e);
-				}
-			}
-			
-			/** Correct answer && not a bot && first response by this user*/
-			return reaction.emoji.name === correct_react && !userObj.bot && firstResponse;
-		}
-
 		async function logResponse(isWinner, points, user, message, round, reaction, questionTime) {
 			console.info('logResponse');
 			const userObj = await Users.findOne({ where:
@@ -413,10 +379,12 @@ module.exports = {
 					if (reaction.emoji.name === correct_react && !winners.has(user.id) && !user.bot) {
 						winners.set(user.id,0);
 						return true;
-					}else {
+					}else if (!winners.has(user.id) && !user.bot) {
 						winners.set(user.id,0);
 						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp);
 						return false; 
+					}else{
+						console.info(user.name + ' is being ignored');
 					}
 					
 		        }
