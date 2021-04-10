@@ -255,7 +255,7 @@ module.exports = {
 		async function logGame(message, winner) {
 			let winnerObj = await client.users.fetch(winner);
 			if (winnerObj !== null){
-				msg.channel.send("```Game Over!!!\n\nWinner: " + result1.username + "```");
+				msg.channel.send("```Game Over!!!\n\nWinner: " + winner.username + "```");
 			} else {
 				msg.channel.send("```Game Over!!!\n\nNo Winner!```");
 			}
