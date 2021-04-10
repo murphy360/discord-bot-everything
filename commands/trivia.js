@@ -127,7 +127,6 @@ module.exports = {
 			if (game) {
 	        	players=""
 				scores=""
-
 				if ( w.size <= 0 ) {
 				    players="None"
 					scores="N/A"
