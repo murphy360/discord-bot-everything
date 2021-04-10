@@ -151,6 +151,7 @@ module.exports = {
 					leaderText = "No Winner"
 				}
 
+				console.info('Leader Text: ' + leaderText);
 				const leaders = new Discord.MessageEmbed()
 					.setTitle("Game Results")
 					.setDescription("Scoreboard for the last game")
