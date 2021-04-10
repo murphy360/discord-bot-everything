@@ -121,7 +121,7 @@ module.exports = {
 
 	/***** LEADERBOARD: Display the final leaderboard *****/
 
-		async function leaderboard(w, game) {
+		async function leaderboard(w, game, winner) {
 		
 
 			if (game) {
@@ -146,8 +146,14 @@ module.exports = {
 
 				const leaders = new Discord.MessageEmbed()
 					.setTitle("Game Results")
-					.setDescription("Scoreboard for the last game")
-					//.addfields({name: "Winner", value: winner.username, inline: true});
+					.setDescription("Scoreboard for the last game");
+
+					if (winners !== null){
+						leaders.addfield({name: "Winner", value: winner.username, inline: true});
+					} else {
+						leaders.addField({name: "No Winner", value: "Only Losers", inline: true});
+					}
+					
 					//.setColor("#0099ff")
 					//.addFields(
 					//	{name: "Players", value: players, inline: true},
@@ -234,14 +240,6 @@ module.exports = {
 	/*** Log Game: save reference to this game to db ***/
 		async function logGame(message, winner) {
 			
-			if (winner !== null){
-				console.info('loggame: ' + winner);
-				console.info('logGame: ' + winner.username);
-				msg.channel.send("```Game Over!!!\n\nWinner: " + winner.username + "```");
-			} else {
-				console.info('logGame no winner');
-				msg.channel.send("```Game Over!!!\n\nNo Winner!```");
-			}
 			console.info('logGame post if');
 			const game = await Games.create({
 				game_id: message.id,
