@@ -335,18 +335,18 @@ module.exports = {
 					game_id: message.id,
 					round_number: round
 			}});
-
+			const correctAnswer = points>0;
 			if (response === null) {
 				console.info('not found logging response for ' + user.username);
 				const loggedResponse = await Responses.create({
 					game_id: message.id,
 					user_id: user.id,
 					round_number: round,
-	       	                 	q_time: questionTime,
-	       	                 	a_time: reaction.createdAt,
-	       	                 	correct: correctAnswer,
-	       	                 	score: score,
-	       	                 	winner: isWinner,
+	       	        q_time: questionTime,
+	       	        a_time: reaction.createdAt,
+	       	        correct: correctAnswer,
+	       	        score: score,
+	       	        winner: isWinner,
 				});
 			} else {
 				console.info(user.username + ' has already answered');
