@@ -256,7 +256,8 @@ module.exports = {
 		async function logGame(message, winner) {
 			
 			if (winner !== null){
-				console.info('logGame' + winner.username);
+				console.info('loggame: ' + winner);
+				console.info('logGame: ' + winner.username);
 				msg.channel.send("```Game Over!!!\n\nWinner: " + winner.username + "```");
 			} else {
 				console.info('logGame no winner');
