@@ -462,7 +462,7 @@ module.exports = {
 						executeRound(triviaObj, numRounds);
 					} else {
 						logGame(msg, winner);
-						leaderboard(winners, true);
+						leaderboard(winners, true, winner);
 						game_in_progress=false;
 					}
 				});
@@ -482,7 +482,7 @@ module.exports = {
 			return;
 		} else if (args[2].toLowerCase() === 'scores') {
 			if (game_in_progres) {
-				leaderboard(winners, true);
+				leaderboard(winners, true, null);
 			} else {
 				leaderboard(leaderbd, false);
 			}
