@@ -155,7 +155,7 @@ module.exports = {
 				const leaders = new Discord.MessageEmbed()
 					.setTitle("Game Results")
 					.setDescription("Scoreboard for the last game")
-					.addfields(
+					.addFields(
 						{name: "Winner", value: leaderText, inline: true}
 					);
 					
