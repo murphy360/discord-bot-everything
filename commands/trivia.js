@@ -201,7 +201,7 @@ module.exports = {
 				};
 			});
 
-			if(winnersMap.get(winner) === 0){
+			if(winnersMap.get(winnerId) === 0){
 				return null;
 			}
 			console.info('calcWinner return: ' + winner);
