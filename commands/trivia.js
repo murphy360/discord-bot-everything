@@ -311,7 +311,7 @@ module.exports = {
 	       	        q_time: questionTime,
 	       	        a_time: reaction.createdAt,
 	       	        correct: correctAnswer,
-	       	        score: score,
+	       	        points: points,
 	       	        winner: isWinner,
 				});
 			} else {
