@@ -155,16 +155,13 @@ module.exports = {
 				const leaders = new Discord.MessageEmbed()
 					.setTitle("Game Results")
 					.setDescription("Scoreboard for the last game")
+					.setColor("#0099ff")
 					.addFields(
-						{name: "Winner", value: leaderText, inline: true}
+						{name: "Winner", value: leaderText, inline: true},
+						{name: "Players", value: players, inline: true},
+						{name: "Scores", value: scores, inline: true}
 					);
 					
-					
-					//.setColor("#0099ff")
-					//.addFields(
-					//	{name: "Players", value: players, inline: true},
-					//	{name: "Scores", value: scores, inline: true}
-					//);
 				msg.channel.send(leaders);
 			} else {
 				
