@@ -177,42 +177,9 @@ module.exports = {
 			}
 		}
 
-		/***** adds new user to database *****/
-		async function logUser(message, user, isWinner) {
-			try{
-	        	console.info('Logging user: ' + user.id);
-	            const newUser = await Users.create({
-					user_id: user.id,
-					user_name: user.username,
-				});
-				message.channel.send('Everyone welcome ' + user.username + ' it is their first time playing!'); 
-			
-			}catch(e) {
-				if (e.name === 'SequelizeUniqueConstraintError') {
-					console.info('That user already exists.');
-					return msg.channel.send(user.username + ' has entered the game');
-				}
-				return message.channel.send('Something went wrong with adding a tag.');
 
-			}
-		}
 
-		/***** log that we're playing a game on this server *****/
-		async function logServer(message) {
-			try{
-                console.info('Logging server: ' + message.guild.name);
-				const newServer = await Servers.create({
-					server_id: message.guild.id,
-					server_name: message.guild.id,
-				});
-				message.channel.send('Hey thanks for the invite! it is my first time on this server!');
-	        }catch(e) {
-		        if (e.name === 'SequelizeUniqueConstraintError') {
-			    	return console.info('That server already exists.');    
-			    }
-			    return message.channel.send('Something went wrong with loggin the server');       
-			}
-		}
+
 
 		/***** Identify to the winner is *****/
 		function calculateWinner(winnersMap) {
@@ -234,6 +201,47 @@ module.exports = {
 			return winner;
 		}
 
+	/***** adds new user to database *****/
+	async function logUser(message, user, isWinner) {
+		try{
+			console.info('Logging user: ' + user.id);
+			const newUser = await Users.create({
+				user_id: user.id,
+				user_name: user.username,
+			});
+			message.channel.send('Everyone welcome ' + user.username + ' it is their first time playing!'); 
+		
+		}catch(e) {
+			if (e.name === 'SequelizeUniqueConstraintError') {
+				console.info('That user already exists.');
+				return msg.channel.send(user.username + ' has entered the game');
+			}
+			return message.channel.send('Something went wrong with adding a tag.');
+		}
+	}
+
+	/***** log that we're playing a game on this server *****/
+	async function logServer(message) {
+		const server = await Servers.findOne({
+			where: { server_id: message.guild.id } });
+		if (server === null) {
+			console.info('First time with this server');
+			try{
+				console.info('Logging server: ' + message.guild.name);
+				const newServer = await Servers.create({
+					server_id: message.guild.id,
+					server_name: message.guild.name,
+				});
+				message.channel.send('Hey thanks for the invite! it is my first time on this server!');
+			}catch(e) {
+				if (e.name === 'SequelizeUniqueConstraintError') {
+					return console.info('That server already exists.');    
+				}
+				return message.channel.send('Something went wrong with loggin the server');       
+			}
+		}
+		
+	}
 	/*** Log Game: save reference to this game to db ***/
 		async function logGame(message, winner) {
 			let winnerObj = client.users.fetch(winner);
@@ -249,7 +257,7 @@ module.exports = {
 			});
 		}
 		
-		/***** Write an embed message with applicable stats *****/
+		/***** Report Stats: Write an embed message with applicable stats *****/
 		async function reportStats(message, client) {
 			const gamesList = await Games.count().then(games => {
 		        message.channel.send('All Time Games Played: ' + games);
