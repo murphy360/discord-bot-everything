@@ -282,17 +282,17 @@ module.exports = {
 			});
 		}
 
-		async function logResponse(isWinner, points, user, message, round, reaction, questionTime) {
+		async function logResponse(isWinner, points, user, message, round, reaction, questionTime, answerTime) {
 			console.info('logResponse');
 			const userObj = await Users.findOne({ where:
 				{
 					user_id: user.id
 				}});
 			if (userObj === null) {
-				//first time user on this server
+				//first time user on this bot
 				logUser(msg, user);
 			} else {
-				console.info('look into the logic of being here in the log Response function')
+				console.info('User already resides on the server')
 			}
 
 			const response = await Responses.findOne({ where: 
@@ -309,7 +309,7 @@ module.exports = {
 					user_id: user.id,
 					round_number: round,
 	       	        q_time: questionTime,
-	       	        a_time: reaction.createdAt,
+	       	        a_time: answerTime,
 	       	        correct: correctAnswer,
 	       	        points: points,
 	       	        winner: isWinner,
@@ -389,7 +389,7 @@ module.exports = {
 					}else if (!players.has(user.id) && !user.bot) {
 						players.set(user.id,0);
 						console.info(user.username + ' Answered incorrectly (or again) and response is being logged to disk');
-						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp);
+						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp, Date.now());
 						return false; 
 					}else{
 						console.info(user.username + ' is being ignored');
@@ -411,7 +411,7 @@ module.exports = {
 					const currentScore = winners.get(user.id);
 					console.info(user.username + ' current score: ' + currentScore + ' plus ' + points);
 					winners.set(user.id, currentScore+points);
-					logResponse(isWinner, points, user, msg, curRound, reaction, questionTimeStamp);
+					logResponse(isWinner, points, user, msg, curRound, reaction, questionTimeStamp, Date.now());
 				});
 
 				collector.on('end', collected => {
