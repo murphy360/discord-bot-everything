@@ -422,7 +422,7 @@ module.exports = {
 					if (winner !== null) {
 						console.info('winner: ' + winner.username + ' Score: ' + winners.get(winner.id));
 						ending.addFields(
-							{name: 'Winner', value: result1.username, inline: true},  
+							{name: 'Winner', value: winner.username, inline: true},  
 							{name: 'Score', value: winners.get(winner.id), inline: true},
 							{name: 'The Correct Answer was:', value: cleanText(correctAnswer)
 						});
