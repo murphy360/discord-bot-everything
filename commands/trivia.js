@@ -376,7 +376,9 @@ module.exports = {
 				const filter = (reaction, user) => {
 					//make sure each player has an entry and initial score of 0
 					if (!winners.has(user.id)){
+						console.info('adding ' + user.username + ' to winners list');
 						winners.set(user.id,0);
+						console.info('added ' + user.username + ' to winners list, current score: ' + winners.get(user.id));
 					}
 					// Correct answer and first response and not a bot
 					if (reaction.emoji.name === correct_react && !players.has(user.id) && !user.bot) {
