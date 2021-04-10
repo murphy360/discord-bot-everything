@@ -320,28 +320,28 @@ module.exports = {
 			}
 		}
 
-		async function logQuestion(triviaObj, roundNumber){
+		async function logQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message){
 			const questionObj = await Questions.findOne({ where:
 				{
-					question: triviaObj.question
+					question: triviaObj.results[roundNumber].question
 				}});
 
 			if (questionObj !== null){
 				console.info('Existing Question need to link to current round');
+				return questionObj.question_id;
 			} else {
-				
 				console.info('New Question: need to log it');
 				const newQuestion = await Questions.create({
-					question: triviaObject.results[roundNumber].question,
-					correct_answer: triviaObject.results[roundNumber].correctAnswer,
-					answer2: triviaObject.results[roundNumber].incorrect_answers[0],
-	       	        answer3: triviaObject.results[roundNumber].incorrect_answers[1],
-	       	        answer4: triviaObject.results[roundNumber].incorrect_answers[2],
-	       	        category: triviaObject.results[roundNumber].category,
-	       	        difficulty: triviaObject.results[roundNumber].difficulty
+					question: triviaObj.results[roundNumber].question,
+					correct_answer: triviaObj.results[roundNumber].correct_answer,
+					answer2: chaff0,
+	       	        answer3: chaff1,
+	       	        answer4: chaff2,
+	       	        category: triviaObj.results[roundNumber].category,
+	       	        difficulty: triviaObj.results[roundNumber].difficulty
 				});
+				return newQuestion.question_id;
 			}
-
 		}
 
 
@@ -355,27 +355,30 @@ module.exports = {
 			var winnerFlag = false;
 			var winner = null;
 			var correctAnswer = triviaObject.results[roundNumber].correct_answer;
-			var allAnswers = triviaObject.resuts[roundNumber].incorrect_answers;
 			var questionTimeStamp = Date.now();
+			var chaffQuestion0 = triviaObject.results[roundNumber].incorrect_answers[0];
+			var chaffQuestion1 = triviaObject.results[roundNumber].incorrect_answers[1];
+			var chaffQuestion2 = triviaObject.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
+			var questionId = logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
 
-	    	allAnswers.push(triviaObject.results[roundNumber].correct_answer);
+	    	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
 
-			allAnswers.sort();
+			triviaObj.results[roundNumber].incorrect_answers.sort();
 
 			//if true and false put them in the other order
-			if (allAnswers.length == 2) {
-				allAnswers.reverse()
+			if (triviaObject.results[roundNumber].incorrect_answers.length == 2) {
+				triviaObject.results[roundNumber].incorrect_answers.reverse()
 			}
 
-			var points = allAnswers.length * 5;
+			var points = triviaObj.results[roundNumber].incorrect_answers.length * 5;
 
 			console.info("Points = " + points);
 
 	    	var correct_react = "";
 
-			for (let i=0;i<allAnswers.length;i++) {
-				if (allAnswers[i] == triviaObj.results[roundNumber].correct_answer) {
+			for (let i=0;i<triviaObj.results[roundNumber].incorrect_answers.length;i++) {
+				if (triviaObj.results[roundNumber].incorrect_answers[i] == triviaObj.results[roundNumber].correct_answer) {
 					correct_react = REACT[i];
 				}
 			}
@@ -394,7 +397,7 @@ module.exports = {
 
 			msg.channel.send(getQuestionEmbed(triviaObj, roundNumber, curRound)).then(sentMsg => {
 
-				for (let i=0;i < allAnswers.length;i++) {
+				for (let i=0;i < triviaObj.results[roundNumber].incorrect_answers.length;i++) {
 					sentMsg.react(REACT[i]);
 				}
 				timer(q_time,5,'Time Remaining');
@@ -415,7 +418,7 @@ module.exports = {
 					}else if (!players.has(user.id) && !user.bot) {
 						players.set(user.id,0);
 						console.info(user.username + ' Answered incorrectly (or again) and response is being logged to disk');
-						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp, Date.now());
+						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp, Date.now(), questionId);
 						return false; 
 					}else{
 						console.info(user.username + ' is being ignored');
@@ -437,7 +440,7 @@ module.exports = {
 					const currentScore = winners.get(user.id);
 					console.info(user.username + ' current score: ' + currentScore + ' plus ' + points);
 					winners.set(user.id, currentScore+points);
-					logResponse(isWinner, points, user, msg, curRound, reaction, questionTimeStamp, Date.now());
+					logResponse(isWinner, points, user, msg, curRound, reaction, questionTimeStamp, Date.now(), questionId);
 				});
 
 				collector.on('end', collected => {

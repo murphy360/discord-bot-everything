@@ -11,6 +11,9 @@ module.exports = (sequelize, Sequelize) => {
 		round_number: {
 			type: Sequelize.INTEGER,
 		},
+		question_id: {
+			type: Sequelize.INTEGER,
+		},
 		winner: {
 			type: Sequelize.BOOLEAN,
 		},
