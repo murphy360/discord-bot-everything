@@ -159,7 +159,6 @@ module.exports = {
 					);
 					
 					
-					
 					//.setColor("#0099ff")
 					//.addFields(
 					//	{name: "Players", value: players, inline: true},
