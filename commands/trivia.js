@@ -144,7 +144,7 @@ module.exports = {
 				await reportStats(msg, client);	
 
 				const leaders = new Discord.MessageEmbed()
-					.setTitle("Leader Board")
+					.setTitle("Game Results")
 					.setDescription("Scoreboard for the last game")
 					.setColor("#0099ff")
 					.addFields({name: "Players", value: players, inline: true},
