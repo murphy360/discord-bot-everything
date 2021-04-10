@@ -186,17 +186,17 @@ module.exports = {
 
 		/***** Identify to the winner is *****/
 		function calculateWinner(winnersMap) {
-			var winner = null;
-			console.info('calcWinner: ' + winner);
+			var winnerId = null;
+			
 			winnersMap.forEach((value,key)=>{
 				console.info('calcWinner key: ' + key);
-				if(winner == null && (winnersMap.get(key !== 0))){
-					winner = key;
-					console.info('calcWinner == null: ' + winner);
-				}else if(value > winnersMap.get(winner)){
-					winner = key;
-					console.info('calcWinner >: ' + winner);
-				}else if(value == winnersMap.get(winner)){
+				if(winnerId == null && (value !== 0 )){
+					winnerId = key;
+					console.info('calcWinner == null: ' + winnerId);
+				}else if(value > winnersMap.get(winnerId)){
+					winnerId = key;
+					console.info('calcWinner >: ' + winnerId);
+				}else if(value === winnersMap.get(winnerId)){
 					console.info('There is a tie');
 				};
 			});
