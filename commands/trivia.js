@@ -378,9 +378,11 @@ module.exports = {
 					// Correct answer and first response and not a bot
 					if (reaction.emoji.name === correct_react && !winners.has(user.id) && !user.bot) {
 						winners.set(user.id,0);
+						console.info(user.username + ' Answered correctly and made it through the filter');
 						return true;
 					}else if (!winners.has(user.id) && !user.bot) {
 						winners.set(user.id,0);
+						console.info(user.username + ' Answered incorrectly (or again) and response is being logged to disk');
 						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp);
 						return false; 
 					}else{
