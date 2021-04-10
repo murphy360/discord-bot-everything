@@ -29,6 +29,7 @@ Object.keys(botCommands).map(key => {
 });
 
 
+
 //Callback when bot joins the server TODO channelID should be automatically discovered
 bot.on('ready', () => {
   const channelID = "828303498994647134"

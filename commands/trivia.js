@@ -14,7 +14,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 
 const Games = require('./../models/Games')(sequelize, Sequelize.DataTypes);
 const Users = require('./../models/Users')(sequelize, Sequelize.DataTypes);
-const Servers = require('./../models/Users')(sequelize, Sequelize.DataTypes);
+const Servers = require('./../models/Servers')(sequelize, Sequelize.DataTypes);
 
 module.exports = {
 	name: 'trivia',
@@ -23,6 +23,7 @@ module.exports = {
 
 
 /********** FUNCTION DEFINITIONS **********/
+
 
 	/***** RULES: Display Rules in an embed message *****/
 
