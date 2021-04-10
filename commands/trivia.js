@@ -134,8 +134,9 @@ module.exports = {
 				} else {
 		        	w.forEach( (value, key) => {
 						console.info('for ', key);
-						let j = await client.users.fetch(key);
+						let j = client.users.fetch(key);
 						j.then(function(result1) {
+							console.info('Inside then: ' + result1.username);
 			               	players+=result1.username+"\n";
                         	scores+=value+"\n";
 							console.info('building end game leaderboard results ' + players);
