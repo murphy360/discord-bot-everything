@@ -1,9 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
 	return sequelize.define('questions', {
-		question_id: {
-			type: Sequelize.STRING,
-			unique: true,
-		},
 		question: {
 			type: Sequelize.TEXT
 		},
