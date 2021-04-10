@@ -370,8 +370,11 @@ module.exports = {
 			var chaffQuestion1 = triviaObject.results[roundNumber].incorrect_answers[1];
 			var chaffQuestion2 = triviaObject.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
-			var questionId = logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
-
+			var questionId = null;
+			var questionIdPromise = logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
+			questionIdPromise.then(value => {
+				questionId = value;
+			});
 	    	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
 
 			triviaObj.results[roundNumber].incorrect_answers.sort();
@@ -380,7 +383,7 @@ module.exports = {
 			if (triviaObject.results[roundNumber].incorrect_answers.length == 2) {
 				triviaObject.results[roundNumber].incorrect_answers.reverse()
 			}
-
+			
 			var points = triviaObj.results[roundNumber].incorrect_answers.length * 5;
 
 			console.info("Points = " + points);
