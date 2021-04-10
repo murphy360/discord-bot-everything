@@ -152,11 +152,16 @@ module.exports = {
 	        	players = "";
 				scores = "";
 
-				let asyncPromise = await fetchLeaderBoardText(w);
-				asyncPromise.then(function(playerTextArray) {
-					players = playerTextArray[0];
-					scores = playerTextArray[1];
-				});
+				try {
+					let asyncPromise = await fetchLeaderBoardText(w);
+					asyncPromise.then(function(playerTextArray) {
+						players = playerTextArray[0];
+						scores = playerTextArray[1];
+					});
+				} catch (e) {
+					console.info(e.name);
+				}
+				
 				
 
 				var leaderText = "No Winner";
