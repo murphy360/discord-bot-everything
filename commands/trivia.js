@@ -418,14 +418,16 @@ module.exports = {
 						.setTitle("Round Results")
 						.setColor("#0099ff")
 					
-					console.info('winner: ' + winner.username + ' Score: ' + winners.get(winner.id));
+					
 					if (winner !== null) {
+						console.info('winner: ' + winner.username + ' Score: ' + winners.get(winner.id));
 						ending.addFields(
 							{name: 'Winner', value: result1.username, inline: true},  
 							{name: 'Score', value: winners.get(winner.id), inline: true},
 							{name: 'The Correct Answer was:', value: cleanText(correctAnswer)
 						});
 					} else {
+						console.info('No Winner for ROund ' + curRound);
 						ending.setDescription("That was a hard one!")
 						ending.addFields({name: 'The Correct Answer was:', value: correctAnswer})
 					}
