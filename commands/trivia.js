@@ -328,7 +328,7 @@ module.exports = {
 			var players = new Map();
 			curRound++;
 			var winnerFlag = false;
-			var winner = '';
+			var winner = null;
 			var correctAnswer = triviaObject.results[roundNumber].correct_answer;
 			var questionTimeStamp = Date.now();
 			console.info(correctAnswer);
@@ -400,6 +400,7 @@ module.exports = {
 					if (!winnerFlag) {
 						winnerFlag = true;
 						isWinner = true;
+						winner = user;
 					}else if (points > 5) {
 						points = points - 5;
 					}
@@ -415,15 +416,12 @@ module.exports = {
 						.setTitle("Round Results")
 						.setColor("#0099ff")
 					
-					console.info('winner: ' + winner);
-					if (winner != '') {
-						let winnerObj = client.users.fetch(winner);
-						winnerObj.then(function(result1) {
-							ending.addFields(
-								{name: 'Winner', value: result1.username, inline: true},  
-								{name: 'Score', value: winners.get(winner), inline: true},
-								{name: 'The Correct Answer was:', value: cleanText(correctAnswer)
-							});
+					console.info('winner: ' + winner.username + ' Score: ' + winners.get(winner.id));
+					if (winner !== null) {
+						ending.addFields(
+							{name: 'Winner', value: result1.username, inline: true},  
+							{name: 'Score', value: winners.get(winner.id), inline: true},
+							{name: 'The Correct Answer was:', value: cleanText(correctAnswer)
 						});
 					} else {
 						ending.setDescription("That was a hard one!")
