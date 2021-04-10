@@ -17,6 +17,11 @@ const Games = require('./../models/Games')(sequelize, Sequelize.DataTypes);
 const Users = require('./../models/Users')(sequelize, Sequelize.DataTypes);
 const Servers = require('./../models/Servers')(sequelize, Sequelize.DataTypes);
 
+
+var q_time; // question time variable to shorten waiting time during testing
+
+var game_in_progres = false;
+
 module.exports = {
 	name: 'trivia',
 	description: 'Trivia! based on Open Trivia DB',
@@ -42,7 +47,7 @@ module.exports = {
 
 	/***** TIMER: Sets a timer displaying a progress bar countdown *****/
 
-		function timer(time,interval) {
+		function timer(time,interval,text) {
 
 			let pBar = function(theBar) {
 				time-=interval;
@@ -52,13 +57,13 @@ module.exports = {
 					clearInterval(p)
 					return;
 				} else {
-					theBar.edit(getBar(time,60,30));
+					theBar.edit(text+"\n"+getBar(time,60,30));
 				}
 	        	}
 
 			let intv=interval*1000;
 
-			msg.channel.send(getBar(time,60,30)).then(msg => { p = setInterval(pBar,intv,msg) });
+			msg.channel.send(text+"\n"+getBar(time,60,30)).then(msg => { p = setInterval(pBar,intv,msg) });
 	    	}
 
 
@@ -121,20 +126,20 @@ module.exports = {
 		
 
 			if (game) {
-	            players=""
+	        		players=""
 				scores=""
 
 				if ( w.size <= 0 ) {
-			        players="None"
+				        players="None"
 					scores="N/A"
-				}else {
-        	        w.forEach( (value, key) => {
+				} else {
+		        	        w.forEach( (value, key) => {
 						let j = client.users.fetch(key);
 						j.then(function(result1) {
-                	        players+=result1.username+"\n";
-                        	scores+=value+"\n";
+			                	        players+=result1.username+"\n";
+                        				scores+=value+"\n";
 						});
-        	    	});
+        	    			});
 				}
 
 				await reportStats(msg, client);	
@@ -145,21 +150,21 @@ module.exports = {
 					.setColor("#0099ff")
 					.addFields({name: "Players", value: players, inline: true},
 						   {name: "Scores", value: scores, inline: true}
-					);
+						  );
 				msg.channel.send(leaders);
 			} else {
 				
 				// Build overall Leaderboard here
 
 				players=""
-                scores=""
+				scores=""
 				w.forEach( (value, key) => {
-                	console.info('adding player string');
+	                	console.info('adding player string');
 					let j = client.users.fetch(key);
 					j.then(function(result1) {
 						console.info('lookup: ' + result1.username);
 						players+=result1.username+"\n";
-                        scores+=value+"\n";
+        			                scores+=value+"\n";
 					});
 				});
 
@@ -168,14 +173,15 @@ module.exports = {
 					scores="N/A"
 				}
 
-                const leaders = new Discord.MessageEmbed()
-                    .setTitle("Leader Board")
-                    .setDescription("Current all-time trivia leaderboard stats")
-                    .setColor("#0099ff")
-                    .addFields({name: "Players", value: players, inline:true},
-                    {name: "Scores", value: scores, inline: true}
-                    );
-                    msg.channel.send(leaders);
+				const leaders = new Discord.MessageEmbed()
+					.setTitle("Leader Board")
+					.setDescription("Current all-time trivia leaderboard stats")
+					.setColor("#0099ff")
+					.addFields({name: "Players", value: players, inline:true},
+						   {name: "Scores", value: scores, inline: true}
+						  );
+
+				msg.channel.send(leaders);
 			}
 		}
 
@@ -248,7 +254,7 @@ module.exports = {
 		async function logGame(message, winner) {
 			let winnerObj = client.users.fetch(winner);
 			winnerObj.then(function(result1) {
-				msg.channel.send("```Game Over!!!'''" + "\n\n''' Winner: " + result1.username + "'''");
+				msg.channel.send("```Game Over!!!\n\nWinner: " + result1.username + "```");
 			});
 			const game = await Games.create({
 				game_id: message.id,
@@ -263,11 +269,13 @@ module.exports = {
 		/***** Report Stats: Write an embed message with applicable stats *****/
 		async function reportStats(message, client) {
 			const gamesList = await Games.count().then(games => {
-		        message.channel.send('All Time Games Played: ' + games);
+			        message.channel.send('All Time Games Played: ' + games);
 			});
+
 			const playerList = await Users.count().then(numUsers => {
-                msg.channel.send('All Time # of Players: ' + numUsers);
+	        	        msg.channel.send('All Time # of Players: ' + numUsers);
 			});
+
 			const ServerList = await Servers.count().then(numServers => {
 				msg.channel.send('All Time # of Servers: ' + numServers);
 			});
@@ -310,6 +318,9 @@ module.exports = {
 	/***** EXECUTEROUND: Run a round of trivia *****/
 
 		async function executeRound(triviaObj, roundNumber) {
+
+			game_in_progress=true;
+
 			curRound++;
 			var winnerFlag = false;
 			var winner = '';
@@ -319,47 +330,60 @@ module.exports = {
 
 	    	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
 
-			triviaObject.results[roundNumber].incorrect_answers.sort();
+			triviaObj.results[roundNumber].incorrect_answers.sort();
 
 			//if true and false put them in the other order
 			if (triviaObject.results[roundNumber].incorrect_answers.length == 2) {
 				triviaObject.results[roundNumber].incorrect_answers.reverse()
 			}
 
-			var points = triviaObject.results[roundNumber].incorrect_answers.length * 5;
+			var points = triviaObj.results[roundNumber].incorrect_answers.length * 5;
 
 			console.info("Points = " + points);
 
-	    		var correct_react = ""
+	    	var correct_react = "";
 
-		    	for (let i=0;i<triviaObject.results[roundNumber].incorrect_answers.length;i++) {
-	      			if (triviaObject.results[roundNumber].incorrect_answers[i] == triviaObject.results[roundNumber].correct_answer) {
-	        			correct_react = REACT[i];
-	      			}
+			for (let i=0;i<triviaObj.results[roundNumber].incorrect_answers.length;i++) {
+				if (triviaObj.results[roundNumber].incorrect_answers[i] == triviaObj.results[roundNumber].correct_answer) {
+					correct_react = REACT[i];
+				}
 			}
 
 
 			if (args[2] == 1) {
 				// DO NOTHING
+
 	       	} else if (curRound == args[2]) {
-				 msg.channel.send(' \n\n**Final Round**');
+				msg.channel.send('**Final Round is starting**');
+//				timer(20,4,'**Final Round begin soon...**');
 			} else {
-		       		msg.channel.send(' \n\n**Round #'+curRound+' of '+args[2]+'**');
+				msg.channel.send('**Round #' + curRound + ' of ' + args[2] + ' is starting**'); 
+//				timer(20,4,'**Round #'+curRound+' of '+args[2]+' will start soon...**');
 			}
 
 			msg.channel.send(getQuestionEmbed(triviaObj, roundNumber, curRound)).then(sentMsg => {
 
-				for (let i=0;i < triviaObject.results[roundNumber].incorrect_answers.length;i++) {
+				for (let i=0;i < triviaObj.results[roundNumber].incorrect_answers.length;i++) {
 					sentMsg.react(REACT[i]);
 				}
-				timer(60,5);
-		        const filter = (reaction, user) => {
-					const correctOnFirstTry = checkCorrectAnswer(msg, reaction, user, correct_react, curRound, questionTimeStamp);
+
+
+				timer(q_time,5,'Time Remaining');
+
+				const filter = (reaction, user) => {
+
+				if (!winners.has(user.id) && !user.bot) {
 					winners.set(user.id,0);                                 
-					return correctOnFirstTry;
+					try{
+						logUser(msg, user, false);
+					}catch(e) {
+						console.info(e);
+					}
+		        	}
+				return reaction.emoji.name === correct_react && !user.bot;
 			};
 
-			const collector = sentMsg.createReactionCollector(filter, { time: 60000 });
+			const collector = sentMsg.createReactionCollector(filter, { time: q_time*1000 });
 				collector.on('collect', (reaction, user) => {
 					var isWinner = false;
 					if (!winnerFlag) {
@@ -413,7 +437,7 @@ module.exports = {
 					msg.channel.send(ending)
 					if (numRounds >= 0) {
 						console.info('Round: ' + numRounds);
-						executeRound(triviaObject, numRounds);
+						executeRound(triviaObj, numRounds);
 					} else {
 						try {
 							console.info('TRY');
@@ -422,29 +446,49 @@ module.exports = {
 							console.info(e);
 						}
 						leaderboard(winners, true);
+						game_in_progress=false;
 					}
 				});
 			});
-		}
+			}
 
 /********** EXECUTION CODE **********/
+
+		var winners = new Map();
+                var curRound=0;
 
 		if (args[2].toLowerCase() === 'rules') {
 			rules();
 			return;
-		} else if (args[2].toLowerCase() === 'leaderboard' || args[2].toLowerCase() === 'scores') {
+		} else if (args[2].toLowerCase() === 'leaderboard') {
 			leaderboard(leaderbd, false);
 			return;
+		} else if (args[2].toLowerCase() === 'scores') {
+			if (game_in_progres) {
+				leaderboard(winners, true);
+			} else {
+				leaderboard(leaderbd, false);
+			}
 		}
+		
+		q_time=60;
+		
+		if (args[3] > 0) {
+			q_time=args[3];
+		}
+
 		var numRounds = args[2];
-		var winners = new Map();
-		console.info('fetch file');
-		const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
-		var triviaObject = JSON.parse(file);
-		var curRound=0;
+
+                const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
+                var triviaObject = JSON.parse(file);
+
 		rules();
+
 		logServer(msg);
 		numRounds--;
+
+//		timer(20,4,"Game will begin soon. Get Ready!");
+
 		executeRound(triviaObject, numRounds);
 	},
 };
