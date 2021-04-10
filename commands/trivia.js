@@ -135,8 +135,9 @@ module.exports = {
 						scores="N/A"
 					} else {
 						w.forEach( (value, key) => {
+							console.info('looking for ' + key);
 							
-							players+=userNameId.get(key).username+"\n";
+							players+=userNameId.get(key)+"\n";
 							scores+=value+"\n";
 	
 							console.info('building end game leaderboard results ' + players);
