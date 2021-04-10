@@ -3,7 +3,6 @@ const fetch = require('node-fetch');
 const Sequelize = require('sequelize');
 const Discord = require('discord.js');
 const { ReactionCollector } = require('discord.js');
-const Responses = require('../models/Responses');
 const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
 var leaderbd = new Map();
 const sequelize = new Sequelize('database', 'user', 'password', {
@@ -16,7 +15,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 const Games = require('./../models/Games')(sequelize, Sequelize.DataTypes);
 const Users = require('./../models/Users')(sequelize, Sequelize.DataTypes);
 const Servers = require('./../models/Servers')(sequelize, Sequelize.DataTypes);
-
+const Responses = require('./../models/Responses')(sequelize, Sequelize.DataTypes);
 
 var q_time; // question time variable to shorten waiting time during testing
 
@@ -221,8 +220,8 @@ module.exports = {
 		
 		}catch(e) {
 			if (e.name === 'SequelizeUniqueConstraintError') {
-				console.info('That user already exists.');
-				return msg.channel.send(user.username + ' has entered the game');
+				return console.info('That user already exists.');
+				
 			}
 			return message.channel.send('Something went wrong with adding a tag.');
 		}
@@ -247,6 +246,8 @@ module.exports = {
 				}
 				return message.channel.send('Something went wrong with loggin the server');       
 			}
+		} else {
+			console.info('This server exists in the db');
 		}
 		
 	}
@@ -283,7 +284,7 @@ module.exports = {
 
 		/***** decomposing execute Round *****/
 		async function checkCorrectAnswer(message, reactionToQuestion, userObj, correct_react, round_number,questionTime) {
-		
+			console.info('checkCorrectAnswer');	
 			const firstResponse = await Responses.findOne({
 				where: { 
 					user_id: userObj.id,
@@ -292,6 +293,7 @@ module.exports = {
 				} });
 			/*** user has not answered yet and is not a bot so add an entry to db */
 			if (firstResponse === null && !userObj.bot) {
+				console.info('logging first response');
 				try{
 					const correctAnswer = reaction.emoji.name === correct_react;
 					const initialResponse = await Responses.create({
@@ -314,8 +316,19 @@ module.exports = {
 			return reaction.emoji.name === correct_react && !userObj.bot && firstResponse;
 		}
 
-		async function logResponseScore(isWinner, points, user, message, round) {
-			
+		async function logResponseScore(isWinner, points, user, message, round, reaction, questionTime) {
+			console.info('logResponseScore');
+			const userObj = await Users.findOne({ where:
+				{
+					user_id: user.id
+				}});
+			if (userObj === null) {
+				//first time user on this server
+				logUser(msg, user);
+			} else {
+				message.channel.send(user.username + ' has entered the game');
+			}
+
 			const response = await Responses.findOne({ where: 
 				{
 					user_id: user.id,
@@ -324,14 +337,20 @@ module.exports = {
 			}});
 
 			if (response === null) {
-				console.info('not found');
+				console.info('not found logging response for ' + user.username);
+				const loggedResponse = await Responses.create({
+					game_id: message.id,
+					user_id: user.id,
+					round_number: round,
+	       	                 	q_time: questionTime,
+	       	                 	a_time: reaction.createdAt,
+	       	                 	correct: correctAnswer,
+	       	                 	score: score,
+	       	                 	winner: isWinner,
+				});
 			} else {
-				console.info('found, updating winner/points');
-				response.points = points;
-				response.winner = isWinner;
-				await response.save();
+				console.info(user.username + ' has already answered');
 			}
-
 		}
 
 
@@ -392,16 +411,24 @@ module.exports = {
 
 				const filter = (reaction, user) => {
 
-				if (!winners.has(user.id) && !user.bot) {
-					winners.set(user.id,0);                                 
-					try{
-						logUser(msg, user, false);
-					}catch(e) {
-						console.info(e);
-					}
+				// Correct answer and first response and not a bot
+				if (reaction.emoji.name === correct_react && !winners.has(user.id) && !user.bot) {
+					winners.set(user.id,0);
+					return true;
+				}else {
+					winners.set(user.id,0);
+					logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp); 
+				}
+					//if (!winners.has(user.id) && !user.bot) {
+					//winners.set(user.id,0);                                 
+					//try{
+			//			logUser(msg, user, false);
+		//			}catch(e) {
+	//					console.info(e);
+//					}
 		        	}
 				return reaction.emoji.name === correct_react && !user.bot;
-			};
+			});
 
 			const collector = sentMsg.createReactionCollector(filter, { time: q_time*1000 });
 				collector.on('collect', (reaction, user) => {
@@ -412,7 +439,7 @@ module.exports = {
 					}else if (points > 5) {
 						points = points - 5;
 					}
-					logResponseScore(isWinner, points, user, msg, curRound);
+					logResponse(isWinner, points, user, msg, curRound, reaction, questionTimeStamp);
 				});
 
 				collector.on('end', collected => {
