@@ -5,7 +5,7 @@ const Discord = require('discord.js');
 const { ReactionCollector } = require('discord.js');
 const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
 var leaderbd = new Map();
-var userNameId = newMap();
+var userNameId = new Map();
 var q_time; // question time variable to shorten waiting time during testing
 var game_in_progres = false;
 
