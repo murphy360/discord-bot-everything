@@ -157,10 +157,9 @@ module.exports = {
 				console.info('scores: ' + scores);
 				const leaders = new Discord.MessageEmbed()
 					.setTitle("Game Results")
-					.setDescription("Scoreboard for the last game")
+					.setDescription("Winner: " + leaderText)
 					.setColor("#0099ff")
 					.addFields(
-						{name: "Winner", value: leaderText, inline: false},
 						{name: "Players", value: players, inline: true},
 						{name: "Scores", value: scores, inline: true}
 					);
