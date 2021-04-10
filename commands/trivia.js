@@ -348,7 +348,9 @@ module.exports = {
 	       	        category: triviaObj.results[roundNumber].category,
 	       	        difficulty: triviaObj.results[roundNumber].difficulty
 				});
-				return newQuestion.question_id;
+				newQuestion.then(value => {
+					return value.question_id;
+				});
 			}
 		}
 
