@@ -325,7 +325,7 @@ module.exports = {
 		async function executeRound(triviaObj, roundNumber) {
 
 			game_in_progress=true;
-
+			var players = new Map();
 			curRound++;
 			var winnerFlag = false;
 			var winner = '';
@@ -374,21 +374,23 @@ module.exports = {
 				timer(q_time,5,'Time Remaining');
 
 				const filter = (reaction, user) => {
-
-					// Correct answer and first response and not a bot
-					if (reaction.emoji.name === correct_react && !winners.has(user.id) && !user.bot) {
+					//make sure each player has an entry and initial score of 0
+					if (!winners.has(user.id)){
 						winners.set(user.id,0);
+					}
+					// Correct answer and first response and not a bot
+					if (reaction.emoji.name === correct_react && !players.has(user.id) && !user.bot) {
+						players.set(user.id,0);
 						console.info(user.username + ' Answered correctly and made it through the filter');
 						return true;
-					}else if (!winners.has(user.id) && !user.bot) {
-						winners.set(user.id,0);
+					}else if (!players.has(user.id) && !user.bot) {
+						players.set(user.id,0);
 						console.info(user.username + ' Answered incorrectly (or again) and response is being logged to disk');
 						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp);
 						return false; 
 					}else{
 						console.info(user.username + ' is being ignored');
 					}
-					
 		        }
 				
 
@@ -401,6 +403,8 @@ module.exports = {
 					}else if (points > 5) {
 						points = points - 5;
 					}
+					//winners is used for tracking total game score
+					winners.set(user.id, winners.get(user.id)+=points);
 					logResponse(isWinner, points, user, msg, curRound, reaction, questionTimeStamp);
 				});
 
