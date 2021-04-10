@@ -184,10 +184,6 @@ module.exports = {
 			}
 		}
 
-
-
-
-
 		/***** Identify to the winner is *****/
 		function calculateWinner(winnersMap) {
 			var winner = null;
@@ -204,6 +200,10 @@ module.exports = {
 					console.info('There is a tie');
 				};
 			});
+
+			if(winnersMap.get(winner) === 0){
+				return null;
+			}
 			console.info('calcWinner return: ' + winner);
 			return winner;
 		}
@@ -253,10 +253,13 @@ module.exports = {
 	}
 	/*** Log Game: save reference to this game to db ***/
 		async function logGame(message, winner) {
-			let winnerObj = client.users.fetch(winner);
-			winnerObj.then(function(result1) {
+			let winnerObj = await client.users.fetch(winner);
+			if (winnerObj !== null){
 				msg.channel.send("```Game Over!!!\n\nWinner: " + result1.username + "```");
-			});
+			} else {
+				msg.channel.send("```Game Over!!!\n\nNo Winner!```");
+			}
+		
 			const game = await Games.create({
 				game_id: message.id,
 				creator_id: message.author.id,
