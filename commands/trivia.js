@@ -432,5 +432,3 @@ module.exports = {
 
 	},
 };
-
-/*** Test ***/
