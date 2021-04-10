@@ -316,8 +316,8 @@ module.exports = {
 			return reaction.emoji.name === correct_react && !userObj.bot && firstResponse;
 		}
 
-		async function logResponseScore(isWinner, points, user, message, round, reaction, questionTime) {
-			console.info('logResponseScore');
+		async function logResponse(isWinner, points, user, message, round, reaction, questionTime) {
+			console.info('logResponse');
 			const userObj = await Users.findOne({ where:
 				{
 					user_id: user.id
@@ -405,28 +405,19 @@ module.exports = {
 				for (let i=0;i < triviaObj.results[roundNumber].incorrect_answers.length;i++) {
 					sentMsg.react(REACT[i]);
 				}
-
-
 				timer(q_time,5,'Time Remaining');
 
 				const filter = (reaction, user) => {
 
-				// Correct answer and first response and not a bot
-				if (reaction.emoji.name === correct_react && !winners.has(user.id) && !user.bot) {
-					winners.set(user.id,0);
-					return true;
-				}else {
-					winners.set(user.id,0);
-					logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp); 
-				}
-					//if (!winners.has(user.id) && !user.bot) {
-					//winners.set(user.id,0);                                 
-					//try{
-			//			logUser(msg, user, false);
-		//			}catch(e) {
-	//					console.info(e);
-//					}
-		        	}
+					// Correct answer and first response and not a bot
+					if (reaction.emoji.name === correct_react && !winners.has(user.id) && !user.bot) {
+						winners.set(user.id,0);
+						return true;
+					}else {
+						winners.set(user.id,0);
+						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp); 
+					}
+		        }
 				return reaction.emoji.name === correct_react && !user.bot;
 			});
 
@@ -478,13 +469,12 @@ module.exports = {
 						game_in_progress=false;
 					}
 				});
-			});
-			}
+		}
 
 /********** EXECUTION CODE **********/
 
 		var winners = new Map();
-                var curRound=0;
+        var curRound=0;
 
 		if (args[2].toLowerCase() === 'rules') {
 			rules();
