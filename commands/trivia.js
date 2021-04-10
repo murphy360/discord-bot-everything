@@ -5,6 +5,7 @@ const Discord = require('discord.js');
 const { ReactionCollector } = require('discord.js');
 const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
 var leaderbd = new Map();
+var userNameId = newMap();
 var q_time; // question time variable to shorten waiting time during testing
 var game_in_progres = false;
 
@@ -127,15 +128,12 @@ module.exports = {
 					scores="N/A"
 				} else {
 		        	w.forEach( (value, key) => {
-						console.info('for ', key);
-						let j = client.users.fetch(key);
-						j.then(function(result1) {
-							console.info('Inside then: ' + result1.username);
-			               	players+=result1.username+"\n";
-                        	scores+=value+"\n";
-							console.info('building end game leaderboard results ' + players);
-							console.info('building end game leaderboard results ' + scores);
-						});
+						
+						players+=userNameId.get(key).username+"\n";
+                        scores+=value+"\n";
+
+						console.info('building end game leaderboard results ' + players);
+						console.info('building end game leaderboard results ' + scores);
         	    	});
 				}
 			textArray[0] = players;
@@ -425,6 +423,7 @@ module.exports = {
 					if (!user.bot && !winners.has(user.id)){
 						console.info('adding ' + user.username + ' to winners list');
 						winners.set(user.id,0);
+						userNameId.set(user.id,user.username);
 						msg.channel.send(user.username + ' has entered the game');
 						console.info('added ' + user.username + ' to winners list, current score: ' + winners.get(user.id));
 					}
