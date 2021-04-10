@@ -125,14 +125,14 @@ module.exports = {
 		
 
 			if (game) {
-	        		players=""
+	        	players=""
 				scores=""
 
 				if ( w.size <= 0 ) {
-				        players="None"
+				    players="None"
 					scores="N/A"
 				} else {
-		        	        w.forEach( (value, key) => {
+		        	    w.forEach( (value, key) => {
 						let j = client.users.fetch(key);
 						j.then(function(result1) {
 			                	        players+=result1.username+"\n";
@@ -148,8 +148,8 @@ module.exports = {
 					.setDescription("Scoreboard for the last game")
 					.setColor("#0099ff")
 					.addFields({name: "Players", value: players, inline: true},
-						   {name: "Scores", value: scores, inline: true}
-						  );
+					{name: "Scores", value: scores, inline: true}
+					);
 				msg.channel.send(leaders);
 			} else {
 				
@@ -158,7 +158,7 @@ module.exports = {
 				players=""
 				scores=""
 				w.forEach( (value, key) => {
-	                	console.info('adding player string');
+	                console.info('adding player string');
 					let j = client.users.fetch(key);
 					j.then(function(result1) {
 						console.info('lookup: ' + result1.username);
