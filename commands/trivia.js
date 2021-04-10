@@ -351,6 +351,7 @@ module.exports = {
 	       	        category: triviaObj.results[roundNumber].category,
 	       	        difficulty: triviaObj.results[roundNumber].difficulty
 				}).then(value => {
+					console.info('logQuestion return: ' + value.question_id);
 					return value.question_id;
 				});
 				
@@ -374,10 +375,8 @@ module.exports = {
 			var chaffQuestion2 = triviaObject.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
 			var questionId = null;
-			var questionIdPromise = logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
-			questionIdPromise.then(value => {
-				questionId = value;
-			});
+			var questionId= logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
+		
 	    	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
 
 			triviaObj.results[roundNumber].incorrect_answers.sort();
