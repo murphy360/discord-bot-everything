@@ -118,28 +118,7 @@ module.exports = {
 			return q;
 		}
 
-		async function fetchLeaderBoardText(w){
-			let textArray = [];
-			let players=""
-			let scores=""
-				if ( w.size <= 0 ) {
-					console.info('w size 0');
-				    players="None"
-					scores="N/A"
-				} else {
-		        	w.forEach( (value, key) => {
-						
-						players+=userNameId.get(key).username+"\n";
-                        scores+=value+"\n";
 
-						console.info('building end game leaderboard results ' + players);
-						console.info('building end game leaderboard results ' + scores);
-        	    	});
-				}
-			textArray[0] = players;
-			textArray[1] = scores;
-
-		}
 	/***** LEADERBOARD: Display the final leaderboard *****/
 
 		async function leaderboard(w, game, winner) {
@@ -147,20 +126,23 @@ module.exports = {
 		
 
 			if (game) {
-	        	players = "";
-				scores = "";
-
-				try {
-					let asyncPromise = await fetchLeaderBoardText(w);
-					asyncPromise.then(function(playerTextArray) {
-						players = playerTextArray[0];
-						console.info("Players from array: " + players);
-						scores = playerTextArray[1];
-					});
-				} catch (e) {
-					console.info(e.name);
-					console.info(e);
-				}
+				
+				let players=""
+				let scores=""
+					if ( w.size <= 0 ) {
+						console.info('w size 0');
+						players="None"
+						scores="N/A"
+					} else {
+						w.forEach( (value, key) => {
+							
+							players+=userNameId.get(key).username+"\n";
+							scores+=value+"\n";
+	
+							console.info('building end game leaderboard results ' + players);
+							console.info('building end game leaderboard results ' + scores);
+						});
+					}
 				
 				
 
