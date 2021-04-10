@@ -262,6 +262,7 @@ module.exports = {
 				creator_id: message.author.id,
 				creator_name: message.author.username,
 				game_start: message.createdAt,
+				game_end: Date.now(),
 				winner_id: winner,
 				server_id: message.guild.id,
 			});
