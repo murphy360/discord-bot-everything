@@ -160,7 +160,7 @@ module.exports = {
 					.setDescription("Scoreboard for the last game")
 					.setColor("#0099ff")
 					.addFields(
-						{name: "Winner", value: leaderText, inline: true},
+						{name: "Winner", value: leaderText, inline: false},
 						{name: "Players", value: players, inline: true},
 						{name: "Scores", value: scores, inline: true}
 					);
