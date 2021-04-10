@@ -144,15 +144,20 @@ module.exports = {
 
 				//await reportStats(msg, client);	
 
+				var leaderText = "";
+				if (winner !== null){
+					leaderText = winner.username;
+				} else {
+					leaderText = "No Winner"
+				}
+
 				const leaders = new Discord.MessageEmbed()
 					.setTitle("Game Results")
-					.setDescription("Scoreboard for the last game");
-
-					if (winners !== null){
-						leaders.addfield({name: "Winner", value: winner.username, inline: true});
-					} else {
-						leaders.addField({name: "No Winner", value: "Only Losers", inline: true});
-					}
+					.setDescription("Scoreboard for the last game")
+					.addfield(
+						{name: "Winner", value: leaderText, inline: true}
+					);
+					
 					
 					//.setColor("#0099ff")
 					//.addFields(
