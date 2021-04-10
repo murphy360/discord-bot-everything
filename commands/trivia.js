@@ -256,12 +256,15 @@ module.exports = {
 	}
 	/*** Log Game: save reference to this game to db ***/
 		async function logGame(message, winner) {
+			
 			if (winner !== null){
+				console.info('logGame' + winner.username);
 				msg.channel.send("```Game Over!!!\n\nWinner: " + winner.username + "```");
 			} else {
+				console.info('logGame no winner');
 				msg.channel.send("```Game Over!!!\n\nNo Winner!```");
 			}
-
+			console.info('logGame post if');
 			const game = await Games.create({
 				game_id: message.id,
 				creator_id: message.author.id,
