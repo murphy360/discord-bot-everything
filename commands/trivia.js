@@ -384,7 +384,7 @@ module.exports = {
 						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp);
 						return false; 
 					}else{
-						console.info(user.name + ' is being ignored');
+						console.info(user.username + ' is being ignored');
 					}
 					
 		        }
