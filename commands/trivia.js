@@ -397,7 +397,7 @@ module.exports = {
 						isWinner = false;
 						points = 5;
 					}
-					const [numberOfAffectedRows, affectedRows] = await Responses.update(	
+					const [numberOfAffectedRows, affectedRows] = Responses.update(	
 						{ 
 						  winner: isWinner,
 						  points: points
