@@ -253,22 +253,20 @@ module.exports = {
 	}
 	/*** Log Game: save reference to this game to db ***/
 		async function logGame(message, winner) {
-			let winnerObj = await client.users.fetch(winner.id).then(theWinner => {
-				if (winnerObj !== null){
-					msg.channel.send("```Game Over!!!\n\nWinner: " + winner.username + "```");
-				} else {
-					msg.channel.send("```Game Over!!!\n\nNo Winner!```");
-				}
+			if (winner !== null){
+				msg.channel.send("```Game Over!!!\n\nWinner: " + winner.username + "```");
+			} else {
+				msg.channel.send("```Game Over!!!\n\nNo Winner!```");
+			}
 			
-				const game = await Games.create({
-					game_id: message.id,
-					creator_id: message.author.id,
-					creator_name: message.author.username,
-					game_start: message.createdAt,
-					game_end: Date.now(),
-					winner_id: winner,
-					server_id: message.guild.id,
-				});
+			const game = await Games.create({
+				game_id: message.id,
+				creator_id: message.author.id,
+				creator_name: message.author.username,
+				game_start: message.createdAt,
+				game_end: Date.now(),
+				winner_id: winner,
+				server_id: message.guild.id,
 			});
 			
 		}
