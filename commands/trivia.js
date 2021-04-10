@@ -133,6 +133,7 @@ module.exports = {
 					scores="N/A"
 				} else {
 		        	w.forEach( (value, key) => {
+						console.info('for ', key);
 						let j = client.users.fetch(key);
 						j.then(function(result1) {
 			               	players+=result1.username+"\n";
