@@ -142,7 +142,6 @@ module.exports = {
         	    	});
 				}
 
-				//await reportStats(msg, client);	
 
 				var leaderText = "";
 				if (winner !== null){
@@ -152,6 +151,8 @@ module.exports = {
 				}
 
 				console.info('Leader Text: ' + leaderText);
+				console.info('player text: ' + players);
+				console.info('scores: ' + scores);
 				const leaders = new Discord.MessageEmbed()
 					.setTitle("Game Results")
 					.setDescription("Scoreboard for the last game")
