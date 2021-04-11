@@ -327,11 +327,11 @@ module.exports = {
 			curRound++;
 			var winnerFlag = false;
 			var winner = null;
-			var correctAnswer = triviaObject.results[roundNumber].correct_answer;
+			var correctAnswer = triviaObj.results[roundNumber].correct_answer;
 			var questionTimeStamp = Date.now();
-			var chaffQuestion0 = triviaObject.results[roundNumber].incorrect_answers[0];
-			var chaffQuestion1 = triviaObject.results[roundNumber].incorrect_answers[1];
-			var chaffQuestion2 = triviaObject.results[roundNumber].incorrect_answers[2];
+			var chaffQuestion0 = triviaObj.results[roundNumber].incorrect_answers[0];
+			var chaffQuestion1 = triviaObj.results[roundNumber].incorrect_answers[1];
+			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
 			var questionId = null;
 			var questionPromise= logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
@@ -339,13 +339,13 @@ module.exports = {
 				questionId = result1.id;
 				console.info('Question ID ' + questionId);
 			});
-	    	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
+	    	triviaObj.results[roundNumber].incorrect_answers.push(triviaObj.results[roundNumber].correct_answer);
 
 			triviaObj.results[roundNumber].incorrect_answers.sort();
 
 			//if true and false put them in the other order
-			if (triviaObject.results[roundNumber].incorrect_answers.length == 2) {
-				triviaObject.results[roundNumber].incorrect_answers.reverse()
+			if (triviaObj.results[roundNumber].incorrect_answers.length == 2) {
+				triviaObj.results[roundNumber].incorrect_answers.reverse()
 			}
 
 			var points = triviaObj.results[roundNumber].incorrect_answers.length * 5;
@@ -422,7 +422,7 @@ module.exports = {
 				});
 
 				collector.on('end', collected => {
-					numRounds--;
+					
 					console.info('on end');
 					const ending = new Discord.MessageEmbed()
 						.setAuthor("Round Results")
@@ -442,9 +442,9 @@ module.exports = {
 						ending.addFields({name: 'The Correct Answer was:', value: correctAnswer})
 					}
 					msg.channel.send(ending)
-					if (numRounds >= 0) {
-						console.info('Round: ' + numRounds);
-						executeRound(triviaObj, numRounds);
+					if (roundNumber >= 0) {
+						console.info('Round: ' + roundNumber--);
+						executeRound(triviaObj, roundNumber);
 					} else {
 						logGame(msg, winner);
 						leaderboard(winners, true, winner);
@@ -481,16 +481,11 @@ module.exports = {
 
 		var numRounds = args[2];
 
-                const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
-                var triviaObject = JSON.parse(file);
+		const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
+		var triviaObject = JSON.parse(file);
 
 		rules();
-
 		logServer(msg);
-		numRounds--;
-
-//		timer(20,4,"Game will begin soon. Get Ready!");
-
-		executeRound(triviaObject, numRounds);
+		executeRound(triviaObject, numRounds--);
 	},
 };
