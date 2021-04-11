@@ -123,7 +123,7 @@ module.exports = {
 	/***** LEADERBOARD: Display the final leaderboard *****/
 
 		async function leaderboard(w, game, winner) {
-		
+			console.info('Leaderboard');
 		
 
 			if (game) {
@@ -238,14 +238,14 @@ module.exports = {
 	/*** Log Game: save reference to this game to db ***/
 		async function logGame(message, winner) {
 			
-			console.info('logGame post if');
+			console.info('logGame post if ' + winner.username);
 			const game = await Games.create({
 				game_id: message.id,
 				creator_id: message.author.id,
 				creator_name: message.author.username,
 				game_start: message.createdAt,
 				game_end: Date.now(),
-				winner_id: winner,
+				winner_id: winner.id,
 				server_id: message.guild.id,
 			});
 		}
