@@ -487,7 +487,8 @@ module.exports = {
 		console.info('Round: ' + numRounds); 
 		const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
 		var triviaObj = JSON.parse(file);
-
+		
+		console.info(JSON.stringify(triviaObj));
 		rules();
 		logServer(msg);
 		console.info("Before executeRound: " + numRounds);
