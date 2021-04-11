@@ -389,7 +389,6 @@ module.exports = {
 			console.info("Received Question ID outside then: " + questionId);
 			
 	    	triviaObj.results[roundNumber].incorrect_answers.push(triviaObj.results[roundNumber].correct_answer);
-
 			triviaObj.results[roundNumber].incorrect_answers.sort();
 
 			//if true and false put them in the other order
