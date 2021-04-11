@@ -322,7 +322,7 @@ module.exports = {
 					
 					console.info(value instanceof Questions);
 					console.info('Creating new Question: ' + value.id);
-					return value.id;
+					return Promise.resolve(value.id);
 				});
 			}
 		}
@@ -381,7 +381,10 @@ module.exports = {
 			var chaffQuestion1 = triviaObj.results[roundNumber].incorrect_answers[1];
 			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
-			var questionId = logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
+			var questionPromise = logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg).then(value => {
+				console.info("Value: " + value);
+				questionId = value;
+			});
 			
 				
 			console.info("Received Question ID outside then: " + questionId);
