@@ -8,6 +8,7 @@ var leaderbd = new Map();
 var userNameId = new Map();
 var q_time; // question time variable to shorten waiting time during testing
 var game_in_progres = false;
+var questionId = '';
 
 const sequelize = new Sequelize('database', 'user', 'password', {
 	                host: 'localhost',
@@ -106,12 +107,12 @@ module.exports = {
 
 	/***** GETQUESTION EMBED: Display questions to channel with an embed *****/
 
-		function getQuestionEmbed(triviaOjb, roundNumber, qNum) {
+		function getQuestionEmbed(triviaObj, roundNumber, qNum) {
 			choices = ""
 	
-			for (let i = 0; i < triviaObject.results[numRounds].incorrect_answers.length ; i++) {
+			for (let i = 0; i < triviaObj.results[roundNumber].incorrect_answers.length ; i++) {
 	                	j = i+1;
-	                	choices += "\n" + j + ". " + triviaObject.results[numRounds].incorrect_answers[i];
+	                	choices += "\n" + j + ". " + triviaObj.results[roundNumber].incorrect_answers[i];
 	        	}
 	
 			choices = cleanText(choices);
@@ -120,10 +121,10 @@ module.exports = {
 				.setColor('#0099ff')
 				.setAuthor('Question #'+qNum)
 				.addFields({name: 'Choices', value: choices},
-				           {name: 'Category', value: cleanText(triviaObject.results[roundNumber].category), inline: true},
-					   {name: 'Difficulty', value: cleanText(triviaObject.results[roundNumber].difficulty), inline: true}
+				           {name: 'Category', value: cleanText(triviaObj.results[roundNumber].category), inline: true},
+					   {name: 'Difficulty', value: cleanText(triviaObj.results[roundNumber].difficulty), inline: true}
 		  			  )
-				.setTitle(cleanText(triviaObject.results[roundNumber].question))
+				.setTitle(cleanText(triviaObj.results[roundNumber].question))
 				.setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png')
 				.setFooter("Question provided by The Open Trivia Database (https://opentdb.com)","https://opentdb.com/images/logo.png")
 	
@@ -134,7 +135,7 @@ module.exports = {
 	/***** LEADERBOARD: Display the final leaderboard *****/
 
 		async function leaderboard(w, game, winner) {
-		
+			console.info('Leaderboard ');
 		
 
 			if (game) {
@@ -249,14 +250,19 @@ module.exports = {
 	/*** Log Game: save reference to this game to db ***/
 		async function logGame(message, winner) {
 			
-			console.info('logGame post if');
+			
+			var winnerID = null;
+			if(winner !== null){
+				console.info('logGame post if ' + winner.username);
+				winnerID = winner.id;
+			}
 			const game = await Games.create({
 				game_id: message.id,
 				creator_id: message.author.id,
 				creator_name: message.author.username,
 				game_start: message.createdAt,
 				game_end: Date.now(),
-				winner_id: winner,
+				winner_id: winnerID,
 				server_id: message.guild.id,
 			});
 		}
@@ -264,7 +270,7 @@ module.exports = {
 
 
 		async function logResponse(isWinner, points, user, message, round, reaction, questionTime, answerTime, questionId) {
-			console.info('logResponse');
+			console.info('logResponse question: ' + questionId);
 			const userObj = await Users.findOne({ where:
 				{
 					user_id: user.id
@@ -305,33 +311,75 @@ module.exports = {
 		}
 
 		async function logQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message){
+			console.info("logQuestion1");
 			const questionObj = await Questions.findOne({ where:
 				{
 					question: triviaObj.results[roundNumber].question
 				}});
-
+			console.info("logQuestion2");	
 			if (questionObj !== null){
-				console.info('Existing Question need to link to current round');
-				return questionObj.question_id;
+				questionObj.then(value => {
+					console.info(value instanceof Questions);
+					console.info('Existing question: ' + value.id);
+					return value.id;
+				});
 			} else {
 				console.info('New Question: need to log it');
 				const newQuestion = await Questions.create({
 					question: triviaObj.results[roundNumber].question,
 					correct_answer: triviaObj.results[roundNumber].correct_answer,
 					answer2: chaff0,
-	       	        		answer3: chaff1,
-	       	        		answer4: chaff2,
-	       	        		category: triviaObj.results[roundNumber].category,
-	       	        		difficulty: triviaObj.results[roundNumber].difficulty
+	       	        answer3: chaff1,
+	       	        answer4: chaff2,
+	       	        category: triviaObj.results[roundNumber].category,
+	       	        difficulty: triviaObj.results[roundNumber].difficulty
 				}).then(value => {
-					console.info('logQuestion return: ' + value.question_id);
+					
+					console.info(value instanceof Questions);
+					console.info('Creating new Question: ' + value.id);
+					questionId = value.id;
 					return value.id;
 				});
-				
 			}
 		}
 
-
+		async function calculateWinner(message, winnersMap){
+			console.info('inside calculatewinner');
+			var gameWinner = null;
+			var tempScore = 0;
+			var tempId = "";
+			if (winnersMap.size > 0){
+				winnersMap.forEach((values, keys) => {
+					if (values > tempScore){
+						tempId = keys;
+						tempScore = values;
+					}
+					console.log("values: ", values +
+					  ", keys: ", keys + "\n")
+					console.log("values: ", tempScore +
+					  ", keys: ", tempId + "\n")
+				  });
+	
+				if (tempScore > 0) {
+					console.info('Best Score ' + tempScore);
+					let promise = await client.users.fetch(tempId).then( function(result1) {
+						console.info('inside then trying to assign gameWinner');
+						gameWinner = result1;
+						console.info('Winner: ' + gameWinner.username);
+						logGame(message, gameWinner);
+						leaderboard(winners, true, gameWinner);
+					});
+				} else {
+					logGame(message, null);
+					leaderboard(winners, true, null);
+				}
+			} else {
+				logGame(message, null);
+				leaderboard(winners, true, null);
+			}
+			
+			return gameWinner;
+		}
 	/***** EXECUTEROUND: Run a round of trivia *****/
 
 		async function executeRound(triviaObj, roundNumber) {
@@ -341,27 +389,28 @@ module.exports = {
 			curRound++;
 			var winnerFlag = false;
 			var winner = null;
-			var correctAnswer = triviaObject.results[roundNumber].correct_answer;
+			console.info("round number: " + roundNumber);
+			
+			var correctAnswer = triviaObj.results[roundNumber].correct_answer;
 			var questionTimeStamp = Date.now();
-			var chaffQuestion0 = triviaObject.results[roundNumber].incorrect_answers[0];
-			var chaffQuestion1 = triviaObject.results[roundNumber].incorrect_answers[1];
-			var chaffQuestion2 = triviaObject.results[roundNumber].incorrect_answers[2];
+			var chaffQuestion0 = triviaObj.results[roundNumber].incorrect_answers[0];
+			var chaffQuestion1 = triviaObj.results[roundNumber].incorrect_answers[1];
+			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
-			var questionId = null;
-			var questionPromise= logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
 
-			questionPromise.then(function(result1) {
-				questionId = result1.id;
-				console.info('Question ID ' + questionId);
-			});
-
-		    	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
+			await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
+			
+				
+			console.info("Received Question ID outside then: " + questionId);
+			
+			
+	    	triviaObj.results[roundNumber].incorrect_answers.push(triviaObj.results[roundNumber].correct_answer);
 
 			triviaObj.results[roundNumber].incorrect_answers.sort();
 
 			//if true and false put them in the other order
-			if (triviaObject.results[roundNumber].incorrect_answers.length == 2) {
-				triviaObject.results[roundNumber].incorrect_answers.reverse()
+			if (triviaObj.results[roundNumber].incorrect_answers.length == 2) {
+				triviaObj.results[roundNumber].incorrect_answers.reverse()
 			}
 
 			var points = triviaObj.results[roundNumber].incorrect_answers.length * 5;
@@ -412,7 +461,9 @@ module.exports = {
 						return true;
 					} else if (!players.has(user.id) && !user.bot) {
 						players.set(user.id,0);
-						console.info(user.username + ' Answered incorrectly (or again) and response is being logged to disk');
+						console.info(user.username + ' Answered incorrectly and response is being logged to disk');
+						
+						console.info("Question ID: " + questionId);
 						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp, Date.now(), questionId);
 						return false; 
 					} else {
@@ -437,11 +488,13 @@ module.exports = {
 					const currentScore = winners.get(user.id);
 					console.info(user.username + ' current score: ' + currentScore + ' plus ' + points);
 					winners.set(user.id, currentScore+points);
+					
+					console.info("Question ID: " + questionId);
 					logResponse(isWinner, points, user, msg, curRound, reaction, questionTimeStamp, Date.now(), questionId);
 				});
 
 				collector.on('end', collected => {
-					numRounds--;
+					
 					console.info('on end');
 					const ending = new Discord.MessageEmbed()
 						.setTitle("Round Results")
@@ -463,12 +516,15 @@ module.exports = {
 
 					msg.channel.send(ending)
 
-					if (numRounds >= 0) {
-						console.info('Round: ' + numRounds);
-						executeRound(triviaObj, numRounds);
+					roundNumber--;
+					if (roundNumber >= 0) {
+						console.info('Round: ' + roundNumber);
+						executeRound(triviaObj, roundNumber);
+
 					} else {
-						logGame(msg, winner);
-						leaderboard(winners, true, winner);
+						console.info('Start Calculate Winner');
+						const gameWinner = calculateWinner(msg, winners);
+						
 						game_in_progress=false;
 					}
 				});
@@ -502,16 +558,17 @@ module.exports = {
 
 		var numRounds = args[2];
 
-                const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
-                var triviaObject = JSON.parse(file);
-
-		intro();
+		console.info('Round: ' + numRounds);
+		
+		console.info('Round: ' + numRounds); 
+		const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
+		var triviaObj = JSON.parse(file);
+		numRounds--;
+		
+		rules();
 
 		logServer(msg);
-		numRounds--;
-
-//		timer(20,4,"Game will begin soon. Get Ready!");
-
-		executeRound(triviaObject, numRounds);
+		console.info("Before executeRound: " + numRounds);
+		executeRound(triviaObj, numRounds);
 	},
 };

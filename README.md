@@ -6,20 +6,24 @@ Forked from https://github.com/sitepoint-editors/discord-bot-sitepoint
 
 - [Node.js](http://nodejs.org/)
 - [Discord](https://discordapp.com/) account
+- [Sequelize]
 
 ## Installation Steps (if applicable)
 
 1. Clone repo
-2. Run `npm install`
-3. Run 'npm install --save ytdl-core opusscript'
-.1 install ffmpeg 'apt install ffmpeg'
-.2 install node-fetch
-.3 install he
-.4 npm install --save sequelize
-.5 apt install sqlite3
-4. Add Discord credentials in a `.env` file
-5. Run `node index.js`
-6. Interact with your Discord bot via your web browser
+2. npm install
+3. npm install --save ytdl-core 
+4. npm install --save opusscript'
+4. apt install ffmpeg
+5. npm install --save node-fetch
+6. npm install --save he
+7. npm install --save sequelize
+8. apt install sqlite3
+9. Add Discord credentials (Bot Token) in a `.env` file
+10. Run `node index.js` or npm run dev (ensure package.json properly configured)
+11. Interact with your Discord bot via your web browser
+12. npm install --save greetings 
+
 
 ## License
 
