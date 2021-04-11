@@ -311,9 +311,13 @@ module.exports = {
 	       	        		category: triviaObj.results[roundNumber].category,
 	       	        		difficulty: triviaObj.results[roundNumber].difficulty
 				}).then(value => {
+					
+					console.info('value instance? ' + value instanceof Questions);
 					console.info('logQuestion return: ' + value.question_id);
 					return value.id;
 				});
+				
+				console.info('newQuestion instance? ' + newQuestion instanceof Questions);
 				
 			}
 		}
