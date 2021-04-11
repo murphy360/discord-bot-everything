@@ -324,25 +324,30 @@ module.exports = {
 
 		async function calculateWinner(winnersMap){
 			const gameWinner = null;
-			var tmpScore = 0;
+			var tempScore = 0;
 			var tempId = "";
-			winnersMap.forEach((values, keys) => {
-				if (values > tmpScore){
-					tempId = keys;
-					tempScore = values;
-				}
-				console.log("values: ", values +
-				  ", keys: ", keys + "\n")
-			  });
-
-			if (tmpScore > 0) {
-				console.info('Score ' + tmpScore);
-				let promise = client.users.fetch(tmpId);
-				promise.then(function(result1) {
-					gameWinner = result1;
-					console.info('Winner: ' + gameWinner.username);
-			  	});
-			}  
+			if (winnersMap.size > 0){
+				winnersMap.forEach((values, keys) => {
+					if (values > tmpScore){
+						tempId = keys;
+						tempScore = values;
+					}
+					console.log("values: ", values +
+					  ", keys: ", keys + "\n")
+					console.log("values: ", tempScore +
+					  ", keys: ", tempId + "\n")
+				  });
+	
+				if (tmpScore > 0) {
+					console.info('Best Score ' + tempScore);
+					let promise = client.users.fetch(tempId);
+					promise.then(function(result1) {
+						gameWinner = result1;
+						console.info('Winner: ' + gameWinner.username);
+					});
+				}  
+			}
+			
 			return gameWinner;
 		}
 	/***** EXECUTEROUND: Run a round of trivia *****/
@@ -472,13 +477,12 @@ module.exports = {
 						console.info('Round: ' + roundNumber);
 						executeRound(triviaObj, roundNumber);
 					} else {
-						const promise = await calculateWinner(winners).then(value => {
-							console.info("The Winner is: " + value.username);
-							logGame(msg, value);
-							leaderboard(winners, true, value);
-							game_in_progress=false;
-						});
-						
+						console.info('Start Calculate Winner');
+						const promise = await calculateWinner(winners);
+						console.info("The Winner is: " + value.username);
+						logGame(msg, value);
+						leaderboard(winners, true, value);
+						game_in_progress=false;
 					}
 				});
 			});
