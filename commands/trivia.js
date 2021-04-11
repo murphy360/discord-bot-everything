@@ -295,12 +295,8 @@ module.exports = {
 			const questionObj = await Questions.findOne({ where:
 				{
 					question: triviaObj.results[roundNumber].question
-				}}).then(value => {
-					console.info(value instanceof Questions);
-					console.info('Question Exists: ' + value.id);
-					return value.id;
-				});;
-			console.info("logQuestion1");	
+				}});
+			console.info("logQuestion2");	
 			if (questionObj !== null){
 				console.info('Existing Question need to link to current round');
 				console.info('instance? ' + questionObj instanceof Questions);
