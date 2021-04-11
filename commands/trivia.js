@@ -430,7 +430,7 @@ module.exports = {
 					
 					if (winner !== null) {
 						console.info('winner: ' + winner.username + ' Score: ' + winners.get(winner.id));
-						ending.setTitle(winner.username+" won this round");
+						ending.setTitle(winner.username+" won this round")
 						ending.addFields(
 							{name: 'Winner', value: winner.username, inline: true},  
 							{name: 'Score', value: winners.get(winner.id), inline: true},
