@@ -1,4 +1,10 @@
 const Sequelize = require('sequelize');
+const sequelize = new Sequelize('database', 'user', 'password', {
+	host: 'localhost',
+	dialect: 'sqlite',
+	logging: false,
+	storage: 'database.sqlite',
+});
 const Games = require('./../models/Games')(sequelize, Sequelize.DataTypes);
 const Users = require('./../models/Users')(sequelize, Sequelize.DataTypes);
 const Servers = require('./../models/Servers')(sequelize, Sequelize.DataTypes);
