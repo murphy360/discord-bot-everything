@@ -12,8 +12,8 @@ module.exports = {
       console.info('ok');
       let json = await response.json();
     } else {
-      console.info('Error');
-      alert("HTTP-Error: " + response.status);
+      console.info('Error: ' + response.status);
+      
     }
 
     console.info('Random Joke: ' + file);
