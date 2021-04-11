@@ -322,7 +322,27 @@ module.exports = {
 			}
 		}
 
+		async function calculateWinner(winnersMap){
+			const gameWinner = null;
+			var tmpScore = 0;
+			var tempId = "";
+			winnersMap.forEach((values, keys) => {
+				if (values > tmpScore){
+					tempId = keys;
+					tempScore = values;
+				}
+				console.log("values: ", values +
+				  ", keys: ", keys + "\n")
+			  });
 
+			if (tmpScore > 0) {
+				let promise = client.users.fetch(tmpId);
+				promise.then(function(result1) {
+					gameWinner = result1;
+			  	});
+			}  
+			return gameWinner;
+		}
 	/***** EXECUTEROUND: Run a round of trivia *****/
 
 		async function executeRound(triviaObj, roundNumber) {
@@ -450,8 +470,9 @@ module.exports = {
 						console.info('Round: ' + roundNumber);
 						executeRound(triviaObj, roundNumber);
 					} else {
-						logGame(msg, winner);
-						leaderboard(winners, true, winner);
+						const gameWinner = calculateWinner(winners);
+						logGame(msg, gameWinner);
+						leaderboard(winners, true, gameWinner);
 						game_in_progress=false;
 					}
 				});
