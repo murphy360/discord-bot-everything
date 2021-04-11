@@ -485,11 +485,11 @@ module.exports = {
 		numRounds--;
 		console.info('Round: ' + numRounds); 
 		const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
-		var triviaObject = JSON.parse(file);
+		var triviaObj = JSON.parse(file);
 
 		rules();
 		logServer(msg);
 		console.info("Before executeRound: " + numRounds);
-		executeRound(triviaObject, numRounds);
+		executeRound(triviaObj, numRounds);
 	},
 };
