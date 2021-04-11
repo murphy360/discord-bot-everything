@@ -5,11 +5,12 @@ module.exports = {
   description: 'Random Jokes',
   async execute(msg, args) {
     
-    fetch('http://jsonplaceholder.typicode.com/users', { 
+    fetch('https://dad-jokes.p.rapidapi.com/random/joke', { 
       method: 'GET'})
       .then(function(response) { return response.json(); })
       .then(function(json) {
         console.info('Random Cat ' + JSON.stringify(json));
+        var jokeObject = JSON.parse(file);
       msg.channel.send('Random Cat');
       msg.channel.send(file);	  
 
