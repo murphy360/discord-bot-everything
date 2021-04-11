@@ -472,10 +472,13 @@ module.exports = {
 						console.info('Round: ' + roundNumber);
 						executeRound(triviaObj, roundNumber);
 					} else {
-						const gameWinner = calculateWinner(winners);
-						logGame(msg, gameWinner);
-						leaderboard(winners, true, gameWinner);
-						game_in_progress=false;
+						const promise = await calculateWinner(winners).then(value => {
+							console.info("The Winner is: " + value.username);
+							logGame(msg, value);
+							leaderboard(winners, true, value);
+							game_in_progress=false;
+						});
+						
 					}
 				});
 			});
