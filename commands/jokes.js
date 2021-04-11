@@ -12,7 +12,8 @@ module.exports = {
         console.info('Random Joke ' + JSON.stringify(json));
         var jokeObject = JSON.parse(json);
         console.info(JSON.stringify(jokeObject));
-        console.info("joke: " + jokeObject.attachmetns.text);
+        console.info("joke: " + jokeObject.attachments.text);
+        console.info("joke: " + jokeObject.attachments[0].text);
       msg.channel.send('Random Cat');
       msg.channel.send(file);	  
 
