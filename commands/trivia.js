@@ -565,7 +565,7 @@ module.exports = {
 		var triviaObj = JSON.parse(file);
 		numRounds--;
 		
-		rules();
+		intro();
 
 		logServer(msg);
 		console.info("Before executeRound: " + numRounds);
