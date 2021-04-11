@@ -381,11 +381,11 @@ module.exports = {
 			var chaffQuestion1 = triviaObj.results[roundNumber].incorrect_answers[1];
 			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
-			const questionPromise = await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg).then(function(result1) {
-				console.info('lookup: ' + result1);
-				questionId = result1;
-				console.info("Received Question ID: " + questionId);
-			});
+			const questionPromise = await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
+			questionPromise.then(
+				function(value) { console.info('Result: ' + value);},
+				function(error) { console.info('error: ' + error);}
+			);
 			console.info("Received Question ID outside then: " + questionId);
 			
 	    	triviaObj.results[roundNumber].incorrect_answers.push(triviaObj.results[roundNumber].correct_answer);
