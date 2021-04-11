@@ -23,15 +23,15 @@ module.exports = {
 		});
 
 		const playerList = await Users.count().then(numUsers => {
-			msg.channel.send('All Time # of Players: ' + numUsers);
+			message.channel.send('All Time # of Players: ' + numUsers);
 		});
 
 		const ServerList = await Servers.count().then(numServers => {
-			msg.channel.send('All Time # of Servers: ' + numServers);
+			message.channel.send('All Time # of Servers: ' + numServers);
 		});
 
 		const questionList = await Questions.count().then(numQuestions => {
-			msg.channel.send('All Time # of Questions: ' + numQuestions);
+			message.channel.send('All Time # of Questions: ' + numQuestions);
 		});
 	
 		     
