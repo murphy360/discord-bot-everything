@@ -8,6 +8,7 @@ var leaderbd = new Map();
 var userNameId = new Map();
 var q_time; // question time variable to shorten waiting time during testing
 var game_in_progres = false;
+var questionId = '';
 
 const sequelize = new Sequelize('database', 'user', 'password', {
 	                host: 'localhost',
@@ -381,10 +382,7 @@ module.exports = {
 			var chaffQuestion1 = triviaObj.results[roundNumber].incorrect_answers[1];
 			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
-			var questionPromise = await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg).then(value => {
-				console.info("Value: " + value);
-				questionId = value;
-			});
+			await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
 			
 				
 			console.info("Received Question ID outside then: " + questionId);
