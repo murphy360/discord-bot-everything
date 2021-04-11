@@ -347,7 +347,10 @@ module.exports = {
 						logGame(message, gameWinner);
 						leaderboard(winners, true, gameWinner);
 					});
-				}  
+				} else {
+					logGame(message, null);
+					leaderboard(winners, true, null);
+				}
 			}
 			
 			return gameWinner;
