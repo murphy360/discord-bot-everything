@@ -323,7 +323,8 @@ module.exports = {
 					
 					console.info(value instanceof Questions);
 					console.info('Creating new Question: ' + value.id);
-					return Promise.resolve(value.id);
+					questionId = value.id;
+					return value.id;
 				});
 			}
 		}
