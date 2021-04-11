@@ -12,9 +12,7 @@ module.exports = {
         console.info('Random Joke ' + JSON.stringify(json));
         
         console.info("joke: " + json.attachments[0].text);
-        console.info("joke: " + json.attachments.text);
-      //msg.channel.send('Random Cat');
-      //msg.channel.send(file);	  
+        msg.channel.send(json.attachments[0].text);
         });
     
   },
