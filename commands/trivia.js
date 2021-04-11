@@ -95,12 +95,12 @@ module.exports = {
 
 	/***** GETQUESTION EMBED: Display questions to channel with an embed *****/
 
-		function getQuestionEmbed(triviaOjb, roundNumber, qNum) {
+		function getQuestionEmbed(triviaObj, roundNumber, qNum) {
 			choices = ""
 	
-			for (let i = 0; i < triviaObject.results[numRounds].incorrect_answers.length ; i++) {
+			for (let i = 0; i < triviaObj.results[numRounds].incorrect_answers.length ; i++) {
 	                	j = i+1;
-	                	choices += "\n" + j + ". " + triviaObject.results[numRounds].incorrect_answers[i];
+	                	choices += "\n" + j + ". " + triviaObj.results[numRounds].incorrect_answers[i];
 	        	}
 	
 			choices = cleanText(choices);
@@ -109,10 +109,10 @@ module.exports = {
 				.setColor('#0099ff')
 				.setAuthor('Question #'+qNum)
 				.addFields({name: 'Choices', value: choices},
-				           {name: 'Category', value: cleanText(triviaObject.results[roundNumber].category), inline: true},
-					   {name: 'Difficulty', value: cleanText(triviaObject.results[roundNumber].difficulty), inline: true}
+				           {name: 'Category', value: cleanText(triviaObj.results[roundNumber].category), inline: true},
+					   {name: 'Difficulty', value: cleanText(triviaObj.results[roundNumber].difficulty), inline: true}
 		  			  )
-				.setTitle(cleanText(triviaObject.results[roundNumber].question))
+				.setTitle(cleanText(triviaObj.results[roundNumber].question))
 				.setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png')
 				.setFooter("Question provided by The Open Trivia Database (https://opentdb.com)","https://opentdb.com/images/logo.png")
 	
