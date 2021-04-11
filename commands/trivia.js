@@ -328,7 +328,7 @@ module.exports = {
 			var winnerFlag = false;
 			var winner = null;
 			console.info("round number: " + roundNumber);
-			console.info(JSON.stringify(triviaObj));
+			
 			var correctAnswer = triviaObj.results[roundNumber].correct_answer;
 			var questionTimeStamp = Date.now();
 			var chaffQuestion0 = triviaObj.results[roundNumber].incorrect_answers[0];
@@ -489,7 +489,7 @@ module.exports = {
 		const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
 		var triviaObj = JSON.parse(file);
 		numRounds--;
-		console.info(JSON.stringify(triviaObj));
+		
 		rules();
 		logServer(msg);
 		console.info("Before executeRound: " + numRounds);
