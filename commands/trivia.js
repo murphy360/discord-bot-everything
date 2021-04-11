@@ -336,9 +336,11 @@ module.exports = {
 			  });
 
 			if (tmpScore > 0) {
+				console.info('Score ' + tmpScore);
 				let promise = client.users.fetch(tmpId);
 				promise.then(function(result1) {
 					gameWinner = result1;
+					console.info('Winner: ' + gameWinner.username);
 			  	});
 			}  
 			return gameWinner;
