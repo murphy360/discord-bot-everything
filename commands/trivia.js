@@ -478,10 +478,10 @@ module.exports = {
 						executeRound(triviaObj, roundNumber);
 					} else {
 						console.info('Start Calculate Winner');
-						const promise = await calculateWinner(winners);
-						console.info("The Winner is: " + value.username);
-						logGame(msg, value);
-						leaderboard(winners, true, value);
+						const gameWinner = calculateWinner(winners);
+						console.info("The Winner is: " + gameWinner.username);
+						logGame(msg, gameWinner);
+						leaderboard(winners, true, gameWinner);
 						game_in_progress=false;
 					}
 				});
