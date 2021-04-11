@@ -6,5 +6,5 @@ module.exports = {
   Trivia: require('./trivia'),
   Cat: require('./cat'),
   Stats: require('./stats'),
-  Jokes: require('./jokes'),
+  Joke: require('./joke'),
 };
