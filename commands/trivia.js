@@ -298,9 +298,11 @@ module.exports = {
 				}});
 			console.info("logQuestion2");	
 			if (questionObj !== null){
-				console.info('Existing Question need to link to current round');
-				console.info('instance? ' + questionObj instanceof Questions);
-				
+				questionObj.then(value => {
+					console.info(value instanceof Questions);
+					console.info('Existing question: ' + value.id);
+					return value.id;
+				});
 			} else {
 				console.info('New Question: need to log it');
 				const newQuestion = await Questions.create({
@@ -317,9 +319,6 @@ module.exports = {
 					console.info('Creating new Question: ' + value.id);
 					return value.id;
 				});
-				console.info('test did I get here');
-				console.info(newQuestion instanceof Questions);
-				
 			}
 		}
 
@@ -399,7 +398,7 @@ module.exports = {
 						return true;
 					} else if (!players.has(user.id) && !user.bot) {
 						players.set(user.id,0);
-						console.info(user.username + ' Answered incorrectly (or again) and response is being logged to disk');
+						console.info(user.username + ' Answered incorrectly and response is being logged to disk');
 						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp, Date.now(), questionId);
 						return false; 
 					} else {
