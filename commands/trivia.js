@@ -323,6 +323,7 @@ module.exports = {
 		}
 
 		async function calculateWinner(message, winnersMap){
+			console.info('inside calculatewinner');
 			var gameWinner = null;
 			var tempScore = 0;
 			var tempId = "";
@@ -351,6 +352,9 @@ module.exports = {
 					logGame(message, null);
 					leaderboard(winners, true, null);
 				}
+			} else {
+				logGame(message, null);
+				leaderboard(winners, true, null);
 			}
 			
 			return gameWinner;
