@@ -250,24 +250,7 @@ module.exports = {
 			});
 		}
 		
-		/***** Report Stats: Write an embed message with applicable stats *****/
-		async function reportStats(message, client) {
-			const gamesList = await Games.count().then(games => {
-			    message.channel.send('All Time Games Played: ' + games);
-			});
 
-			const playerList = await Users.count().then(numUsers => {
-	        	msg.channel.send('All Time # of Players: ' + numUsers);
-			});
-
-			const ServerList = await Servers.count().then(numServers => {
-				msg.channel.send('All Time # of Servers: ' + numServers);
-			});
-
-			const questionList = await Questions.count().then(numQuestions => {
-				msg.channel.send('All Time # of Questions: ' + numQuestions);
-			});
-		}
 
 		async function logResponse(isWinner, points, user, message, round, reaction, questionTime, answerTime, questionId) {
 			console.info('logResponse');
@@ -351,8 +334,11 @@ module.exports = {
 			var chaffQuestion2 = triviaObject.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
 			var questionId = null;
-			var questionId= logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
-		
+			var questionPromise= logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
+			questionPromise.then(function(result1) {
+				questionId = result1.id;
+				console.info('Question ID ' + questionId);
+			});
 	    	triviaObject.results[roundNumber].incorrect_answers.push(triviaObject.results[roundNumber].correct_answer);
 
 			triviaObj.results[roundNumber].incorrect_answers.sort();

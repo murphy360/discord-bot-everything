@@ -28,19 +28,16 @@ Object.keys(botCommands).map(key => {
   bot.commands.set(botCommands[key].name, botCommands[key]);
 });
 
-
-
 //Callback when bot joins the server TODO channelID should be automatically discovered
 bot.on('ready', () => {
   const channelID = "828303498994647134"
   bot.channels.cache.get(channelID).send('I have arrived!');
-  const toSync = true;
+  const toSync = false;
   Games.sync({ force: toSync });
   Users.sync({ force: toSync });
   Questions.sync({ force: toSync });
   Responses.sync({ force: toSync });
   Servers.sync({ force: toSync });
-
 });
 
 //Callback when bot reads a message

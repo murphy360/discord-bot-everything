@@ -5,4 +5,5 @@ module.exports = {
   Leave: require('./leave'),
   Trivia: require('./trivia'),
   Cat: require('./cat'),
+  Stats: require('./stats'),
 };
