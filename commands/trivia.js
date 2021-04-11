@@ -327,6 +327,7 @@ module.exports = {
 			curRound++;
 			var winnerFlag = false;
 			var winner = null;
+			console.info("round number: " + roundNumber);
 			var correctAnswer = triviaObj.results[roundNumber].correct_answer;
 			var questionTimeStamp = Date.now();
 			var chaffQuestion0 = triviaObj.results[roundNumber].incorrect_answers[0];
@@ -486,6 +487,7 @@ module.exports = {
 
 		rules();
 		logServer(msg);
+		console.info("Before executeRound: " + numRounds);
 		executeRound(triviaObject, numRounds--);
 	},
 };
