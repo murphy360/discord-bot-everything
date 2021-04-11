@@ -9,8 +9,10 @@ module.exports = {
     
     if (response.ok) { // if HTTP-status is 200-299
       // get the response body (the method explained below)
+      console.info('ok');
       let json = await response.json();
     } else {
+      console.info('Error');
       alert("HTTP-Error: " + response.status);
     }
 
