@@ -4,7 +4,7 @@ module.exports = {
   description: 'Random Cats',
   async execute(msg, args) {
    
-    const { file } = await fetch('https://aws.random.cat/meow').then(response => response.text());
+    const { file } = await fetch('https://aws.random.cat/meow').then(response => response.json());
     console.info('Random Cat');
     msg.channel.send('Random Cat');
     msg.channel.send(file);	  
