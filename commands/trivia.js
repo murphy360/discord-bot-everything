@@ -295,9 +295,10 @@ module.exports = {
 				{
 					question: triviaObj.results[roundNumber].question
 				}});
-
+				
 			if (questionObj !== null){
 				console.info('Existing Question need to link to current round');
+				console.info('instance? ' + questionObj instanceof Questions);
 				return questionObj.question_id;
 			} else {
 				console.info('New Question: need to log it');
