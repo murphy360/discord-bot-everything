@@ -98,9 +98,9 @@ module.exports = {
 		function getQuestionEmbed(triviaObj, roundNumber, qNum) {
 			choices = ""
 	
-			for (let i = 0; i < triviaObj.results[numRounds].incorrect_answers.length ; i++) {
+			for (let i = 0; i < triviaObj.results[roundNumber].incorrect_answers.length ; i++) {
 	                	j = i+1;
-	                	choices += "\n" + j + ". " + triviaObj.results[numRounds].incorrect_answers[i];
+	                	choices += "\n" + j + ". " + triviaObj.results[roundNumber].incorrect_answers[i];
 	        	}
 	
 			choices = cleanText(choices);
@@ -421,6 +421,7 @@ module.exports = {
 				for (let i=0;i < triviaObj.results[roundNumber].incorrect_answers.length;i++) {
 					sentMsg.react(REACT[i]);
 				}
+
 				timer(q_time,5,'Time Remaining');
 
 				const filter = (reaction, user) => {
