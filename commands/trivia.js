@@ -381,8 +381,7 @@ module.exports = {
 			var chaffQuestion1 = triviaObj.results[roundNumber].incorrect_answers[1];
 			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
-			const questionPromise = await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
-			questionPromise.then(
+			await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg).then(
 				function(value) { console.info('Result: ' + value);},
 				function(error) { console.info('error: ' + error);}
 			);
