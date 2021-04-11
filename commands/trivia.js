@@ -123,7 +123,7 @@ module.exports = {
 	/***** LEADERBOARD: Display the final leaderboard *****/
 
 		async function leaderboard(w, game, winner) {
-			console.info('Leaderboard ' + winner.username);
+			console.info('Leaderboard ');
 		
 
 			if (game) {
@@ -238,14 +238,19 @@ module.exports = {
 	/*** Log Game: save reference to this game to db ***/
 		async function logGame(message, winner) {
 			
-			console.info('logGame post if ' + winner.username);
+			
+			var winnerID = null;
+			if(winner !== null){
+				console.info('logGame post if ' + winner.username);
+				winnerID = winner.id;
+			}
 			const game = await Games.create({
 				game_id: message.id,
 				creator_id: message.author.id,
 				creator_name: message.author.username,
 				game_start: message.createdAt,
 				game_end: Date.now(),
-				winner_id: winner.id,
+				winner_id: winnerID,
 				server_id: message.guild.id,
 			});
 		}
