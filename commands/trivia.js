@@ -323,7 +323,7 @@ module.exports = {
 		}
 
 		async function calculateWinner(winnersMap){
-			const gameWinner = null;
+			var gameWinner = null;
 			var tempScore = 0;
 			var tempId = "";
 			if (winnersMap.size > 0){
