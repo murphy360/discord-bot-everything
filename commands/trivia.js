@@ -257,7 +257,7 @@ module.exports = {
 		
 
 
-		async function logResponse(isWinner, points, user, message, round, reaction, questionTime, answerTime, questionId) {
+		function logResponse(isWinner, points, user, message, round, reaction, questionTime, answerTime, questionId) {
 			console.info('logResponse question: ' + questionId);
 			const userObj = await Users.findOne({ where:
 				{
@@ -381,12 +381,10 @@ module.exports = {
 			var chaffQuestion1 = triviaObj.results[roundNumber].incorrect_answers[1];
 			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
-			var questionId = await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg).then(response => 
-				{
-					console.info("Question Response " + response);
-				});
+			var questionId = logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
+			
 				
-				console.info("Received Question ID outside then: " + questionId);
+			console.info("Received Question ID outside then: " + questionId);
 			
 			
 	    	triviaObj.results[roundNumber].incorrect_answers.push(triviaObj.results[roundNumber].correct_answer);
@@ -446,6 +444,8 @@ module.exports = {
 					} else if (!players.has(user.id) && !user.bot) {
 						players.set(user.id,0);
 						console.info(user.username + ' Answered incorrectly and response is being logged to disk');
+						
+						console.info("Question ID: " + questionId);
 						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp, Date.now(), questionId);
 						return false; 
 					} else {
@@ -468,6 +468,8 @@ module.exports = {
 					const currentScore = winners.get(user.id);
 					console.info(user.username + ' current score: ' + currentScore + ' plus ' + points);
 					winners.set(user.id, currentScore+points);
+					
+					console.info("Question ID: " + questionId);
 					logResponse(isWinner, points, user, msg, curRound, reaction, questionTimeStamp, Date.now(), questionId);
 				});
 
