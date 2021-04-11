@@ -328,7 +328,7 @@ module.exports = {
 			var tempId = "";
 			if (winnersMap.size > 0){
 				winnersMap.forEach((values, keys) => {
-					if (values > tmpScore){
+					if (values > tempScore){
 						tempId = keys;
 						tempScore = values;
 					}
@@ -338,7 +338,7 @@ module.exports = {
 					  ", keys: ", tempId + "\n")
 				  });
 	
-				if (tmpScore > 0) {
+				if (tempScore > 0) {
 					console.info('Best Score ' + tempScore);
 					let promise = client.users.fetch(tempId);
 					promise.then(function(result1) {
