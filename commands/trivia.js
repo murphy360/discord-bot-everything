@@ -291,6 +291,7 @@ module.exports = {
 		}
 
 		async function logQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message){
+			console.info("logQuestion");
 			const questionObj = await Questions.findOne({ where:
 				{
 					question: triviaObj.results[roundNumber].question
@@ -312,12 +313,13 @@ module.exports = {
 	       	        		difficulty: triviaObj.results[roundNumber].difficulty
 				}).then(value => {
 					
-					console.info('value instance? ' + value instanceof Questions);
-					console.info('logQuestion return: ' + value.question_id);
+					console.info(value instanceof Questions);
+					console.info('logQuestion return: ' + value.id);
+					console.info('logQuestion return: ' + value);
 					return value.id;
 				});
 				
-				console.info('newQuestion instance? ' + newQuestion instanceof Questions);
+				console.info(newQuestion instanceof Questions);
 				
 			}
 		}
