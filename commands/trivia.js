@@ -40,9 +40,9 @@ module.exports = {
 				.setColor("#0099ff")
 				.setDescription("Welcome to Trivia. This was created by Corey Murphy and Christian Acord")
 				.addField("How to Play","When the question is displayed react with the corresponding number to the correct (or incorrect) answer.")
-				.addField("You get one chance, subsequent reactions are ignored.")
-				.addField("The first correct answer receives the most points, subsequent answers are reduced to a minimum of 5 points")
-				.addField("Incorrect answers receive no score")
+				.addField("The first correct answer receives the most points","Subsequent answers are reduced to a minimum of 5 points")
+				.addField("You get one chance","Subsequent reactions are ignored.")
+				.addField("Incorrect answers","Incorrect answers receive no score")
 	 		msg.channel.send(rules);
 		}
 
