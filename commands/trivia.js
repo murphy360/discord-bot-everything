@@ -142,7 +142,7 @@ module.exports = {
 				
 				var leaderText = "No Winner";
 				if (winner !== null){
-					leaderText = winner.username;
+					leaderText = "Congrats to our winner, " + winner.username;
 				}
 
 				console.info('Leader Text: ' + leaderText);
@@ -150,7 +150,7 @@ module.exports = {
 				console.info('scores: ' + scores);
 				const leaders = new Discord.MessageEmbed()
 					.setTitle("Game Results")
-					.setDescription("Congrats to our winner, " + leaderText + '!')
+					.setDescription(leaderText)
 					.setColor("#0099ff")
 					.addFields(
 						{name: "Players", value: players, inline: true},
