@@ -123,7 +123,7 @@ module.exports = {
 	/***** LEADERBOARD: Display the final leaderboard *****/
 
 		async function leaderboard(w, game, winner) {
-			console.info('Leaderboard');
+			console.info('Leaderboard ' + winner.username);
 		
 
 			if (game) {
@@ -322,7 +322,7 @@ module.exports = {
 			}
 		}
 
-		async function calculateWinner(winnersMap){
+		async function calculateWinner(message, winnersMap){
 			var gameWinner = null;
 			var tempScore = 0;
 			var tempId = "";
@@ -344,6 +344,8 @@ module.exports = {
 						console.info('inside then trying to assign gameWinner');
 						gameWinner = result1;
 						console.info('Winner: ' + gameWinner.username);
+						logGame(message, gameWinner);
+						leaderboard(winners, true, gameWinner);
 					});
 				}  
 			}
@@ -478,10 +480,8 @@ module.exports = {
 						executeRound(triviaObj, roundNumber);
 					} else {
 						console.info('Start Calculate Winner');
-						const gameWinner = calculateWinner(winners);
-						console.info("The Winner is: " + gameWinner.username);
-						logGame(msg, gameWinner);
-						leaderboard(winners, true, gameWinner);
+						const gameWinner = calculateWinner(msg, winners);
+						
 						game_in_progress=false;
 					}
 				});
