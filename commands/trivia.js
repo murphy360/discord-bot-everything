@@ -40,10 +40,11 @@ module.exports = {
 				.setColor("#0099ff")
 				.setDescription("Welcome to Trivia. This was created by Corey Murphy and Christian Acord")
 				.addField("How to Play","When the question is displayed react with the corresponding number to the correct (or incorrect) answer.")
+				.addField("You get one chance, subsequent reactions are ignored.")
+				.addField("The first correct answer receives the most points, subsequent answers are reduced to a minimum of 5 points")
+				.addField("Incorrect answers receive no score")
 	 		msg.channel.send(rules);
 		}
-
-
 
 	/***** TIMER: Sets a timer displaying a progress bar countdown *****/
 
@@ -130,23 +131,15 @@ module.exports = {
 				let players=""
 				let scores=""
 					if ( w.size <= 0 ) {
-						console.info('w size 0');
 						players="None"
 						scores="N/A"
 					} else {
 						w.forEach( (value, key) => {
-							console.info('looking for ' + key);
-							
 							players+=userNameId.get(key)+"\n";
 							scores+=value+"\n";
-	
-							console.info('building end game leaderboard results ' + players);
-							console.info('building end game leaderboard results ' + scores);
 						});
 					}
 				
-				
-
 				var leaderText = "No Winner";
 				if (winner !== null){
 					leaderText = winner.username;
@@ -157,7 +150,7 @@ module.exports = {
 				console.info('scores: ' + scores);
 				const leaders = new Discord.MessageEmbed()
 					.setTitle("Game Results")
-					.setDescription("Winner: " + leaderText)
+					.setDescription("Congrats to our winner, " + leaderText + '!')
 					.setColor("#0099ff")
 					.addFields(
 						{name: "Players", value: players, inline: true},
