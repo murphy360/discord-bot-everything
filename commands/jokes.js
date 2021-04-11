@@ -5,9 +5,15 @@ module.exports = {
   description: 'Random Jokes',
   async execute(msg, args) {
     
-    const { file } = await fetch('https://dad-jokes.p.rapidapi.com/random/joke').then(response => {
-      return response
-  });
+    let response = await fetch('https://dad-jokes.p.rapidapi.com/random/joke');
+    
+    if (response.ok) { // if HTTP-status is 200-299
+      // get the response body (the method explained below)
+      let json = await response.json();
+    } else {
+      alert("HTTP-Error: " + response.status);
+    }
+
     console.info('Random Joke: ' + file);
     msg.channel.send('Random Joke');
     msg.channel.send(file);	  
