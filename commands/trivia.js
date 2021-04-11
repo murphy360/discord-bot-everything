@@ -381,10 +381,8 @@ module.exports = {
 			var chaffQuestion1 = triviaObj.results[roundNumber].incorrect_answers[1];
 			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
-			var questionPromise = await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg).then(value => {
-				questionId = value; 
-			});
-			console.info("Question Promise " + questionPromise);
+			var questionId = await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg).then(response);
+			console.info("Question Promise " + questionId);
 			console.info("Received Question ID outside then: " + questionId);
 			
 	    	triviaObj.results[roundNumber].incorrect_answers.push(triviaObj.results[roundNumber].correct_answer);
