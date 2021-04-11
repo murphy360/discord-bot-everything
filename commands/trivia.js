@@ -279,11 +279,11 @@ module.exports = {
 					user_id: user.id,
 					round_number: round,
 					question_id: questionId,
-	       	        q_time: questionTime,
-	       	        a_time: answerTime,
-	       	        correct: correctAnswer,
-	       	        points: points,
-	       	        winner: isWinner,
+	       	        		q_time: questionTime,
+	       	        		a_time: answerTime,
+	       	        		correct: correctAnswer,
+	       	        		points: points,
+	       	        		winner: isWinner,
 				});
 			} else {
 				console.info(user.username + ' has already answered');
@@ -305,10 +305,10 @@ module.exports = {
 					question: triviaObj.results[roundNumber].question,
 					correct_answer: triviaObj.results[roundNumber].correct_answer,
 					answer2: chaff0,
-	       	        answer3: chaff1,
-	       	        answer4: chaff2,
-	       	        category: triviaObj.results[roundNumber].category,
-	       	        difficulty: triviaObj.results[roundNumber].difficulty
+	       	        		answer3: chaff1,
+	       	        		answer4: chaff2,
+	       	        		category: triviaObj.results[roundNumber].category,
+	       	        		difficulty: triviaObj.results[roundNumber].difficulty
 				}).then(value => {
 					console.info('logQuestion return: ' + value.question_id);
 					return value.id;
@@ -352,7 +352,7 @@ module.exports = {
 
 			console.info("Points = " + points);
 
-	    	var correct_react = "";
+	    		var correct_react = "";
 
 			for (let i=0;i<triviaObj.results[roundNumber].incorrect_answers.length;i++) {
 				if (triviaObj.results[roundNumber].incorrect_answers[i] == triviaObj.results[roundNumber].correct_answer) {
@@ -393,15 +393,15 @@ module.exports = {
 						players.set(user.id,0);
 						console.info(user.username + ' Answered correctly and made it through the filter');
 						return true;
-					}else if (!players.has(user.id) && !user.bot) {
+					} else if (!players.has(user.id) && !user.bot) {
 						players.set(user.id,0);
 						console.info(user.username + ' Answered incorrectly (or again) and response is being logged to disk');
 						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp, Date.now(), questionId);
 						return false; 
-					}else{
+					} else {
 						console.info(user.username + ' is being ignored');
 					}
-		        }
+		        	}
 				
 
 				const collector = sentMsg.createReactionCollector(filter, { time: q_time*1000 });
@@ -425,12 +425,12 @@ module.exports = {
 					numRounds--;
 					console.info('on end');
 					const ending = new Discord.MessageEmbed()
-						.setTitle("Round Results")
+						.setAuthor("Round Results")
 						.setColor("#0099ff")
-					
 					
 					if (winner !== null) {
 						console.info('winner: ' + winner.username + ' Score: ' + winners.get(winner.id));
+						ending.setTitle(winner.username+" won this round");
 						ending.addFields(
 							{name: 'Winner', value: winner.username, inline: true},  
 							{name: 'Score', value: winners.get(winner.id), inline: true},
@@ -438,7 +438,7 @@ module.exports = {
 						});
 					} else {
 						console.info('No Winner for ROund ' + curRound);
-						ending.setDescription("That was a hard one!")
+						ending.setTitle("That was a hard one!")
 						ending.addFields({name: 'The Correct Answer was:', value: correctAnswer})
 					}
 					msg.channel.send(ending)
@@ -457,7 +457,7 @@ module.exports = {
 /********** EXECUTION CODE **********/
 
 		var winners = new Map();
-        var curRound=0;
+        	var curRound=0;
 
 		if (args[2].toLowerCase() === 'rules') {
 			rules();
