@@ -32,6 +32,17 @@ module.exports = {
 /********** FUNCTION DEFINITIONS **********/
 
 
+/***** INTRO: Display Intro before game *****/
+		function intro() {
+			const intro = new Discord.MessageEmbed()
+				.setAuthor('Trivia Game')
+				.setColor("#0099ff")
+				.setTitle(msg.author.username+" has challenged everyone to a game of trivia.")
+				.setDescription("As the questions are displayed answer by reacting to the question with the correct emoji.")
+			msg.channel.send(intro);
+		}
+
+
 /***** RULES: Display Rules in an embed message *****/
 
 		function rules() {
@@ -276,8 +287,11 @@ module.exports = {
 					user_id: user.id,
 					game_id: message.id,
 					round_number: round
-			}});
+				}
+			});
+
 			const correctAnswer = points>0;
+
 			if (response === null) {
 				console.info('not found logging response for ' + user.username);
 				const loggedResponse = await Responses.create({
@@ -383,6 +397,7 @@ module.exports = {
 			var chaffQuestion1 = triviaObj.results[roundNumber].incorrect_answers[1];
 			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
+
 			await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
 			
 				
@@ -390,6 +405,7 @@ module.exports = {
 			
 			
 	    	triviaObj.results[roundNumber].incorrect_answers.push(triviaObj.results[roundNumber].correct_answer);
+
 			triviaObj.results[roundNumber].incorrect_answers.sort();
 
 			//if true and false put them in the other order
@@ -413,7 +429,7 @@ module.exports = {
 			if (args[2] == 1) {
 				// DO NOTHING
 
-	       	} else if (curRound == args[2]) {
+	       		} else if (curRound == args[2]) {
 				msg.channel.send('**Final Round is starting**');
 //				timer(20,4,'**Final Round begin soon...**');
 			} else {
@@ -459,13 +475,15 @@ module.exports = {
 				const collector = sentMsg.createReactionCollector(filter, { time: q_time*1000 });
 				collector.on('collect', (reaction, user) => {
 					var isWinner = false;
+
 					if (!winnerFlag) {
 						winnerFlag = true;
 						isWinner = true;
 						winner = user;
-					}else if (points > 5) {
+					} else if (points > 5) {
 						points = points - 5;
 					}
+
 					//winners is used for tracking total game score
 					const currentScore = winners.get(user.id);
 					console.info(user.username + ' current score: ' + currentScore + ' plus ' + points);
@@ -479,12 +497,12 @@ module.exports = {
 					
 					console.info('on end');
 					const ending = new Discord.MessageEmbed()
-						.setAuthor("Round Results")
+						.setTitle("Round Results")
 						.setColor("#0099ff")
 					
 					if (winner !== null) {
 						console.info('winner: ' + winner.username + ' Score: ' + winners.get(winner.id));
-						ending.setTitle(winner.username+" won this round")
+						ending.setDescription(winner.username+" won this round")
 						ending.addFields(
 							{name: 'Winner', value: winner.username, inline: true},  
 							{name: 'Score', value: winners.get(winner.id), inline: true},
@@ -492,14 +510,17 @@ module.exports = {
 						});
 					} else {
 						console.info('No Winner for ROund ' + curRound);
-						ending.setTitle("That was a hard one!")
+						ending.setDescription("That was a hard one!")
 						ending.addFields({name: 'The Correct Answer was:', value: correctAnswer})
 					}
+
 					msg.channel.send(ending)
+
 					roundNumber--;
 					if (roundNumber >= 0) {
 						console.info('Round: ' + roundNumber);
 						executeRound(triviaObj, roundNumber);
+
 					} else {
 						console.info('Start Calculate Winner');
 						const gameWinner = calculateWinner(msg, winners);
@@ -536,6 +557,7 @@ module.exports = {
 		}
 
 		var numRounds = args[2];
+
 		console.info('Round: ' + numRounds);
 		
 		console.info('Round: ' + numRounds); 
@@ -544,6 +566,7 @@ module.exports = {
 		numRounds--;
 		
 		rules();
+
 		logServer(msg);
 		console.info("Before executeRound: " + numRounds);
 		executeRound(triviaObj, numRounds);
