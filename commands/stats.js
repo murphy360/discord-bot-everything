@@ -1,3 +1,10 @@
+const Sequelize = require('sequelize');
+const Games = require('./../models/Games')(sequelize, Sequelize.DataTypes);
+const Users = require('./../models/Users')(sequelize, Sequelize.DataTypes);
+const Servers = require('./../models/Servers')(sequelize, Sequelize.DataTypes);
+const Responses = require('./../models/Responses')(sequelize, Sequelize.DataTypes);
+const Questions = require('./../models/Questions')(sequelize, Sequelize.DataTypes);
+
 
 module.exports = {
 	name: 'stats',
