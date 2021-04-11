@@ -340,8 +340,8 @@ module.exports = {
 	
 				if (tempScore > 0) {
 					console.info('Best Score ' + tempScore);
-					let promise = client.users.fetch(tempId);
-					promise.then(function(result1) {
+					let promise = await client.users.fetch(tempId).then( function(result1) {
+						console.info('inside then trying to assign gameWinner');
 						gameWinner = result1;
 						console.info('Winner: ' + gameWinner.username);
 					});
