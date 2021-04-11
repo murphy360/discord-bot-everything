@@ -9,8 +9,9 @@ module.exports = {
       method: 'GET'})
       .then(function(response) { return response.json(); })
       .then(function(json) {
-        console.info('Random Cat ' + JSON.stringify(json));
+        console.info('Random Joke ' + JSON.stringify(json));
         var jokeObject = JSON.parse(file);
+        console.info("joke: " + jokeObject.text);
       msg.channel.send('Random Cat');
       msg.channel.send(file);	  
 
