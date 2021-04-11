@@ -384,9 +384,9 @@ module.exports = {
 			var questionId = await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg).then(response => 
 				{
 					console.info("Question Response " + response);
-					questionId = respose;
-					console.info("Received Question ID outside then: " + questionId);
 				});
+				
+				console.info("Received Question ID outside then: " + questionId);
 			
 			
 	    	triviaObj.results[roundNumber].incorrect_answers.push(triviaObj.results[roundNumber].correct_answer);
