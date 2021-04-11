@@ -5,7 +5,7 @@ module.exports = {
   description: 'Random Jokes',
   async execute(msg, args) {
     
-    fetch('https://dad-jokes.p.rapidapi.com/random/joke', { 
+    fetch('https://icanhazdadjoke.com/slack', { 
       method: 'GET'})
       .then(function(response) { return response.json(); })
       .then(function(json) {
