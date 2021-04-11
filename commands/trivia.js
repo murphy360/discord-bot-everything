@@ -549,7 +549,7 @@ module.exports = {
 				leaderboard(leaderbd, false);
 			}
 		}
-		
+
 		q_time=60;
 		
 		if (args[3] > 0) {
