@@ -253,7 +253,7 @@ module.exports = {
 
 
 		async function logResponse(isWinner, points, user, message, round, reaction, questionTime, answerTime, questionId) {
-			console.info('logResponse');
+			console.info('logResponse question: ' + questionId);
 			const userObj = await Users.findOne({ where:
 				{
 					user_id: user.id
@@ -295,7 +295,11 @@ module.exports = {
 			const questionObj = await Questions.findOne({ where:
 				{
 					question: triviaObj.results[roundNumber].question
-				}});
+				}}).then(value => {
+					console.info(value instanceof Questions);
+					console.info('Question Exists: ' + value.id);
+					return value.id;
+				});;
 				
 			if (questionObj !== null){
 				console.info('Existing Question need to link to current round');
@@ -307,15 +311,14 @@ module.exports = {
 					question: triviaObj.results[roundNumber].question,
 					correct_answer: triviaObj.results[roundNumber].correct_answer,
 					answer2: chaff0,
-	       	        		answer3: chaff1,
-	       	        		answer4: chaff2,
-	       	        		category: triviaObj.results[roundNumber].category,
-	       	        		difficulty: triviaObj.results[roundNumber].difficulty
+	       	        answer3: chaff1,
+	       	        answer4: chaff2,
+	       	        category: triviaObj.results[roundNumber].category,
+	       	        difficulty: triviaObj.results[roundNumber].difficulty
 				}).then(value => {
 					
 					console.info(value instanceof Questions);
-					console.info('logQuestion return: ' + value.id);
-					console.info('logQuestion return: ' + value);
+					console.info('Creating new Question: ' + value.id);
 					return value.id;
 				});
 				
@@ -342,12 +345,8 @@ module.exports = {
 			var chaffQuestion1 = triviaObj.results[roundNumber].incorrect_answers[1];
 			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
-			var questionId = null;
-			var questionPromise= logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
-			questionPromise.then(function(result1) {
-				questionId = result1.id;
-				console.info('Question ID ' + questionId);
-			});
+			var questionId = logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
+			
 	    	triviaObj.results[roundNumber].incorrect_answers.push(triviaObj.results[roundNumber].correct_answer);
 
 			triviaObj.results[roundNumber].incorrect_answers.sort();
