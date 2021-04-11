@@ -291,7 +291,7 @@ module.exports = {
 		}
 
 		async function logQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message){
-			console.info("logQuestion");
+			console.info("logQuestion1");
 			const questionObj = await Questions.findOne({ where:
 				{
 					question: triviaObj.results[roundNumber].question
@@ -300,11 +300,11 @@ module.exports = {
 					console.info('Question Exists: ' + value.id);
 					return value.id;
 				});;
-				
+			console.info("logQuestion1");	
 			if (questionObj !== null){
 				console.info('Existing Question need to link to current round');
 				console.info('instance? ' + questionObj instanceof Questions);
-				return questionObj.question_id;
+				
 			} else {
 				console.info('New Question: need to log it');
 				const newQuestion = await Questions.create({
@@ -321,7 +321,7 @@ module.exports = {
 					console.info('Creating new Question: ' + value.id);
 					return value.id;
 				});
-				
+				console.info('test did I get here');
 				console.info(newQuestion instanceof Questions);
 				
 			}
