@@ -444,8 +444,9 @@ module.exports = {
 						ending.addFields({name: 'The Correct Answer was:', value: correctAnswer})
 					}
 					msg.channel.send(ending)
+					roundNumber--;
 					if (roundNumber >= 0) {
-						console.info('Round: ' + roundNumber--);
+						console.info('Round: ' + roundNumber);
 						executeRound(triviaObj, roundNumber);
 					} else {
 						logGame(msg, winner);
