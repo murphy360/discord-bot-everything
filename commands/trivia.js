@@ -298,13 +298,16 @@ module.exports = {
 	/*** Log Game: save reference to this game to db ***/
 		async function logGame(message, winner) {
 			
-			
+			//if there isn't a winner, we want to add null to database
 			var winnerID = null;
+
+			//We have a winner!
 			if(winner !== null){
-				console.info('logGame post if ' + winner.username);
+				console.info('lo ' + winner.username);
 				winnerID = winner.id;
 			}
-			const game = await Games.create({
+			//Create an entry in the database for this game. Log asyncronously when result is returned. 
+			Games.create({
 				game_id: message.id,
 				creator_id: message.author.id,
 				creator_name: message.author.username,
@@ -312,7 +315,7 @@ module.exports = {
 				game_end: Date.now(),
 				winner_id: winnerID,
 				server_id: message.guild.id,
-			});
+			}).then(value => console.info('Game ' + value.game_id + ' was created in the database'));
 		}
 		
 
@@ -524,6 +527,7 @@ module.exports = {
 			var tempScore = 0;
 			var tempId = "";
 			if (winnersMap.size > 0){
+				//There is at least one player
 				winnersMap.forEach((values, keys) => {
 					if (values > tempScore){
 						tempId = keys;
@@ -534,7 +538,7 @@ module.exports = {
 					console.log("values: ", tempScore +
 					  ", keys: ", tempId + "\n")
 				  });
-	
+				//somebody got at least one answer correct  
 				if (tempScore > 0) {
 					console.info('Best Score ' + tempScore);
 					let promise = await client.users.fetch(tempId).then( function(result1) {
@@ -545,10 +549,12 @@ module.exports = {
 						leaderboard(winners, true, gameWinner);
 					});
 				} else {
+					//No Winner
 					logGame(message, null);
 					leaderboard(winners, true, null);
 				}
 			} else {
+				//No Players & No Winner
 				logGame(message, null);
 				leaderboard(winners, true, null);
 			}
