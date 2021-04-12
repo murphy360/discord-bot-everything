@@ -31,6 +31,20 @@ module.exports = {
 
 /********** FUNCTION DEFINITIONS **********/
 
+/***** ABOUT: Display about information include authors and source information *****/
+		function about() {
+			const about = new Discord.MessageEmbed()
+				.setAuthor('Trivia Game')
+				.setColor("#0099ff")
+				.setTitle("About "+client.user.username+"'s Trivia Game")
+				.setDescription("This bot was created by Corey Murphy and Christian Acord")
+				.setImage("https://opentdb.com/images/logo.png")
+				.addFields({name:"Question provided by the Open Trivia Database", value: "The questions used in are provided by by [https://opentdb.com/](https://opentdb.com). All data provided by the API is available under the Creative Commons Attribution-ShareAlike 4.0 International License."})
+				.setFooter("Updated: 11 April 2021")
+				.setThumbnail("https://icon-library.com/images/bot-icon/bot-icon-3.jpg")
+			msg.channel.send(about)
+		}
+
 
 /***** INTRO: Display Intro before game *****/
 		function intro() {
@@ -545,9 +559,14 @@ module.exports = {
 		} else if (args[2].toLowerCase() === 'scores') {
 			if (game_in_progres) {
 				leaderboard(winners, true, null);
+				return;
 			} else {
 				leaderboard(leaderbd, false);
+				return;
 			}
+		} else if (args[2].toLowerCase() === 'about') {
+			about();
+			return;
 		}
 
 		q_time=60;
