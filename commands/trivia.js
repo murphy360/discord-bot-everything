@@ -370,16 +370,32 @@ module.exports = {
 		 * (logging) the existence of a question, not searching-and-creating.
 		 * Perhaps "findOrCreateQuestion()" ?
 		 * 
+		 * CM:  Change Made 100% Agree
+		 * 
+		 * TODO adopt better naming convention for all functions.  
+		 * 
 		 * (2) I don't know what a lot of these objects do, or what their purpose is.
 		 * I'm only commenting, below, on the syntax. If I say some naive/silly/dumb
 		 * things, please forgive me. I'm trying to help you clean up the syntax
 		 * and JavaScript concepts; I realize I don't know about the data being processed. 
+		 * 
+		 * Sequelize ideally returns an Object that can interact with the database... still trying to wrap our heads around it.  
+		 * As far as data, we're pulling questions in JSON format that we can extract 
+		 * - Question
+		 * - Correct Answer
+		 * - 1-3 Incorrect answers
+		 * - difficulty
+		 * - genre
+		 * 
+		 * We've defined our database tables in the models directory
 		 * 
 		 * (3) I'd recommend putting a try/catch around the calls to `findOne` and
 		 * `create()`.  I didn't do that here because I don't know the errors
 		 * your database might return, and because I'm adding enough noise below
 		 * that I didn't want to muddy things.  I can comment on your try/catch in a
 		 * later PR.
+		 * 
+		 * TODO Add Try/Catch around all Async functions.  
 		 * 
 		 * (4) Please test this code before merging it!!!  I haven't even installed
 		 * Node.  I'm just (again) responding to syntax.
@@ -410,7 +426,7 @@ module.exports = {
 		 * and then (if necessary to do it separately) post a message somewhere that will
 		 * let your UI-or-whatever know there's more data to be shown.
 		 */
-		async function logQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message) {
+		async function findOrCreateQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message) {
 
 			// ------------------------------------------------------------------
 			// Ron's Version
@@ -440,11 +456,18 @@ module.exports = {
 			// Ask the database to find the specified question. Twiddle our thumbs
 			// (wait patiently) until the answer comes back. Hopefully it'll be fast,
 			// but don't count on it.
-			let existingQuestion = await Questions.findOne (searchCriteria);
+			let existingQuestion = null;
+			try {
+				existingQuestion = await Questions.findOne (searchCriteria);
+			} catch (e) {
+				console.info('ERRROR: '+e.name);
+			}
+			
 
 			// If we got something back from the database, hooray!  We're done.
 			if (existingQuestion) {
 				questionId = existingQuestion.id;
+				console.info('existing question id: ' + questionId);
 			}
 
 			// Didn't get anything back from the database.  No problem.
@@ -467,6 +490,8 @@ module.exports = {
 
 				// Hooray!  Done.
 				questionId = createdQuestion.id;
+				
+				console.info('new question id: ' + questionId);
 			}
 
 			// By the time we get here, we have guaranteed that we have an actual
@@ -480,7 +505,7 @@ module.exports = {
 			// Original Version
 			// ------------------------------------------------------------------
 
-			console.info("logQuestion1");
+			console.info("findOrCreateQuestion1");
 
 			/*
 			 I don't think this line does what you think.
@@ -502,7 +527,7 @@ module.exports = {
 				question: triviaObj.results[roundNumber].question
 			}});
 
-			console.info("logQuestion2");	
+			console.info("findOrCreateQuestion2");	
 			
 			if (questionObj !== null){
 				/*
@@ -619,7 +644,7 @@ module.exports = {
 			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
 
-			await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
+			await findOrCreateQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
 			
 				
 			console.info("Received Question ID outside then: " + questionId);
