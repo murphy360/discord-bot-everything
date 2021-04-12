@@ -321,16 +321,20 @@ module.exports = {
 
 		async function logResponse(isWinner, points, user, message, round, questionTime, answerTime, questionId) {
 			console.info('logResponse question: ' + questionId);
-			const userObj = await Users.findOne({ where:
-				{
-					user_id: user.id
-				}});
-			if (userObj === null) {
-				//first time user on this bot
-				logUser(msg, user);
-			} else {
-				console.info('User already resides on the server')
-			}
+			
+			let userSearchCriteria = { where: {
+				user_id: user.id
+			}};
+
+			Users.findOne(userSearchCriteria).then(value => {
+				if (userObj === null) {
+					//first time user on this bot
+					logUser(msg, user);
+				} else {
+					console.info('User already resides on the server')
+				}
+			});
+			
 
 			const response = await Responses.findOne({ where: 
 				{
