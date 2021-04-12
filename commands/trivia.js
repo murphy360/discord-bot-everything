@@ -265,7 +265,6 @@ module.exports = {
 		}catch(e) {
 			if (e.name === 'SequelizeUniqueConstraintError') {
 				return console.info('That user already exists.');
-				
 			}
 			return message.channel.send('Something went wrong with adding a tag.');
 		}
@@ -320,7 +319,7 @@ module.exports = {
 		
 
 
-		async function logResponse(isWinner, points, user, message, round, reaction, questionTime, answerTime, questionId) {
+		async function logResponse(isWinner, points, user, message, round, questionTime, answerTime, questionId) {
 			console.info('logResponse question: ' + questionId);
 			const userObj = await Users.findOne({ where:
 				{
@@ -341,21 +340,21 @@ module.exports = {
 				}
 			});
 
-			const correctAnswer = points>0;
+			const correctAnswer = points > 0;
 
 			if (response === null) {
 				console.info('not found logging response for ' + user.username);
-				const loggedResponse = await Responses.create({
+				Responses.create({
 					game_id: message.id,
 					user_id: user.id,
 					round_number: round,
 					question_id: questionId,
-	       	        		q_time: questionTime,
-	       	        		a_time: answerTime,
-	       	        		correct: correctAnswer,
-	       	        		points: points,
-	       	        		winner: isWinner,
-				});
+	       	        q_time: questionTime,
+	       	        a_time: answerTime,
+	       	        correct: correctAnswer,
+	       	        points: points,
+	       	        winner: isWinner,
+				}).then(value => console.info('Created DB entry for user ' + value.user_id + ' for round ' + value.round_number));
 			} else {
 				console.info(user.username + ' has already answered');
 			}
@@ -580,7 +579,7 @@ module.exports = {
 			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
 
-			questionId = await findOrCreateQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
+			questionId = await findOrLogQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
 			
 				
 			console.info("Received Question ID outside then: " + questionId);
@@ -646,7 +645,7 @@ module.exports = {
 						console.info(user.username + ' Answered incorrectly and response is being logged to disk');
 						
 						console.info("Question ID: " + questionId);
-						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp, Date.now(), questionId);
+						logResponse(false, 0, user, msg, curRound, questionTimeStamp, Date.now(), questionId);
 						return false; 
 					} else {
 						console.info(user.username + ' is being ignored');
@@ -672,7 +671,7 @@ module.exports = {
 					winners.set(user.id, currentScore+points);
 					
 					console.info("Question ID: " + questionId);
-					logResponse(isWinner, points, user, msg, curRound, reaction, questionTimeStamp, Date.now(), questionId);
+					logResponse(isWinner, points, user, msg, curRound, questionTimeStamp, Date.now(), questionId);
 				});
 
 				collector.on('end', collected => {
