@@ -31,7 +31,7 @@ module.exports = {
 
 /********** FUNCTION DEFINITIONS **********/
 
-/***** ABOUT: Display about information include authors and source information *****/
+	/***** ABOUT: Display about information include authors and source information *****/
 		function about() {
 			const about = new Discord.MessageEmbed()
 				.setAuthor('Trivia Game')
@@ -46,7 +46,7 @@ module.exports = {
 		}
 
 
-/***** INTRO: Display Intro before game *****/
+	/***** INTRO: Display Intro before game *****/
 		function intro() {
 			const intro = new Discord.MessageEmbed()
 				.setAuthor('Trivia Game')
@@ -57,19 +57,21 @@ module.exports = {
 		}
 
 
-/***** RULES: Display Rules in an embed message *****/
+	/***** RULES: Display Rules in an embed message *****/
 
 		function rules() {
 
 			const rules = new Discord.MessageEmbed()
+				.setAuthor(msg.author.username+", welcome to trivia hosted by "+client.user.username)
 				.setTitle("Trivia Rules")
 				.setColor("#0099ff")
-				.setDescription("Welcome to Trivia. This was created by Corey Murphy and Christian Acord")
+				.setDescription("This trivia game was created by Corey Murphy and Christian Acord. It uses questions from [https://opentdb.com](https://opentdb.com).")
 				.addField("How to Play","When the question is displayed react with the corresponding number to the correct (or incorrect) answer.")
 				.addField("The first correct answer receives the most points","Subsequent answers are reduced to a minimum of 5 points")
 				.addField("You get one chance","Subsequent reactions are ignored.")
 				.addField("Incorrect answers","Incorrect answers receive no score")
-	 		msg.channel.send(rules);
+
+	 		msg.author.send(rules);
 		}
 
 	/***** TIMER: Sets a timer displaying a progress bar countdown *****/
@@ -156,15 +158,15 @@ module.exports = {
 				
 				let players=""
 				let scores=""
-					if ( w.size <= 0 ) {
-						players="None"
-						scores="N/A"
-					} else {
-						w.forEach( (value, key) => {
-							players+=userNameId.get(key)+"\n";
-							scores+=value+"\n";
-						});
-					}
+				if ( w.size <= 0 ) {
+					players="None"
+					scores="N/A"
+				} else {
+					w.forEach( (value, key) => {
+						players+=userNameId.get(key)+"\n";
+						scores+=value+"\n";
+					});
+				}
 				
 				var leaderText = "No Winner";
 				if (winner !== null){
@@ -190,19 +192,51 @@ module.exports = {
 
 				players=""
 				scores=""
+				pArr=""
+				sArr=""
+				count=0;
+
 				w.forEach( (value, key) => {
-	                console.info('adding player string');
+		
+		        	        console.info('adding player string');
+
 					let j = client.users.fetch(key);
 					j.then(function(result1) {
 						console.info('lookup: ' + result1.username);
-						players+=result1.username+"\n";
-        			                scores+=value+"\n";
+						pArr[count]=result1.username+"\n";
+        			                sArr[count]=value+"\n";
+						count++
 					});
 				});
 
 				if ( players == "" ) {
 					players="None"
 					scores="N/A"
+				} else {
+					len=players.length;
+					for (let j=0;j<sArr.length;j++) {
+						max=0;
+						pos=0;
+						for (let i=j;i<sArr.length;i++) {
+							if (sArr[i]>max) {
+								pos=i;
+							}
+						}
+
+						swap=sArr[j];
+						sArr[j]=sArr[pos];
+						sARr[pos]=swap;
+
+						swap=pArr[j];
+						pArr[j]=pArr[pos];
+						pArr[pos]=swap;
+					}
+
+					for (let i=0;i<sArr.length;i++) {
+						players+=pArr[i]+"\n";
+						scores+=sArr[i]+"\n";
+					}
+
 				}
 
 				const leaders = new Discord.MessageEmbed()
@@ -418,7 +452,7 @@ module.exports = {
 			console.info("Received Question ID outside then: " + questionId);
 			
 			
-	    	triviaObj.results[roundNumber].incorrect_answers.push(triviaObj.results[roundNumber].correct_answer);
+		    	triviaObj.results[roundNumber].incorrect_answers.push(triviaObj.results[roundNumber].correct_answer);
 
 			triviaObj.results[roundNumber].incorrect_answers.sort();
 

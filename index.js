@@ -39,7 +39,7 @@ bot.on('ready', () => {
   Questions.sync({ force: toSync });
   Responses.sync({ force: toSync });
   Servers.sync({ force: toSync });
-  bot.user.setAvatar('avatar.jpg');
+//  bot.user.setAvatar('avatar.jpg');
 });
 
 //Callback when bot reads a message
