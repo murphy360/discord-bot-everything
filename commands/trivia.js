@@ -567,27 +567,35 @@ module.exports = {
 		} else if (args[2].toLowerCase() === 'about') {
 			about();
 			return;
+		} else if (args[2]%1 == 0) {
+
+			q_time=60;
+		
+			if (args[3] > 0) {
+				q_time=args[3];
+			}
+
+			var numRounds = args[2];
+
+			console.info('Round: ' + numRounds);
+		
+			console.info('Round: ' + numRounds); 
+			const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
+			var triviaObj = JSON.parse(file);
+			numRounds--;
+		
+			intro();
+
+			logServer(msg);
+			console.info("Before executeRound: " + numRounds);
+			executeRound(triviaObj, numRounds);
+			
+		} else if (args[2].toLowerCase() === "stats") {
+			msg.channel.send("Stats called, but not built");
+			return;
+		} else {
+			msg.channel.send("Unrecognized trivia command");
+			return;
 		}
-
-		q_time=60;
-		
-		if (args[3] > 0) {
-			q_time=args[3];
-		}
-
-		var numRounds = args[2];
-
-		console.info('Round: ' + numRounds);
-		
-		console.info('Round: ' + numRounds); 
-		const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
-		var triviaObj = JSON.parse(file);
-		numRounds--;
-		
-		intro();
-
-		logServer(msg);
-		console.info("Before executeRound: " + numRounds);
-		executeRound(triviaObj, numRounds);
 	},
 };
