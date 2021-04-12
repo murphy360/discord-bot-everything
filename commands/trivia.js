@@ -358,21 +358,190 @@ module.exports = {
 			}
 		}
 
-		async function logQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message){
+		/**
+		 * I absolutely intend to offer the comments below with compassion and respect.
+		 * I hope that comes through in text.
+		 * 
+		 * ------
+		 * (1) What does this function do?  (Maybe:  "test if the the specified
+		 * question exists in our database, create it if not, and return the
+		 * ID either way." ?)  If that's what it does, I'd suggest changing the
+		 * name. As is, the name "logQuestion" suggests (say) you're reporting
+		 * (logging) the existence of a question, not searching-and-creating.
+		 * Perhaps "findOrCreateQuestion()" ?
+		 * 
+		 * (2) I don't know what a lot of these objects do, or what their purpose is.
+		 * I'm only commenting, below, on the syntax. If I say some naive/silly/dumb
+		 * things, please forgive me. I'm trying to help you clean up the syntax
+		 * and JavaScript concepts; I realize I don't know about the data being processed. 
+		 * 
+		 * (3) I'd recommend putting a try/catch around the calls to `findOne` and
+		 * `create()`.  I didn't do that here because I don't know the errors
+		 * your database might return, and because I'm adding enough noise below
+		 * that I didn't want to muddy things.  I can comment on your try/catch in a
+		 * later PR.
+		 * 
+		 * (4) Please test this code before merging it!!!  I haven't even installed
+		 * Node.  I'm just (again) responding to syntax.
+		 * 
+		 * (5) Is this `Questions.create()` process a database call?
+		 * 
+		 * If so: I'd recommend against (ever) waiting on a database to do
+		 * something for you.  Even if it should be instantaneous, it can
+		 * often not be. There's probably a way to think about the design
+		 * which would let you queue up this "create" process and, later,
+		 * incorporate the results from it.  Same goes for almost everything
+		 * you can do asynchronously.
+         * 
+		 * Analogy:  you ask me to get you a burrito (`ron.burritoFactory.create()`).
+		 * Do you hover over my desk until until the burrito magically appears?
+		 * For all you know, I decided to go home and drop off something for my
+		 * wife, because I didn't realize you were waiting for me.  You CAN wait for
+		 * me (you can make the burrito-creation process synchronous), but it might
+		 * be better to set up a casual, social notification system: "hey, Ron,
+		 * when you've got my burrito, would you leave it on my desk and text me?"
+		 * Doing that doesn't really "make" it asynchronous; it shows that the situation
+		 * truly is fundamentally asynchronous -- we're indepdent people working
+		 * independently, not separate sides of the same cog in a machine.  It thus
+		 * helps you and me take advantage of the truly asynchronous nature of the situation.
+		 * 
+		 * That analogy translates exactly into code. When this "create" process
+		 * is done, you  can have it post the results in some variable you can access,
+		 * and then (if necessary to do it separately) post a message somewhere that will
+		 * let your UI-or-whatever know there's more data to be shown.
+		 */
+		async function logQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message) {
+
+			// ------------------------------------------------------------------
+			// Ron's Version
+			// ------------------------------------------------------------------
+
+			/*
+			 I'm going to insert a whole new block of code showing what I
+			 think you intend from this function. Then, below, I'll make comments
+			 on your original code.
+			 */
+
+			// Result of this function:  the ID of the resulting question, whether
+			// it already exists or we have to create it.
+			var questionId;
+
+			// We use this array-lookup a lot, so let's do it once to avoid potential typos.
+			let triviaResult = triviaObj.results [roundNumber];
+
+			// We're asking the database to find questions where the "question" field
+			// matches the thing we just got passed.  Here's how it wants us to ask:
+			// a JavaScript object with one field, "where", containing aNOTHER JavaScript
+			// object containing the actual query.
+			let searchCriteria = { where: {
+				question: triviaResult.question
+			}};
+
+			// Ask the database to find the specified question. Twiddle our thumbs
+			// (wait patiently) until the answer comes back. Hopefully it'll be fast,
+			// but don't count on it.
+			let existingQuestion = await Questions.findOne (searchCriteria);
+
+			// If we got something back from the database, hooray!  We're done.
+			if (existingQuestion) {
+				questionId = existingQuestion.id;
+			}
+
+			// Didn't get anything back from the database.  No problem.
+			// Let's create the Question under discussion.
+			else {
+				// Here's the data we need to store in the database.
+				let questionToCreate = {
+					question:		triviaResult.question,
+					correct_answer: triviaResult.correct_answer,
+					answer2:		chaff0,
+					answer3: 		chaff1,
+					answer4: 		chaff2,
+					category: 		triviaResult.category,
+					difficulty: 	triviaResult.difficulty
+				};
+
+				// Ask the database to create that object. Wait patiently
+				// until it replies. Expect delays.
+				let createdQuestion = await Questions.create (questionToCreate);
+
+				// Hooray!  Done.
+				questionId = createdQuestion.id;
+			}
+
+			// By the time we get here, we have guaranteed that we have an actual
+			// question with an actual ID... or, if we couldn't do that, we've generated
+			// `undefined` or `null` or some other reasonable result meaning "we could neither
+			// find nor create that question."
+			return questionId;
+
+
+			// ------------------------------------------------------------------
+			// Original Version
+			// ------------------------------------------------------------------
+
 			console.info("logQuestion1");
-			const questionObj = await Questions.findOne({ where:
-				{
-					question: triviaObj.results[roundNumber].question
-				}});
+
+			/*
+			 I don't think this line does what you think.
+
+			 Compare these 2 lines:
+			 
+			 		let questionPromise = Questions.findOne ( ... )
+					let question        = await Questions.findOne ( ... )
+
+			 If you call a function marked `async`, you get the Promise,
+			 instantly, before any other code executes.
+
+			 If you "await" that function, you don't get a promise; you get
+			 the thing that was actually promised -- but you might be waiting
+			 for a long time. That means the UI and other things should NOT
+			 be sitting around waiting on this.
+			 */
+			const questionObj = await Questions.findOne ({ where: {
+				question: triviaObj.results[roundNumber].question
+			}});
+
 			console.info("logQuestion2");	
+			
 			if (questionObj !== null){
+				/*
+				 Here's the syntax:
+
+				 	Questions
+						.findOne (...)
+						.then (...)
+						.then (...)
+
+				It can get a little (not much) more complex than that, but that's
+				the basic part.
+
+				Each successive `then()` gets fed the `return`ed value from the
+				previous function call.
+
+				But that only works if the thing you're calling is a Promise,
+				not an actual answer.
+
+				So I think the `then` here won't function as you expect. Given your
+				`await` in `const questionObj = await Questions.findOne (...)` above,
+				by the time you get here, `questionObj` is the actual thing you were
+				waiting for, not a Promise to get you one of those things. So you can
+				just say `questionObj.id`; you don't have to (and can't) say
+				`questionObj.then(...)`.
+				 */
 				questionObj.then(value => {
 					console.info(value instanceof Questions);
 					console.info('Existing question: ' + value.id);
 					return value.id;
 				});
+				
 			} else {
 				console.info('New Question: need to log it');
+
+				/*
+				 As written, this `newQuestion` value gets set to `value.id` from the
+				 `then()` clause, but it isn't being used.
+				*/
 				const newQuestion = await Questions.create({
 					question: triviaObj.results[roundNumber].question,
 					correct_answer: triviaObj.results[roundNumber].correct_answer,
@@ -381,11 +550,15 @@ module.exports = {
 	       	        answer4: chaff2,
 	       	        category: triviaObj.results[roundNumber].category,
 	       	        difficulty: triviaObj.results[roundNumber].difficulty
+
 				}).then(value => {
-					
-					console.info(value instanceof Questions);
-					console.info('Creating new Question: ' + value.id);
+					console.info ("Is `value` an instance of the `Questions` class? [" + value instanceof Questions + "]");
+					console.info ('Creating new Question with id [' + value.id + ']');
+
+					// Note:  this value is global, because we weren't sure how to get it out of this function (yet!)
 					questionId = value.id;
+
+					// We'd love to use this, but haven't figured out how yet
 					return value.id;
 				});
 			}
