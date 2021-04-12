@@ -444,7 +444,7 @@ module.exports = {
 		 * - so the await is what's making us wait for things?  
 		 * 
 		 */
-		async function findOrCreateQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message) {
+		async function findOrLogQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message) {
 
 			// ------------------------------------------------------------------
 			// Ron's Version
