@@ -322,46 +322,45 @@ module.exports = {
 		async function logResponse(isWinner, points, user, message, round, questionTime, answerTime, questionId) {
 			console.info('logResponse question: ' + questionId);
 			
+			const correctAnswer = points > 0;
+
 			let userSearchCriteria = { where: {
 				user_id: user.id
 			}};
 
 			Users.findOne(userSearchCriteria).then(value => {
-				if (userObj === null) {
+				if (value === null) {
 					//first time user on this bot
 					logUser(msg, user);
 				} else {
 					console.info('User already resides on the server')
 				}
 			});
-			
 
-			const response = await Responses.findOne({ where: 
-				{
-					user_id: user.id,
-					game_id: message.id,
-					round_number: round
+			let responseSearchCriteria = { where: {
+				user_id: user.id,
+				game_id: message.id,
+				round_number: round
+			}};
+			
+			Responses.findOne(responseSearchCriteria).then(value => {
+				if (value === null) {
+					console.info('not found logging response for ' + user.username);
+					Responses.create({
+						game_id: message.id,
+						user_id: user.id,
+						round_number: round,
+						question_id: questionId,
+						   q_time: questionTime,
+						   a_time: answerTime,
+						   correct: correctAnswer,
+						   points: points,
+						   winner: isWinner,
+					}).then(value => console.info('Created DB entry for user ' + value.user_id + ' for round ' + value.round_number));
+				} else {
+					console.info(user.username + ' has already answered');
 				}
 			});
-
-			const correctAnswer = points > 0;
-
-			if (response === null) {
-				console.info('not found logging response for ' + user.username);
-				Responses.create({
-					game_id: message.id,
-					user_id: user.id,
-					round_number: round,
-					question_id: questionId,
-	       	        q_time: questionTime,
-	       	        a_time: answerTime,
-	       	        correct: correctAnswer,
-	       	        points: points,
-	       	        winner: isWinner,
-				}).then(value => console.info('Created DB entry for user ' + value.user_id + ' for round ' + value.round_number));
-			} else {
-				console.info(user.username + ' has already answered');
-			}
 		}
 
 		/**
