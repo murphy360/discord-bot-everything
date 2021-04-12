@@ -400,6 +400,8 @@ module.exports = {
 		 * (4) Please test this code before merging it!!!  I haven't even installed
 		 * Node.  I'm just (again) responding to syntax.
 		 * 
+		 * - Needed to remove the assignment of questionId at the top of the document and get the scope back inside the variables
+		 * 
 		 * (5) Is this `Questions.create()` process a database call?
 		 * 
 		 * If so: I'd recommend against (ever) waiting on a database to do
@@ -408,9 +410,16 @@ module.exports = {
 		 * which would let you queue up this "create" process and, later,
 		 * incorporate the results from it.  Same goes for almost everything
 		 * you can do asynchronously.
+		 * 
+		 * 
+		 * - That's the thing I'm trying to wrap my head around.  With Sequelize you can run the operation which
+		 * returns a Promise which you can use the -then(function{}) to do something with.  There's probably
+		 * also something fundamentally wrong with how we're trying to create / modify the join tables in the database
+		 * M/M relationships abound here as we're looking to have a flexible database we can build a lot of stats from later
          * 
 		 * Analogy:  you ask me to get you a burrito (`ron.burritoFactory.create()`).
 		 * Do you hover over my desk until until the burrito magically appears?
+		 * - depends how hungry I am... but I get it!!!! 
 		 * For all you know, I decided to go home and drop off something for my
 		 * wife, because I didn't realize you were waiting for me.  You CAN wait for
 		 * me (you can make the burrito-creation process synchronous), but it might
@@ -425,6 +434,9 @@ module.exports = {
 		 * is done, you  can have it post the results in some variable you can access,
 		 * and then (if necessary to do it separately) post a message somewhere that will
 		 * let your UI-or-whatever know there's more data to be shown.
+		 * 
+		 * - so the await is what's making us wait for things?  
+		 * 
 		 */
 		async function findOrCreateQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message) {
 
@@ -460,7 +472,7 @@ module.exports = {
 			try {
 				existingQuestion = await Questions.findOne (searchCriteria);
 			} catch (e) {
-				console.info('ERRROR: '+e.name);
+				console.info('ERRROR: ' + e.name);
 			}
 			
 
@@ -489,7 +501,12 @@ module.exports = {
 				let createdQuestion = await Questions.create (questionToCreate);
 
 				// Hooray!  Done.
-				questionId = createdQuestion.id;
+				
+				try {
+					questionId = createdQuestion.id;
+				} catch (e) {
+					console.info('ERRROR: ' + e.name);
+				}
 				
 				console.info('new question id: ' + questionId);
 			}
@@ -499,94 +516,6 @@ module.exports = {
 			// `undefined` or `null` or some other reasonable result meaning "we could neither
 			// find nor create that question."
 			return questionId;
-
-
-			// ------------------------------------------------------------------
-			// Original Version
-			// ------------------------------------------------------------------
-
-			console.info("findOrCreateQuestion1");
-
-			/*
-			 I don't think this line does what you think.
-
-			 Compare these 2 lines:
-			 
-			 		let questionPromise = Questions.findOne ( ... )
-					let question        = await Questions.findOne ( ... )
-
-			 If you call a function marked `async`, you get the Promise,
-			 instantly, before any other code executes.
-
-			 If you "await" that function, you don't get a promise; you get
-			 the thing that was actually promised -- but you might be waiting
-			 for a long time. That means the UI and other things should NOT
-			 be sitting around waiting on this.
-			 */
-			const questionObj = await Questions.findOne ({ where: {
-				question: triviaObj.results[roundNumber].question
-			}});
-
-			console.info("findOrCreateQuestion2");	
-			
-			if (questionObj !== null){
-				/*
-				 Here's the syntax:
-
-				 	Questions
-						.findOne (...)
-						.then (...)
-						.then (...)
-
-				It can get a little (not much) more complex than that, but that's
-				the basic part.
-
-				Each successive `then()` gets fed the `return`ed value from the
-				previous function call.
-
-				But that only works if the thing you're calling is a Promise,
-				not an actual answer.
-
-				So I think the `then` here won't function as you expect. Given your
-				`await` in `const questionObj = await Questions.findOne (...)` above,
-				by the time you get here, `questionObj` is the actual thing you were
-				waiting for, not a Promise to get you one of those things. So you can
-				just say `questionObj.id`; you don't have to (and can't) say
-				`questionObj.then(...)`.
-				 */
-				questionObj.then(value => {
-					console.info(value instanceof Questions);
-					console.info('Existing question: ' + value.id);
-					return value.id;
-				});
-				
-			} else {
-				console.info('New Question: need to log it');
-
-				/*
-				 As written, this `newQuestion` value gets set to `value.id` from the
-				 `then()` clause, but it isn't being used.
-				*/
-				const newQuestion = await Questions.create({
-					question: triviaObj.results[roundNumber].question,
-					correct_answer: triviaObj.results[roundNumber].correct_answer,
-					answer2: chaff0,
-	       	        answer3: chaff1,
-	       	        answer4: chaff2,
-	       	        category: triviaObj.results[roundNumber].category,
-	       	        difficulty: triviaObj.results[roundNumber].difficulty
-
-				}).then(value => {
-					console.info ("Is `value` an instance of the `Questions` class? [" + value instanceof Questions + "]");
-					console.info ('Creating new Question with id [' + value.id + ']');
-
-					// Note:  this value is global, because we weren't sure how to get it out of this function (yet!)
-					//questionId = value.id;
-
-					// We'd love to use this, but haven't figured out how yet
-					return value.id;
-				});
-			}
 		}
 
 		async function calculateWinner(message, winnersMap){
