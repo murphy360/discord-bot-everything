@@ -545,7 +545,7 @@ module.exports = {
 					} else {
 						console.info('No Winner for ROund ' + curRound);
 						ending.setDescription("That was a hard one!")
-						ending.addFields({name: 'The Correct Answer was:', value: correctAnswer})
+						ending.addFields({name: 'The Correct Answer was:', value: cleanText(correctAnswer)})
 					}
 
 					msg.channel.send(ending)
