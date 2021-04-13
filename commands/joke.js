@@ -8,8 +8,17 @@ module.exports = {
       method: 'GET'})
       .then(response => { return response.json(); })
       .then(json => {
-        msg.channel.send(json.setup);
-        setTimeout(() => msg.channel.send(json.punchline), 7000);
+        joke = new Discord.messageEmbed()
+          .setAuthor("Joke Bot")
+          .setColor("#FF9900")
+          .setTitle(json.setup)
+      
+        msg.channel.send(joke).then(j => { 
+          joke.setDescription(json.punchline); 
+          setTimeout(function () {j.edit(joke)}, 7000); 
         });
+    
+                    
+    });
   },
 };
