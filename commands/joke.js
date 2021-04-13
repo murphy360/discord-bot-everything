@@ -1,3 +1,4 @@
+const Discord = require('discord.js');
 const fetch = require('node-fetch');
 const { json } = require('sequelize');
 module.exports = {
