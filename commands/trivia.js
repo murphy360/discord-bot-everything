@@ -8,7 +8,6 @@ var leaderbd = new Map();
 var userNameId = new Map();
 var q_time; // question time variable to shorten waiting time during testing
 var game_in_progres = false;
-var questionId = '';
 
 const sequelize = new Sequelize('database', 'user', 'password', {
 	                host: 'localhost',
@@ -221,11 +220,10 @@ module.exports = {
 					{name: "Players", value: players, inline: true},
 					{name: "Scores", value: scores, inline: true}
 				);
-					
+        
 			} else {
 				
 				// Build overall Leaderboard here
-
 
 				leaders.setTitle("Leaderboard")
 				leaders.setDescription("Current all-time trivia leaderboard stats")
@@ -237,7 +235,6 @@ module.exports = {
 			msg.channel.send(leaders);
 		}
 
-	
 	/***** adds new user to database *****/
 	async function logUser(message, user) {
 		try{
@@ -246,12 +243,10 @@ module.exports = {
 				user_id: user.id,
 				user_name: user.username,
 			});
-			message.channel.send('Everyone welcome ' + user.username + ' it is their first time playing!'); 
-		
+			message.channel.send('Everyone welcome ' + user.username + ' it is their first time playing!');
 		}catch(e) {
 			if (e.name === 'SequelizeUniqueConstraintError') {
 				return console.info('That user already exists.');
-				
 			}
 			return message.channel.send('Something went wrong with adding a tag.');
 		}
@@ -259,38 +254,47 @@ module.exports = {
 
 	/***** log that we're playing a game on this server *****/
 	async function logServer(message) {
-		const server = await Servers.findOne({
-			where: { server_id: message.guild.id } });
-		if (server === null) {
-			console.info('First time with this server');
-			try{
-				console.info('Logging server: ' + message.guild.name);
-				const newServer = await Servers.create({
-					server_id: message.guild.id,
-					server_name: message.guild.name,
-				});
-				message.channel.send('Hey thanks for the invite! it is my first time on this server!');
-			}catch(e) {
-				if (e.name === 'SequelizeUniqueConstraintError') {
-					return console.info('That server already exists.');    
+		//how to find a server in the db
+		let serverSearchCriteria = { where: {
+			server_id: message.guild.id
+		}};
+
+		Servers.findOne(serverSearchCriteria).then(knownServer => {
+			if (knownServer === null) {
+				console.info('First time with this server');
+				try{
+					console.info('Logging server: ' + message.guild.name);
+					Servers.create({
+						server_id: message.guild.id,
+						server_name: message.guild.name,
+					}).then(newServer => {
+						message.channel.send('Hey thanks for the invite! This is my first time on ' + newServer.server_name);
+					});
+				}catch(e) {
+					if (e.name === 'SequelizeUniqueConstraintError') {
+						return console.info('That server already exists.');    
+					}
+					return message.channel.send('Something went wrong with logging the server');       
 				}
-				return message.channel.send('Something went wrong with loggin the server');       
+			} else {
+				console.info('This server exists in the db');
 			}
-		} else {
-			console.info('This server exists in the db');
-		}
-		
+		});
 	}
+
 	/*** Log Game: save reference to this game to db ***/
 		async function logGame(message, winner) {
 			
-			
+			//if there isn't a winner, we want to add null to database
 			var winnerID = null;
+
+			//We have a winner!
 			if(winner !== null){
-				console.info('logGame post if ' + winner.username);
+				console.info('lo ' + winner.username);
 				winnerID = winner.id;
 			}
-			const game = await Games.create({
+			//Create an entry in the database for this game. Log asyncronously when result is returned. 
+			Games.create({
 				game_id: message.id,
 				creator_id: message.author.id,
 				creator_name: message.author.username,
@@ -298,83 +302,130 @@ module.exports = {
 				game_end: Date.now(),
 				winner_id: winnerID,
 				server_id: message.guild.id,
-			});
+			}).then(value => console.info('Game ' + value.game_id + ' was created in the database'));
 		}
 		
 
 
-		async function logResponse(isWinner, points, user, message, round, reaction, questionTime, answerTime, questionId) {
+		async function logResponse(isWinner, points, user, message, round, questionTime, answerTime, questionId) {
 			console.info('logResponse question: ' + questionId);
-			const userObj = await Users.findOne({ where:
-				{
-					user_id: user.id
-				}});
-			if (userObj === null) {
-				//first time user on this bot
-				logUser(msg, user);
-			} else {
-				console.info('User already resides on the server')
-			}
+			
+			//if the user received points (or isWinner) they got the answer right...
+			// TODO do we need to log correct answer if we make that assumption? 
+			const correctAnswer = points > 0;
 
-			const response = await Responses.findOne({ where: 
-				{
-					user_id: user.id,
-					game_id: message.id,
-					round_number: round
+			//how to find a user in the db
+			let userSearchCriteria = { where: {
+				user_id: user.id
+			}};
+
+			//if this is the user's first time on the bot then log them. 
+			// TODO could look into checking if this is the first time on the server / if they are on other servers
+			Users.findOne(userSearchCriteria).then(value => {
+				if (value === null) {
+					//first time user on this bot
+					logUser(msg, user);
+				} else {
+					console.info('User already resides on the server')
 				}
 			});
 
-			const correctAnswer = points>0;
-
-			if (response === null) {
-				console.info('not found logging response for ' + user.username);
-				const loggedResponse = await Responses.create({
-					game_id: message.id,
-					user_id: user.id,
-					round_number: round,
-					question_id: questionId,
-	       	        		q_time: questionTime,
-	       	        		a_time: answerTime,
-	       	        		correct: correctAnswer,
-	       	        		points: points,
-	       	        		winner: isWinner,
-				});
-			} else {
-				console.info(user.username + ' has already answered');
-			}
+			// Combination of userid, gameid and round number should be unique
+			let responseSearchCriteria = { where: {
+				user_id: user.id,
+				game_id: message.id,
+				round_number: round
+			}};
+			
+			//Create a database entry for this users first answer
+			Responses.findOne(responseSearchCriteria).then(value => {
+				if (value === null) {
+					console.info('not found logging response for ' + user.username);
+					Responses.create({
+						game_id: message.id,
+						user_id: user.id,
+						round_number: round,
+						question_id: questionId,
+						   q_time: questionTime,
+						   a_time: answerTime,
+						   correct: correctAnswer,
+						   points: points,
+						   winner: isWinner,
+					}).then(value => console.info('Created DB entry for user ' + value.user_id + ' for round ' + value.round_number));
+				} else {
+					console.info(user.username + ' has already answered');
+				}
+			});
 		}
 
-		async function logQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message){
-			console.info("logQuestion1");
-			const questionObj = await Questions.findOne({ where:
-				{
-					question: triviaObj.results[roundNumber].question
-				}});
-			console.info("logQuestion2");	
-			if (questionObj !== null){
-				questionObj.then(value => {
-					console.info(value instanceof Questions);
-					console.info('Existing question: ' + value.id);
-					return value.id;
-				});
-			} else {
-				console.info('New Question: need to log it');
-				const newQuestion = await Questions.create({
-					question: triviaObj.results[roundNumber].question,
-					correct_answer: triviaObj.results[roundNumber].correct_answer,
-					answer2: chaff0,
-	       	        answer3: chaff1,
-	       	        answer4: chaff2,
-	       	        category: triviaObj.results[roundNumber].category,
-	       	        difficulty: triviaObj.results[roundNumber].difficulty
-				}).then(value => {
-					
-					console.info(value instanceof Questions);
-					console.info('Creating new Question: ' + value.id);
-					questionId = value.id;
-					return value.id;
-				});
+		async function findOrLogQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message) {
+
+			// Result of this function:  the ID of the resulting question, whether
+			// it already exists or we have to create it.
+			var questionId;
+
+			// We use this array-lookup a lot, so let's do it once to avoid potential typos.
+			let triviaResult = triviaObj.results [roundNumber];
+
+			// We're asking the database to find questions where the "question" field
+			// matches the thing we just got passed.  Here's how it wants us to ask:
+			// a JavaScript object with one field, "where", containing aNOTHER JavaScript
+			// object containing the actual query.
+			let searchCriteria = { where: {
+				question: triviaResult.question
+			}};
+
+			// Ask the database to find the specified question. Twiddle our thumbs
+			// (wait patiently) until the answer comes back. Hopefully it'll be fast,
+			// but don't count on it.
+			let existingQuestion = null;
+			try {
+				existingQuestion = await Questions.findOne (searchCriteria);
+			} catch (e) {
+				console.info('ERRROR: ' + e.name);
 			}
+			
+
+			// If we got something back from the database, hooray!  We're done.
+			if (existingQuestion) {
+				questionId = existingQuestion.id;
+				console.info('existing question id: ' + questionId);
+			}
+
+			// Didn't get anything back from the database.  No problem.
+			// Let's create the Question under discussion.
+			else {
+				// Here's the data we need to store in the database.
+				let questionToCreate = {
+					question:		triviaResult.question,
+					correct_answer: triviaResult.correct_answer,
+					answer2:		chaff0,
+					answer3: 		chaff1,
+					answer4: 		chaff2,
+					category: 		triviaResult.category,
+					difficulty: 	triviaResult.difficulty
+				};
+
+				// Ask the database to create that object. Wait patiently
+				// until it replies. Expect delays.
+				let createdQuestion = await Questions.create (questionToCreate);
+
+				// Hooray!  Done.
+				
+				try {
+					questionId = createdQuestion.id;
+				} catch (e) {
+					console.info('ERRROR: ' + e.name);
+				}
+				
+				console.info('new question id: ' + questionId);
+			}
+
+			// By the time we get here, we have guaranteed that we have an actual
+			// question with an actual ID... or, if we couldn't do that, we've generated
+			// `undefined` or `null` or some other reasonable result meaning "we could neither
+			// find nor create that question."
+			return questionId;
 		}
 
 		async function calculateWinner(message, winnersMap){
@@ -383,6 +434,7 @@ module.exports = {
 			var tempScore = 0;
 			var tempId = "";
 			if (winnersMap.size > 0){
+				//There is at least one player
 				winnersMap.forEach((values, keys) => {
 					if (values > tempScore){
 						tempId = keys;
@@ -393,7 +445,7 @@ module.exports = {
 					console.log("values: ", tempScore +
 					  ", keys: ", tempId + "\n")
 				  });
-	
+				//somebody got at least one answer correct  
 				if (tempScore > 0) {
 					console.info('Best Score ' + tempScore);
 					let promise = await client.users.fetch(tempId).then( function(result1) {
@@ -404,10 +456,12 @@ module.exports = {
 						leaderboard(winners, true, gameWinner);
 					});
 				} else {
+					//No Winner
 					logGame(message, null);
 					leaderboard(winners, true, null);
 				}
 			} else {
+				//No Players & No Winner
 				logGame(message, null);
 				leaderboard(winners, true, null);
 			}
@@ -423,6 +477,7 @@ module.exports = {
 			curRound++;
 			var winnerFlag = false;
 			var winner = null;
+			var questionId = null;
 			console.info("round number: " + roundNumber);
 			
 			var correctAnswer = triviaObj.results[roundNumber].correct_answer;
@@ -432,7 +487,7 @@ module.exports = {
 			var chaffQuestion2 = triviaObj.results[roundNumber].incorrect_answers[2];
 			console.info(correctAnswer);
 
-			await logQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
+			questionId = await findOrLogQuestion(triviaObj, roundNumber, chaffQuestion0, chaffQuestion1, chaffQuestion2, msg);
 			
 				
 			console.info("Received Question ID outside then: " + questionId);
@@ -468,7 +523,7 @@ module.exports = {
 //				timer(20,4,'**Final Round begin soon...**');
 			} else {
 				msg.channel.send('**Round #' + curRound + ' of ' + args[2] + ' is starting**'); 
-//				timer(20,4,'**Round #'+curRound+' of '+args[2]+' will start soon...**');
+
 			}
 
 			msg.channel.send(getQuestionEmbed(triviaObj, roundNumber, curRound)).then(sentMsg => {
@@ -498,7 +553,7 @@ module.exports = {
 						console.info(user.username + ' Answered incorrectly and response is being logged to disk');
 						
 						console.info("Question ID: " + questionId);
-						logResponse(false, 0, user, msg, curRound, reaction, questionTimeStamp, Date.now(), questionId);
+						logResponse(false, 0, user, msg, curRound, questionTimeStamp, Date.now(), questionId);
 						return false; 
 					} else {
 						console.info(user.username + ' is being ignored');
@@ -524,7 +579,7 @@ module.exports = {
 					winners.set(user.id, currentScore+points);
 					
 					console.info("Question ID: " + questionId);
-					logResponse(isWinner, points, user, msg, curRound, reaction, questionTimeStamp, Date.now(), questionId);
+					logResponse(isWinner, points, user, msg, curRound, questionTimeStamp, Date.now(), questionId);
 				});
 
 				collector.on('end', collected => {
