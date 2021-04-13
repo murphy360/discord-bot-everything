@@ -51,7 +51,7 @@ module.exports = {
 				.setAuthor('Trivia Game')
 				.setColor("#0099ff")
 				.setTitle(msg.author.username+" has challenged everyone to a game of trivia.")
-				.setDescription("As the questions are displayed answer by reacting to the question with the correct emoji.")
+				.setDescription("As the questions are displayed answer by reacting to the question with the correct emoji. First to answer correctly gets the most points, subsequent correct answers decrease by 5 points with a minimum of 5 points given per correct answer. Answer correctly (or incorrectly) before time runs out.")
 			msg.channel.send(intro);
 		}
 
@@ -65,10 +65,10 @@ module.exports = {
 				.setTitle("Trivia Rules")
 				.setColor("#0099ff")
 				.setDescription("This trivia game was created by Corey Murphy and Christian Acord. It uses questions from [https://opentdb.com](https://opentdb.com).")
-				.addField("How to Play","When the question is displayed react with the corresponding number to the correct (or incorrect) answer.")
-				.addField("The first correct answer receives the most points","Subsequent answers are reduced to a minimum of 5 points")
-				.addField("You get one chance","Subsequent reactions are ignored.")
-				.addField("Incorrect answers","Incorrect answers receive no score")
+				.addField("How to Play","When the question is displayed react with the corresponding number to the correct (or incorrect) answer. Gather as many points during each game.")
+                                .addField("Responses","You get one answer per round, all other reactions are ignored.")
+				.addField("Scoring","The first correct answer receives the most point, subsequent answers are reduced to a minimum of 5 points")
+				.addField("Incorrect Answers","Incorrect answers receive no points.")
 
 	 		msg.author.send(rules);
 		}
@@ -77,11 +77,14 @@ module.exports = {
 
 		function timer(time,interval,text) {
 			m_time=time
+
+			fin=["Time is Up!","Round has finished.","Pencils down.","No more time left.","Finito.","Fin"]
+			
 			let pBar = function(theBar) {
 				time-=interval;
 
 				if (time == 0) {
-					theBar.edit("```Time is Up!```");
+					theBar.edit("```fin[Math.floor(Math.random() * fin.length)]x```");
 					clearInterval(p)
 					return;
 				} else {
