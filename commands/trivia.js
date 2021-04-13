@@ -8,7 +8,6 @@ var leaderbd = new Map();
 var userNameId = new Map();
 var q_time; // question time variable to shorten waiting time during testing
 var game_in_progres = false;
-//var questionId = '';
 
 const sequelize = new Sequelize('database', 'user', 'password', {
 	                host: 'localhost',
