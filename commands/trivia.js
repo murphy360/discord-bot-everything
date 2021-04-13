@@ -76,7 +76,7 @@ module.exports = {
 	/***** TIMER: Sets a timer displaying a progress bar countdown *****/
 
 		function timer(time,interval,text) {
-
+			m_time=time
 			let pBar = function(theBar) {
 				time-=interval;
 
@@ -85,13 +85,13 @@ module.exports = {
 					clearInterval(p)
 					return;
 				} else {
-					theBar.edit(text+"\n"+getBar(time,60,30));
+					theBar.edit(text+"\n"+getBar(time,m_time,30));
 				}
 	        	}
 
 			let intv=interval*1000;
 
-			msg.channel.send(text+"\n"+getBar(time,60,30)).then(msg => { p = setInterval(pBar,intv,msg) });
+			msg.channel.send(text+"\n"+getBar(time,m_time,30)).then(msg => { p = setInterval(pBar,intv,msg) });
 	    	}
 
 
@@ -104,7 +104,7 @@ module.exports = {
 			const emptyProgress = size - progress;
 			const progressText = '▇'.repeat(progress);
 			const emptyProgressText = ' '.repeat(emptyProgress);
-			const bar = '```[' + progressText + emptyProgressText + ']```';
+			const bar = '```' + progressText + emptyProgressText + '```';
 
 			return bar;
 	    	}
@@ -151,23 +151,61 @@ module.exports = {
 
 		async function leaderboard(w, game, winner) {
 			console.info('Leaderboard ');
-		
+			
+			leaders=new Discord.MessageEmbed()
+				.setColor("#0099FF")
+
+			let players="None"
+			let scores="N/A"
+			let leaderText="No Winner"
+
+			let count=0;
+			pArr=new Array()
+			sArr=new Array()
+
+			w.forEach( (value, key) => {
+				pArr[count]=userNameId.get(key)
+                                sArr[count]=value
+                                count++
+                        });
+
+			console.info(pArr);
+
+			if (sArr.length>0) {
+				console.info("Sorting")
+
+				players=""
+				scores=""
+
+                        	for (let j=0;j<sArr.length;j++) {
+                                	max=0;
+                                        pos=j;
+                                        for (let i=j;i<sArr.length;i++) {
+                                                if (sArr[i]>max) {
+                                                        pos=i;
+                                                }
+                                        }
+
+					if (pos != j) {
+	                                        swap=sArr[j];
+        	                                sArr[j]=sArr[pos];
+                	                        sArr[pos]=swap;
+
+                        	                swap=pArr[j];
+                                	        pArr[j]=pArr[pos];
+                                        	pArr[pos]=swap;
+					}
+                                }
+
+                                for (let i=0;i<sArr.length;i++) {
+                                        players+=pArr[i]+"\n";
+                                        scores+=sArr[i]+"\n";
+                                }
+			}
 
 			if (game) {
+
 				
-				let players=""
-				let scores=""
-				if ( w.size <= 0 ) {
-					players="None"
-					scores="N/A"
-				} else {
-					w.forEach( (value, key) => {
-						players+=userNameId.get(key)+"\n";
-						scores+=value+"\n";
-					});
-				}
-				
-				var leaderText = "No Winner";
 				if (winner !== null){
 					leaderText = "Congrats to our winner, " + winner.username;
 				}
@@ -175,75 +213,26 @@ module.exports = {
 				console.info('Leader Text: ' + leaderText);
 				console.info('player text: ' + players);
 				console.info('scores: ' + scores);
-				const leaders = new Discord.MessageEmbed()
-					.setTitle("Game Results")
-					.setDescription(leaderText)
-					.setColor("#0099ff")
-					.addFields(
-						{name: "Players", value: players, inline: true},
-						{name: "Scores", value: scores, inline: true}
-					);
-				msg.channel.send(leaders);
+
+				leaders.setTitle("Final Scoreboard")
+				leaders.setDescription(leaderText)
+				leaders.addFields(
+					{name: "Players", value: players, inline: true},
+					{name: "Scores", value: scores, inline: true}
+				);
+        
 			} else {
 				
 				// Build overall Leaderboard here
 
-				players=""
-				scores=""
-				pArr=""
-				sArr=""
-				count=0;
-
-				w.forEach( (value, key) => {
-		        	console.info('adding player string');
-					let j = client.users.fetch(key);
-					j.then(function(result1) {
-						console.info('lookup: ' + result1.username);
-						pArr[count]=result1.username+"\n";
-        			    sArr[count]=value+"\n";
-						count++
-					});
-				});
-
-				if ( players == "" ) {
-					players="None"
-					scores="N/A"
-				} else {
-					len=players.length;
-					for (let j=0;j<sArr.length;j++) {
-						max=0;
-						pos=0;
-						for (let i=j;i<sArr.length;i++) {
-							if (sArr[i]>max) {
-								pos=i;
-							}
-						}
-
-						swap=sArr[j];
-						sArr[j]=sArr[pos];
-						sARr[pos]=swap;
-
-						swap=pArr[j];
-						pArr[j]=pArr[pos];
-						pArr[pos]=swap;
-					}
-
-					for (let i=0;i<sArr.length;i++) {
-						players+=pArr[i]+"\n";
-						scores+=sArr[i]+"\n";
-					}
-
-				}
-
-				const leaders = new Discord.MessageEmbed()
-					.setTitle("Leader Board")
-					.setDescription("Current all-time trivia leaderboard stats")
-					.setColor("#0099ff")
-					.addFields({name: "Players", value: players, inline:true},
+				leaders.setTitle("Leaderboard")
+				leaders.setDescription("Current all-time trivia leaderboard stats")
+				leaders.addFields({name: "Players", value: players, inline:true},
 						   {name: "Scores", value: scores, inline: true}
-					);
-				msg.channel.send(leaders);
+				);
 			}
+
+			msg.channel.send(leaders);
 		}
 
 	/***** adds new user to database *****/
