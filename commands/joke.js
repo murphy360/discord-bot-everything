@@ -13,9 +13,11 @@ module.exports = {
           .setAuthor("Joke Bot")
           .setColor("#FF9900")
           .setTitle(json.setup)
+	  .setThumbnail("https://repository-images.githubusercontent.com/193169245/5462aa00-f356-11e9-846d-551973c550a6")
       
         msg.channel.send(joke).then(j => { 
           joke.setDescription(json.punchline); 
+	  joke.setFooter("Joke provided by https://dadsofunny.firebaseapp.com","https://repository-images.githubusercontent.com/193169245/5462aa00-f356-11e9-846d-551973c550a6");
           setTimeout(function () {j.edit(joke)}, 7000); 
         });
     
