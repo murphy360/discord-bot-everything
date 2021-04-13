@@ -184,7 +184,6 @@ module.exports = {
 						{name: "Players", value: players, inline: true},
 						{name: "Scores", value: scores, inline: true}
 					);
-					
 				msg.channel.send(leaders);
 			} else {
 				
@@ -197,14 +196,12 @@ module.exports = {
 				count=0;
 
 				w.forEach( (value, key) => {
-		
-		        	        console.info('adding player string');
-
+		        	console.info('adding player string');
 					let j = client.users.fetch(key);
 					j.then(function(result1) {
 						console.info('lookup: ' + result1.username);
 						pArr[count]=result1.username+"\n";
-        			                sArr[count]=value+"\n";
+        			    sArr[count]=value+"\n";
 						count++
 					});
 				});
@@ -245,13 +242,11 @@ module.exports = {
 					.setColor("#0099ff")
 					.addFields({name: "Players", value: players, inline:true},
 						   {name: "Scores", value: scores, inline: true}
-						  );
-
+					);
 				msg.channel.send(leaders);
 			}
 		}
 
-	
 	/***** adds new user to database *****/
 	async function logUser(message, user) {
 		try{
@@ -260,8 +255,7 @@ module.exports = {
 				user_id: user.id,
 				user_name: user.username,
 			});
-			message.channel.send('Everyone welcome ' + user.username + ' it is their first time playing!'); 
-		
+			message.channel.send('Everyone welcome ' + user.username + ' it is their first time playing!');
 		}catch(e) {
 			if (e.name === 'SequelizeUniqueConstraintError') {
 				return console.info('That user already exists.');
@@ -272,28 +266,34 @@ module.exports = {
 
 	/***** log that we're playing a game on this server *****/
 	async function logServer(message) {
-		const server = await Servers.findOne({
-			where: { server_id: message.guild.id } });
-		if (server === null) {
-			console.info('First time with this server');
-			try{
-				console.info('Logging server: ' + message.guild.name);
-				const newServer = await Servers.create({
-					server_id: message.guild.id,
-					server_name: message.guild.name,
-				});
-				message.channel.send('Hey thanks for the invite! it is my first time on this server!');
-			}catch(e) {
-				if (e.name === 'SequelizeUniqueConstraintError') {
-					return console.info('That server already exists.');    
+		//how to find a server in the db
+		let serverSearchCriteria = { where: {
+			server_id: message.guild.id
+		}};
+
+		Servers.findOne(serverSearchCriteria).then(knownServer => {
+			if (knownServer === null) {
+				console.info('First time with this server');
+				try{
+					console.info('Logging server: ' + message.guild.name);
+					Servers.create({
+						server_id: message.guild.id,
+						server_name: message.guild.name,
+					}).then(newServer => {
+						message.channel.send('Hey thanks for the invite! This is my first time on ' + newServer.server_name);
+					});
+				}catch(e) {
+					if (e.name === 'SequelizeUniqueConstraintError') {
+						return console.info('That server already exists.');    
+					}
+					return message.channel.send('Something went wrong with logging the server');       
 				}
-				return message.channel.send('Something went wrong with loggin the server');       
+			} else {
+				console.info('This server exists in the db');
 			}
-		} else {
-			console.info('This server exists in the db');
-		}
-		
+		});
 	}
+
 	/*** Log Game: save reference to this game to db ***/
 		async function logGame(message, winner) {
 			
@@ -322,12 +322,17 @@ module.exports = {
 		async function logResponse(isWinner, points, user, message, round, questionTime, answerTime, questionId) {
 			console.info('logResponse question: ' + questionId);
 			
+			//if the user received points (or isWinner) they got the answer right...
+			// TODO do we need to log correct answer if we make that assumption? 
 			const correctAnswer = points > 0;
 
+			//how to find a user in the db
 			let userSearchCriteria = { where: {
 				user_id: user.id
 			}};
 
+			//if this is the user's first time on the bot then log them. 
+			// TODO could look into checking if this is the first time on the server / if they are on other servers
 			Users.findOne(userSearchCriteria).then(value => {
 				if (value === null) {
 					//first time user on this bot
@@ -337,12 +342,14 @@ module.exports = {
 				}
 			});
 
+			// Combination of userid, gameid and round number should be unique
 			let responseSearchCriteria = { where: {
 				user_id: user.id,
 				game_id: message.id,
 				round_number: round
 			}};
 			
+			//Create a database entry for this users first answer
 			Responses.findOne(responseSearchCriteria).then(value => {
 				if (value === null) {
 					console.info('not found logging response for ' + user.username);
@@ -363,97 +370,7 @@ module.exports = {
 			});
 		}
 
-		/**
-		 * I absolutely intend to offer the comments below with compassion and respect.
-		 * I hope that comes through in text.
-		 * 
-		 * ------
-		 * (1) What does this function do?  (Maybe:  "test if the the specified
-		 * question exists in our database, create it if not, and return the
-		 * ID either way." ?)  If that's what it does, I'd suggest changing the
-		 * name. As is, the name "logQuestion" suggests (say) you're reporting
-		 * (logging) the existence of a question, not searching-and-creating.
-		 * Perhaps "findOrCreateQuestion()" ?
-		 * 
-		 * CM:  Change Made 100% Agree
-		 * 
-		 * TODO adopt better naming convention for all functions.  
-		 * 
-		 * (2) I don't know what a lot of these objects do, or what their purpose is.
-		 * I'm only commenting, below, on the syntax. If I say some naive/silly/dumb
-		 * things, please forgive me. I'm trying to help you clean up the syntax
-		 * and JavaScript concepts; I realize I don't know about the data being processed. 
-		 * 
-		 * Sequelize ideally returns an Object that can interact with the database... still trying to wrap our heads around it.  
-		 * As far as data, we're pulling questions in JSON format that we can extract 
-		 * - Question
-		 * - Correct Answer
-		 * - 1-3 Incorrect answers
-		 * - difficulty
-		 * - genre
-		 * 
-		 * We've defined our database tables in the models directory
-		 * 
-		 * (3) I'd recommend putting a try/catch around the calls to `findOne` and
-		 * `create()`.  I didn't do that here because I don't know the errors
-		 * your database might return, and because I'm adding enough noise below
-		 * that I didn't want to muddy things.  I can comment on your try/catch in a
-		 * later PR.
-		 * 
-		 * TODO Add Try/Catch around all Async functions.  
-		 * 
-		 * (4) Please test this code before merging it!!!  I haven't even installed
-		 * Node.  I'm just (again) responding to syntax.
-		 * 
-		 * - Needed to remove the assignment of questionId at the top of the document and get the scope back inside the variables
-		 * 
-		 * (5) Is this `Questions.create()` process a database call?
-		 * 
-		 * If so: I'd recommend against (ever) waiting on a database to do
-		 * something for you.  Even if it should be instantaneous, it can
-		 * often not be. There's probably a way to think about the design
-		 * which would let you queue up this "create" process and, later,
-		 * incorporate the results from it.  Same goes for almost everything
-		 * you can do asynchronously.
-		 * 
-		 * 
-		 * - That's the thing I'm trying to wrap my head around.  With Sequelize you can run the operation which
-		 * returns a Promise which you can use the -then(function{}) to do something with.  There's probably
-		 * also something fundamentally wrong with how we're trying to create / modify the join tables in the database
-		 * M/M relationships abound here as we're looking to have a flexible database we can build a lot of stats from later
-         * 
-		 * Analogy:  you ask me to get you a burrito (`ron.burritoFactory.create()`).
-		 * Do you hover over my desk until until the burrito magically appears?
-		 * - depends how hungry I am... but I get it!!!! 
-		 * For all you know, I decided to go home and drop off something for my
-		 * wife, because I didn't realize you were waiting for me.  You CAN wait for
-		 * me (you can make the burrito-creation process synchronous), but it might
-		 * be better to set up a casual, social notification system: "hey, Ron,
-		 * when you've got my burrito, would you leave it on my desk and text me?"
-		 * Doing that doesn't really "make" it asynchronous; it shows that the situation
-		 * truly is fundamentally asynchronous -- we're indepdent people working
-		 * independently, not separate sides of the same cog in a machine.  It thus
-		 * helps you and me take advantage of the truly asynchronous nature of the situation.
-		 * 
-		 * That analogy translates exactly into code. When this "create" process
-		 * is done, you  can have it post the results in some variable you can access,
-		 * and then (if necessary to do it separately) post a message somewhere that will
-		 * let your UI-or-whatever know there's more data to be shown.
-		 * 
-		 * - so the await is what's making us wait for things?  
-		 * 
-		 */
 		async function findOrLogQuestion(triviaObj, roundNumber, chaff0, chaff1, chaff2, message) {
-
-			// ------------------------------------------------------------------
-			// Ron's Version
-			// ------------------------------------------------------------------
-
-			/*
-			 I'm going to insert a whole new block of code showing what I
-			 think you intend from this function. Then, below, I'll make comments
-			 on your original code.
-			 */
 
 			// Result of this function:  the ID of the resulting question, whether
 			// it already exists or we have to create it.
@@ -618,7 +535,7 @@ module.exports = {
 //				timer(20,4,'**Final Round begin soon...**');
 			} else {
 				msg.channel.send('**Round #' + curRound + ' of ' + args[2] + ' is starting**'); 
-//				timer(20,4,'**Round #'+curRound+' of '+args[2]+' will start soon...**');
+
 			}
 
 			msg.channel.send(getQuestionEmbed(triviaObj, roundNumber, curRound)).then(sentMsg => {
