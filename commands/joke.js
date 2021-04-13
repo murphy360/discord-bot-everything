@@ -9,7 +9,7 @@ module.exports = {
       method: 'GET'})
       .then(response => { return response.json(); })
       .then(json => {
-        joke = new Discord.messageEmbed()
+        joke = new Discord.MessageEmbed()
           .setAuthor("Joke Bot")
           .setColor("#FF9900")
           .setTitle(json.setup)
