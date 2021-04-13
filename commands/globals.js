@@ -1,0 +1,2 @@
+const TRIVIA_COLOR="#0099ff"
+const JOKE_COLOR="#FF9900"
