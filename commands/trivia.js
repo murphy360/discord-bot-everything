@@ -84,7 +84,7 @@ module.exports = {
 				time-=interval;
 
 				if (time == 0) {
-					theBar.edit("```fin[Math.floor(Math.random() * fin.length)]x```");
+					theBar.edit("```"+fin[Math.floor(Math.random() * fin.length)]+"```");
 					clearInterval(p)
 					return;
 				} else {
