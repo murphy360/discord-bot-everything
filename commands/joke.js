@@ -44,6 +44,7 @@ module.exports = {
       });
     }
 
+    console.info("ARGS: " + args[2]);
     if (args[2] === null) {
       let apiNum = Math.floor(Math.random() * (2 - 1 + 1)+2);
       console.info("integer: " + apiNum);
