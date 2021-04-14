@@ -7,4 +7,5 @@ module.exports = {
   Cat: require('./cat'),
   Stats: require('./stats'),
   Joke: require('./joke'),
+  Find: require('./find'),
 };
