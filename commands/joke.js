@@ -53,7 +53,7 @@ module.exports = {
       if (apiNum === 1) {
         sendDadJoke();
       } else {
-        sendJokeApiJoke("");
+        sendJokeApiJoke("Any");
       }
     } else if (args[2] === 'dad') {
       console.info('dad specific');
