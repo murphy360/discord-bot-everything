@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const { json } = require('sequelize');
+const Math = require('math');
 module.exports = {
   name: 'find',
   description: 'Finds things',
@@ -9,7 +10,7 @@ module.exports = {
       msg.channel.send("What should I find?");
     } else if (args[2] === 'pokemon'){
       console.info('find pokemon');
-      const pokemonId = rand(1, 898);
+      const pokemonId = Math.floor(Math.random() * 897) + 1;
       const { file } = await fetch('https://api.pokemon.com/us/pokedex/'+pokemonId).then(response => response.json());
       console.info('Random Pokemon');
       console.info(JSON.stringify(file));
