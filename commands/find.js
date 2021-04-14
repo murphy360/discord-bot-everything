@@ -20,6 +20,7 @@ module.exports = {
       .then(json => {
         msg.channel.send(json.name.english)
         msg.channel.send(json.type)
+        console.info(he.decode(json.sprite))
         msg.channel.send(he.decode(json.sprite))
       });
       console.info('Random Pokemon');
