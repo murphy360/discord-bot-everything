@@ -15,7 +15,7 @@ module.exports = {
         console.info('got something');
         console.info(response);
         console.info(JSON.stringify(response));
-        msg.channel.send(file);	 
+        msg.channel.send(response.);	 
       });   
     }
   },
