@@ -43,6 +43,7 @@ module.exports = {
           });            
       });
     }
+
     if (args[2] === null) {
       let apiNum = Math.floor(Math.random() * (2 - 1 + 1)+2);
       console.info("integer: " + apiNum);
@@ -52,9 +53,11 @@ module.exports = {
         sendJokeApiJoke("");
       }
     } else if (args[2] === 'dad') {
+      console.info('dad specific');
       sendDadJoke();
     } else {
       try {
+        console.info('Category Specific');
         sendJokeApiJoke(args[2]);
       } catch (e) {
         msg.channel.send("Sorry I don't have that category /n Try: nsfw, religious, political, racist, sexist, explicit");
