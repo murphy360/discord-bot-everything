@@ -21,6 +21,7 @@ module.exports = {
       .addFields(
 	      {name:"Species",value:json.species,inline:true},
 	      {name:"Type",value:json.type,inline:true},
+	      {name:"Ability",value:json.ability,inline:true},
 	      { name: '\u200B', value: '\u200B' }
 	)
       .addFields(
