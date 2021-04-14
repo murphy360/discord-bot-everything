@@ -18,7 +18,7 @@ module.exports = {
       .then(json => JSON.parse(json))
       //.then(json => msg.channel.send(json))
       .then(json => {
-        msg.channel.send(json.name)
+        msg.channel.send(json.name.english)
         msg.channel.send(json.type)
         msg.channel.send(he.decode(json.sprite))
       });
