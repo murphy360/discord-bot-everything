@@ -20,17 +20,17 @@ module.exports = {
       //.then(json => msg.channel.send(json))
       .then(json => {
 
-        console.info(json.sprite);
-        let imageUrl = json.sprite.split('hires');
-        console.info(imageUrl[0]);
-        console.info(imageUrl[1]);
+        console.info(json.hires);
+        //let imageUrl = json.sprite.split('hires');
+        //console.info(imageUrl[0]);
+        //console.info(imageUrl[1]);
        
         const messageEmbed = new Discord.MessageEmbed()
           .setColor('#0099ff')
           .setAuthor('Found a wild!')
           //.addFields({name: 'Type', json.type})
           .setTitle(json.name.english)
-          .setThumbnail(he.decode(imageUrl[1]))
+          .setThumbnail(he.decode(json.hires))
           //.setImage(he.decode(json.sprite))
 				  .addField("HP: "+json.base.HP)
           .addField("Attack: "+json.base.Attack)
