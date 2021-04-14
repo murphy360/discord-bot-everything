@@ -14,7 +14,7 @@ module.exports = {
       //const pokemonId = Math.floor(Math.random() * 897) + 1;
       const { json2 } = await fetch("https://app.pokemon-api.xyz/pokemon/random")
       .then(response => response.text())
-      .then(json => msg.channel.send(json.name.english));
+      .then(json => msg.channel.send(json.name));
       console.info('Random Pokemon');
        
     } else if (args[2] === 'cat') {
