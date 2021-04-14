@@ -40,22 +40,22 @@ module.exports = {
               .setThumbnail("https://sv443.net/resources/images/jokeapi.webp")
               msg.channel.send(joke).then(j => { 
               joke.setDescription(json.delivery); 
-              joke.setFooter("Joke provided by https://sv443.net/jokeapi/","https://sv443.net/");
+              joke.setFooter("Joke provided by https://sv443.net/jokeapi/","https://sv443.net/resources/images/jokeapi.webp");
               setTimeout(function () {j.edit(joke)}, 7000); 
             });   
          } else {
-            msg.channel.send("Sorry something wrong witherh the joke /n Try joke [programming, misc, pun, dark, spooky, christmas]");
+            msg.channel.send("Sorry something wrong with the joke /n Try joke [programming, misc, pun, dark, spooky, christmas]");
          }     
       });
     }
 
     console.info("ARGS: " + args[2]);
     if (args[2] === undefined) {
-      let max = 2;
-      let min = 1;
-      let apiNum = Math.floor(Math.random() * (max - min + 1) + min);
+      let max = 1;
+      let min = 0;
+      let apiNum = Math.round(Math.random());
       console.info("integer: " + apiNum);
-      if (apiNum === 1) {
+      if (apiNum === 0) {
         sendDadJoke();
       } else {
         sendJokeApiJoke("Any");
