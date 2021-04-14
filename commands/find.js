@@ -5,7 +5,8 @@ module.exports = {
   description: 'Finds things',
   async execute(msg, args) {
     let findCommand = args[2];
-    if (!args[2]){
+    console.info("Inside find " + findCommand);
+    if (!findCommand){
       msg.channel.send("What should I find?");
     } if (findCommand === 'pokemon'){
       const pokemonId = rand(1, 898);
