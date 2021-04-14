@@ -11,11 +11,11 @@ module.exports = {
       msg.channel.send("What should I find?");
     } else if (args[2] === 'pokemon'){
       console.info('find pokemon');
-      const pokemonId = Math.floor(Math.random() * 897) + 1;
-      fetch("https://pokeapi.co/api/v2/pokemon/"+pokemonId)
+      //const pokemonId = Math.floor(Math.random() * 897) + 1;
+      fetch("https://app.pokemon-api.xyz/pokemon/random")
       .then(response => { 
         console.info(response);
-        response.json() })
+        response.json()})
       .then(json => {
         //pokemonJson = await response.json(); 
         console.log(json);
