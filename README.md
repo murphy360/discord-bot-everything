@@ -23,6 +23,7 @@ Forked from https://github.com/sitepoint-editors/discord-bot-sitepoint
 10. Run `node index.js` or npm run dev (ensure package.json properly configured)
 11. Interact with your Discord bot via your web browser
 12. npm install --save greetings 
+13. npm install --save math
 
 
 ## License
