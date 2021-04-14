@@ -13,7 +13,7 @@ module.exports = {
       console.info('find pokemon');
       //const pokemonId = Math.floor(Math.random() * 897) + 1;
       await fetch("https://app.pokemon-api.xyz/pokemon/random")
-      .then(response => response.json())
+      .then(response => response.text())
       //.then(file => JSON.parse(file))
       .then(json => msg.channel.send(json))
       .then(json => msg.channel.send(json.type));
