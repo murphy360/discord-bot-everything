@@ -30,6 +30,7 @@ module.exports = {
         method: 'GET'})
         .then(response => { return response.json(); })
         .then(json => {
+          console.info(json);
           joke = new Discord.MessageEmbed()
             .setAuthor("Bot's Got Jokes")
             .setColor("#c5f542")
