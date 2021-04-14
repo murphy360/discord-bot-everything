@@ -32,17 +32,20 @@ module.exports = {
         .then(response => { return response.json(); })
         .then(json => {
           console.info(json);
-          joke = new Discord.MessageEmbed()
-            .setAuthor("Bot's Got Jokes")
-            .setColor("#c5f542")
-            .setTitle(json.setup)
-      .setThumbnail("https://sv443.net/resources/images/jokeapi.webp")
-        
-          msg.channel.send(joke).then(j => { 
-            joke.setDescription(json.delivery); 
-      joke.setFooter("Joke provided by https://sv443.net/jokeapi/","https://sv443.net/");
-            setTimeout(function () {j.edit(joke)}, 7000); 
-          });            
+          if (json.error === false) {
+              joke = new Discord.MessageEmbed()
+              .setAuthor("Bot's Got Jokes")
+              .setColor("#c5f542")
+              .setTitle(json.setup)
+              .setThumbnail("https://sv443.net/resources/images/jokeapi.webp")
+              msg.channel.send(joke).then(j => { 
+              joke.setDescription(json.delivery); 
+              joke.setFooter("Joke provided by https://sv443.net/jokeapi/","https://sv443.net/");
+              setTimeout(function () {j.edit(joke)}, 7000); 
+            });   
+         } else {
+            msg.channel.send("Sorry something wrong with the joke /n Try joke [programming, misc, dark, pun, spooky, christmas]");
+         }     
       });
     }
 
@@ -63,7 +66,7 @@ module.exports = {
         console.info('Category Specific');
         sendJokeApiJoke(args[2]);
       } catch (e) {
-        msg.channel.send("Sorry I don't have that category /n Try: programming, misc, dark, pun, spooky, christmas");
+        
       }
     }
   },
