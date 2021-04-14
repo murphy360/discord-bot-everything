@@ -11,11 +11,12 @@ module.exports = {
     } else if (args[2] === 'pokemon'){
       console.info('find pokemon');
       const pokemonId = Math.floor(Math.random() * 897) + 1;
-      const { file } = await fetch('https://api.pokemon.com/us/pokedex/'+pokemonId).then(response => response.json());
-      console.info('Random Pokemon');
-      console.info(JSON.stringify(file));
-      msg.channel.send(file);	  
+      fetch('https://api.pokemon.com/us/pokedex/'+pokemonId).then(response => {
+        console.info('got something');
+        console.info(response);
+        console.info(JSON.stringify(response));
+        msg.channel.send(file);	 
+      });   
     }
-    
   },
 };
