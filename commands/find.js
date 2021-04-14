@@ -9,11 +9,11 @@ module.exports = {
   description: 'Finds things',
   async execute(msg, args) {
     
-    async function sendEmbedMessage(message, json) {
-      //create and format 
+    async function sendEmbedPokemonMessage(message, json) {
+      //create and format new embedded message 
       const messageEmbed = new Discord.MessageEmbed()
       .setColor('#0099ff')
-      .setAuthor('Found a wild!')
+      .setAuthor('Found in the wild!')
       //.addFields({name: 'Type', json.type})
       .setTitle(json.name.english)
       .setThumbnail(he.decode(json.hires))
@@ -42,7 +42,7 @@ module.exports = {
       .then(response => response.text())
       //create a JSON object
       .then(json => JSON.parse(json))
-      .then(json => sendEmbedMessage(msg, json)); 
+      .then(json => sendEmbedPokemonMessage(msg, json)); 
 
     } else if (args[2] === 'cat') {
       const { file } = await fetch('https://aws.random.cat/meow').then(response => response.json());
