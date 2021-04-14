@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const he = require('he');
 const { json } = require('sequelize');
 
 const Math = require('math');
@@ -16,7 +17,11 @@ module.exports = {
       .then(response => response.text())
       .then(json => JSON.parse(json))
       //.then(json => msg.channel.send(json))
-      .then(json => msg.channel.send(json.type));
+      .then(json => {
+        msg.channel.send(json.name)
+        msg.channel.send(json.type)
+        msg.channel.send(he.decode(json.sprite))
+      });
       console.info('Random Pokemon');
        
     } else if (args[2] === 'cat') {
