@@ -31,11 +31,14 @@ module.exports = {
           //.addFields({name: 'Type', json.type})
           .setTitle(json.name.english)
           .setThumbnail(he.decode(json.hires))
-          //.setImage(he.decode(json.sprite))
-				  .addField("HP: "+json.base.HP)
-          .addField("Attack: "+json.base.Attack)
-          .addField("Defense:  "+json.base.Defense)
-          .addField("Species: "+json.species)
+          .addFields(
+            {name:"Species",value:json.species},
+            {name:"Type",value:json.type},
+            {name:"HP",value:json.base.HP,inline:true},
+            {name:"Defence",value:json.base.Defence,inline:true},
+            {name:"Attack",value:json.base.Attack,inline:true}
+            {name:"Description",value:json.description},
+          )
           .setFooter("Data provided by: https://purukitto.github.io/pokemon-api/")
           msg.channel.send(messageEmbed);
       });
