@@ -15,7 +15,7 @@ module.exports = {
       await fetch("https://app.pokemon-api.xyz/pokemon/random")
       .then(response => response.json())
       //.then(file => JSON.parse(file))
-      .then(json => msg.channel.send(json.name))
+      .then(json => msg.channel.send(json))
       .then(json => msg.channel.send(json.type));
       console.info('Random Pokemon');
        
