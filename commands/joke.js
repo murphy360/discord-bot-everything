@@ -25,8 +25,8 @@ module.exports = {
       });
     }
 
-    function sendNsfwJoke(){
-      fetch('https://v2.jokeapi.dev/joke/Any?format=xml?Flags=nsfw?type=twopart', { 
+    function sendJokeApiJoke(){
+      fetch('https://v2.jokeapi.dev/joke/Any?format=xml?type=twopart', { 
         method: 'GET'})
         .then(response => { return response.json(); })
         .then(json => {
@@ -43,10 +43,21 @@ module.exports = {
           });            
       });
     }
-    if (args[2] === 'dad') {
+    if (args[2] === null) {
+      let apiNum = Math.floor(Math.random() * (2 - 1 + 1));
+      if (apiNum === 1) {
+        sendDadJoke();
+      } else {
+        sendJokeApiJoke();
+      }
+    } else if (args[2] === 'dad') {
       sendDadJoke();
-    } else if (args[2] === 'nsfw') {
-      sendNsfwJoke();
+    } else {
+      try {
+        sendJokeApiJoke(args[2]);
+      } catch (e) {
+        msg.channel.send("Sorry I don't have that category /n Try: nsfw, religious, political, racist, sexist, explicit");
+      }
     }
   },
 };
