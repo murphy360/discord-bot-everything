@@ -27,12 +27,10 @@ module.exports = {
           .setTitle(json.name.english)
           .setThumbnail(he.decode(json.sprite))
           //.setImage(he.decode(json.sprite))
-				  .addFields({
-            name:"HP: ", value:json.base.HP, 
-            name:"Attack: ", value:json.base.Attack,
-            name:"Defense:  ", value:json.base.Defense,
-            name:"Species: ", value:json.species
-          })
+				  .addField("HP: "+json.base.HP)
+          .addField("Attack: "+json.base.Attack)
+          .addField("Defense:  "+json.base.Defense)
+          .addField("Species: "+json.species)
           .setFooter("Data provided by: https://purukitto.github.io/pokemon-api/")
           msg.channel.send(messageEmbed);
       });
