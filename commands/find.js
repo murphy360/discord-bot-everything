@@ -3,7 +3,6 @@ const he = require('he');
 const { json } = require('sequelize');
 const Discord = require('discord.js');
 
-const Math = require('math');
 module.exports = {
   name: 'find',
   description: 'Finds things',
@@ -11,31 +10,33 @@ module.exports = {
     
     async function sendEmbedPokemonMessage(message, json) {
       //create and format new embedded message 
+
+	//get abilities from the json provided
+	ability=""
+	for (let i=0;i<json.profile.ability.length;i++) {
+		ability+=json.profile.ability[i][0]+"\n"
+	}
+
       const messageEmbed = new Discord.MessageEmbed()
       .setColor('#ffcb05')      // Changed the color to the Pokemon yellow (just for fun)
       .setAuthor('Found in the wild!')
       //.addFields({name: 'Type', json.type})
       .setTitle(json.name.english)
+      .setURL("https://www.pokemon.com/us/pokedex/"+json.name.english)
       .setDescription(json.description)
       .setThumbnail(he.decode(json.hires))
       .addFields(
 	      {name:"Species",value:json.species,inline:true},
 	      {name:"Type",value:json.type,inline:true},
-	      {name:"Ability",value:json.ability,inline:true},
-	      { name: '\u200B', value: '\u200B' }
-	)
-      .addFields(
-//        {name:"Species",value:json.species},
-//        {name:"Type",value:json.type},
-        {name:"HP",value:json.base.HP,inline:true},
-        {name:"Defense",value:json.base.Defense,inline:true},
-        {name:"Attack",value:json.base.Attack,inline:true},
-        {name:"Sp. Attack",value:json.base['Sp. Attack'],inline:true},
-        {name:"Sp. Defense",value:json.base['Sp. Defense'],inline:true},
-        {name:"Speed",value:json.base.Speed,inline:true},
-//        {name:"Description",value:json.description}
+	      {name:"Ability",value:ability,inline:true},
+	      {name:"HP",value:json.base.HP,inline:true},
+              {name:"Defense",value:json.base.Defense,inline:true},
+              {name:"Attack",value:json.base.Attack,inline:true},
+              {name:"Sp. Attack",value:json.base['Sp. Attack'],inline:true},
+              {name:"Sp. Defense",value:json.base['Sp. Defense'],inline:true},
+              {name:"Speed",value:json.base.Speed,inline:true},
       )
-      .setFooter("API provided by: https://purukitto.github.io/pokemon-api/")
+      .setFooter("Pokemon data provided by: https://purukitto.github.io/pokemon-api/")
         message.channel.send(messageEmbed);
     }
     //if command is only "@bot find" then:

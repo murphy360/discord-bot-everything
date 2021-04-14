@@ -1,0 +1,144 @@
+
+const he = require('he');
+const fetch = require('node-fetch');
+const Sequelize = require('sequelize');
+const Discord = require('discord.js');
+const { ReactionCollector } = require('discord.js');
+const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
+var leaderbd = new Map();
+var userNameId = new Map();
+var q_time; // question time variable to shorten waiting time during testing
+var game_in_progres = false;
+
+const sequelize = new Sequelize('database', 'user', 'password', {
+	                host: 'localhost',
+	                dialect: 'sqlite',
+	                logging: false,
+	                storage: 'database.sqlite',
+});
+
+const Games = require('./../models/Games')(sequelize, Sequelize.DataTypes);
+const Users = require('./../models/Users')(sequelize, Sequelize.DataTypes);
+const Servers = require('./../models/Servers')(sequelize, Sequelize.DataTypes);
+const Responses = require('./../models/Responses')(sequelize, Sequelize.DataTypes);
+const Questions = require('./../models/Questions')(sequelize, Sequelize.DataTypes);
+
+module.exports = {
+	name: 'trivia',
+	description: 'Trivia! based on Open Trivia DB',
+	async execute(msg, args, client) {
+
+
+/********** FUNCTION DEFINITIONS **********/
+
+	/***** ABOUT: Display about information include authors and source information *****/
+		function about() {
+			const about = new Discord.MessageEmbed()
+				.setAuthor('Trivia Game')
+				.setColor("#0099ff")
+				.setTitle("About "+client.user.username+"'s Trivia Game")
+				.setDescription("This bot was created by Corey Murphy and Christian Acord")
+				.setImage("https://opentdb.com/images/logo.png")
+				.addFields({name:"Question provided by the Open Trivia Database", value: "The questions used in are provided by by [https://opentdb.com/](https://opentdb.com). All data provided by the API is available under the Creative Commons Attribution-ShareAlike 4.0 International License."})
+				.setFooter("Updated: 11 April 2021")
+				.setThumbnail("https://icon-library.com/images/bot-icon/bot-icon-3.jpg")
+			msg.channel.send(about)
+		}
+
+
+	/***** INTRO: Display Intro before game *****/
+		function intro() {
+			const intro = new Discord.MessageEmbed()
+				.setAuthor('Trivia Game')
+				.setColor("#0099ff")
+				.setTitle(msg.author.username+" has challenged everyone to a game of trivia.")
+				.setDescription("As the questions are displayed answer by reacting to the question with the correct emoji. First to answer correctly gets the most points, subsequent correct answers decrease by 5 points with a minimum of 5 points given per correct answer. Answer correctly (or incorrectly) before time runs out.")
+			msg.channel.send(intro);
+		}
+
+
+	/***** RULES: Display Rules in an embed message *****/
+
+		function rules() {
+
+			const rules = new Discord.MessageEmbed()
+				.setAuthor(msg.author.username+", welcome to trivia hosted by "+client.user.username)
+				.setTitle("Trivia Rules")
+				.setColor("#0099ff")
+				.setDescription("This trivia game was created by Corey Murphy and Christian Acord. It uses questions from [https://opentdb.com](https://opentdb.com).")
+				.addField("How to Play","When the question is displayed react with the corresponding number to the correct (or incorrect) answer. Gather as many points during each game.")
+                                .addField("Responses","You get one answer per round, all other reactions are ignored.")
+				.addField("Scoring","The first correct answer receives the most point, subsequent answers are reduced to a minimum of 5 points")
+				.addField("Incorrect Answers","Incorrect answers receive no points.")
+
+	 		msg.author.send(rules);
+		}
+
+	/***** TIMER: Sets a timer displaying a progress bar countdown *****/
+
+		function timer(time,interval,text) {
+			m_time=time
+
+			fin=["Time is Up!","Round has finished.","Pencils down.","No more time left.","Finito.","Fin"]
+			
+			let pBar = function(theBar) {
+				time-=interval;
+
+				if (time == 0) {
+					theBar.edit("```"+fin[Math.floor(Math.random() * fin.length)]+"```");
+					clearInterval(p)
+					return;
+				} else {
+					theBar.edit(text+"\n"+getBar(time,m_time,30));
+				}
+	        	}
+
+			let intv=interval*1000;
+
+			msg.channel.send(text+"\n"+getBar(time,m_time,30)).then(msg => { p = setInterval(pBar,intv,msg) });
+	    	}
+
+
+
+	/***** GETBAR: Build the Progress Bar for Timer *****/
+ 
+		function getBar(value, maxValue, size) {
+			const percentage = value / maxValue;
+			const progress = Math.round((size * percentage));
+			const emptyProgress = size - progress;
+			const progressText = '▇'.repeat(progress);
+			const emptyProgressText = ' '.repeat(emptyProgress);
+			const bar = '```' + progressText + emptyProgressText + '```';
+
+			return bar;
+	    	}
+    
+
+
+	/***** CLEANTEXT: Remove HTML Entities and replace with characters *****/
+
+		function cleanText(dirtyText) {
+			var cleanText = dirtyText;
+			cleanText = he.decode(dirtyText);
+			return cleanText;
+		}
+
+
+	/***** GETQUESTION EMBED: Display questions to channel with an embed *****/
+
+		function getQuestionEmbed(triviaObj, roundNumber, qNum) {
+			choices = ""
+	
+			for (let i = 0; i < triviaObj.results[roundNumber].incorrect_answers.length ; i++) {
+	                	j = i+1;
+	                	choices += "\n" + j + ". " + triviaObj.results[roundNumber].incorrect_answers[i];
+	        	}
+	
+			choices = cleanText(choices);
+	
+			const q = new Discord.MessageEmbed()
+				.setColor('#0099ff')
+				.setAuthor('Question #'+qNum)
+				.addFields({name: 'Choices', value: choices},
+				           {name: 'Category', value: cleanText(triviaObj.results[roundNumber].category), inline: true},
+					   {name: 'Difficulty', value: cleanText(triviaObj.results[roundNumber].difficulty), inline: true}
