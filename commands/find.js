@@ -20,8 +20,8 @@ module.exports = {
         }
       })
       .then(response => {
-        //console.log(response);
-        console.log(JSON.parse(response));
+        console.log(response);
+        //console.log(JSON.parse(response));
       })
       .catch(err => {
         console.error(err);
