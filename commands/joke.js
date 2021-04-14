@@ -12,7 +12,7 @@ module.exports = {
         .then(response => { return response.json(); })
         .then(json => {
           const joke = new Discord.MessageEmbed()
-            .setAuthor("Joke Bot")
+            .setAuthor(msg.author+" wants jokes") 
             .setColor("#c5f542")
             .setTitle(json.setup)
       .setThumbnail("https://repository-images.githubusercontent.com/193169245/5462aa00-f356-11e9-846d-551973c550a6")
@@ -34,7 +34,7 @@ module.exports = {
           console.info(json);
           if (json.error === false) {
               const joke = new Discord.MessageEmbed()
-              .setAuthor("Bot's Got Jokes")
+              .setAuthor(msg.author+" wants jokes")
               .setColor("#c5f542")
               .setTitle(json.setup)
               .setThumbnail("https://sv443.net/resources/images/jokeapi.webp")
@@ -44,7 +44,7 @@ module.exports = {
               setTimeout(function () {j.edit(joke)}, 7000); 
             });   
          } else {
-            msg.channel.send("Sorry something wrong witherh the joke /n Try joke [programming, misc, pun, spooky, christmas]");
+            msg.channel.send("Sorry something wrong witherh the joke /n Try joke [programming, misc, pun, dark, spooky, christmas]");
          }     
       });
     }
