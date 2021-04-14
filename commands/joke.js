@@ -26,6 +26,7 @@ module.exports = {
     }
 
     function sendJokeApiJoke(category){
+      console.info("Category: " + category);
       fetch('https://v2.jokeapi.dev/joke/'+category+'?format=xml?type=twopart?blacklistFlags=racist', { 
         method: 'GET'})
         .then(response => { return response.json(); })
@@ -52,7 +53,7 @@ module.exports = {
       if (apiNum === 1) {
         sendDadJoke();
       } else {
-        sendJokeApiJoke("");
+        sendJokeApiJoke(null);
       }
     } else if (args[2] === 'dad') {
       console.info('dad specific');
