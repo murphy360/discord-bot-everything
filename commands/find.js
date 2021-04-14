@@ -23,6 +23,11 @@ module.exports = {
       .catch(err => {
         console.error(err);
       });
+    } else if (args[2] === 'cat') {
+      const { file } = await fetch('https://aws.random.cat/meow').then(response => response.json());
+      console.info('Random Cat');
+      msg.channel.send('Random Cat');
+      msg.channel.send(file);	  
     }
   },
 };
