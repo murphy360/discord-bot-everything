@@ -45,7 +45,7 @@ module.exports = {
     }
     if (args[2] === null) {
       let apiNum = Math.floor(Math.random() * (2 - 1 + 1)+2);
-      console.infor("integer: " + apiNum);
+      console.info("integer: " + apiNum);
       if (apiNum === 1) {
         sendDadJoke();
       } else {
