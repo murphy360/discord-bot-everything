@@ -12,7 +12,7 @@ module.exports = {
     async function sendEmbedPokemonMessage(message, json) {
       //create and format new embedded message 
       const messageEmbed = new Discord.MessageEmbed()
-      .setColor('#0099ff')
+      .setColor('##ffcb05')      // Changed the color to the Pokemon yellow (just for fun)
       .setAuthor('Found in the wild!')
       //.addFields({name: 'Type', json.type})
       .setTitle(json.name.english)
