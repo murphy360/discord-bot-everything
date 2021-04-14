@@ -22,13 +22,19 @@ module.exports = {
        
         const messageEmbed = new Discord.MessageEmbed()
           .setColor('#0099ff')
-          .setAuthor('Found!')
+          .setAuthor('Found a wild!')
           //.addFields({name: 'Type', json.type})
-          .setTitle("Title: "+json.name.english)
+          .setTitle(json.name.english)
           .setThumbnail(he.decode(json.sprite))
-          .setImage(he.decode(json.sprite))
-				  .addFields({name:"HP: ", value:json.base.HP })
-          .setFooter("Footer: ")
+          //.setImage(he.decode(json.sprite))
+				  .addFields({
+            name:"HP: ", value:json.base.HP, 
+            name:"Attack: ", value:json.base.Attack,
+            name:"Defense:  ", value:json.base.Defense,
+            name:"Species: ", value:json.species
+            "Attack":64,"Defense":60,
+          })
+          .setFooter("Data provided by: https://purukitto.github.io/pokemon-api/")
           msg.channel.send(messageEmbed);
       });
       console.info('Random Pokemon');
