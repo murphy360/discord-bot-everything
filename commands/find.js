@@ -12,7 +12,7 @@ module.exports = {
     } else if (args[2] === 'pokemon'){
       console.info('find pokemon');
       //const pokemonId = Math.floor(Math.random() * 897) + 1;
-      const { json } = await fetch("https://app.pokemon-api.xyz/pokemon/random").then(response => response.text()).then(msg.channel.send(json));
+      const { json2 } = await fetch("https://app.pokemon-api.xyz/pokemon/random").then(response => response.text()).then(json => msg.channel.send(json));
       console.info('Random Pokemon');
        
     } else if (args[2] === 'cat') {
