@@ -61,7 +61,7 @@ typings/
 .next
 
 #database
-.sqlite
+database.sqlite
 
 #package-lock
 package-lock.json
