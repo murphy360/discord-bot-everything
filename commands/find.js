@@ -25,7 +25,6 @@ module.exports = {
           .setAuthor('Found!')
           //.addFields({name: 'Type', json.type})
           .setTitle("Title: "+json.name.english)
-          .set
           .setThumbnail(he.decode(json.sprite))
           .setImage(he.decode(json.sprite))
 				  .addFields({name:"HP: ", value:json.base.HP })
