@@ -19,16 +19,16 @@ module.exports = {
       .then(json => JSON.parse(json))
       //.then(json => msg.channel.send(json))
       .then(json => {
-        msg.channel.send(json.name.english)
-        msg.channel.send(json.type)
-        console.info(he.decode(json.sprite))
-        msg.channel.send(he.decode(json.sprite))
+       
         const messageEmbed = new Discord.MessageEmbed()
           .setColor('#0099ff')
-          .setAuthor('Name: '+json.name.english)
+          .setAuthor('Found!')
           //.addFields({name: 'Type', json.type})
-          .setTitle("Title: ")
+          .setTitle("Title: "+json.name.english)
+          .set
           .setThumbnail(he.decode(json.sprite))
+          .setImage(he.decode(json.sprite))
+				  .addFields({name:"HP: ", value:json.base.HP })
           .setFooter("Footer: ")
           msg.channel.send(messageEmbed);
       });
