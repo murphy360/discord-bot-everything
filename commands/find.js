@@ -20,7 +20,8 @@ module.exports = {
         }
       })
       .then(response => {
-        console.log(response);
+        pokemonJson = await response.json(); 
+        console.log(pokemonJson);
         //console.log(JSON.parse(response));
       })
       .catch(err => {
