@@ -19,10 +19,11 @@ module.exports = {
           "x-rapidapi-host": "pokemon-go1.p.rapidapi.com"
         }
       })
-      .then(response => {
-        pokemonJson = await response.json(); 
-        console.log(pokemonJson);
-        //console.log(JSON.parse(response));
+      .then(response => { 
+        response.json() })
+      .then(json => {
+        //pokemonJson = await response.json(); 
+        console.log(json);
       })
       .catch(err => {
         console.error(err);
