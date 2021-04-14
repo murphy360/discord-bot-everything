@@ -26,18 +26,18 @@ module.exports = {
     }
 
     function sendNsfwJoke(){
-      fetch('https://v2.jokeapi.dev/joke/Any?format=xml?Flags=nsfw?type=type', { 
+      fetch('https://v2.jokeapi.dev/joke/Any?format=xml?Flags=nsfw?type=twopart', { 
         method: 'GET'})
         .then(response => { return response.json(); })
         .then(json => {
           joke = new Discord.MessageEmbed()
             .setAuthor("Joke Bot")
             .setColor("#c5f542")
-            .setTitle(json.delivery)
+            .setTitle(json.setup)
       .setThumbnail("https://sv443.net/resources/images/jokeapi.webp")
         
           msg.channel.send(joke).then(j => { 
-            joke.setDescription(json.punchline); 
+            joke.setDescription(json.delivery); 
       joke.setFooter("Joke provided by https://sv443.net/jokeapi/","https://sv443.net/");
             setTimeout(function () {j.edit(joke)}, 7000); 
           });            
@@ -48,6 +48,5 @@ module.exports = {
     } else if (args[2] === 'nsfw') {
       sendNsfwJoke();
     }
-      
   },
 };
