@@ -27,7 +27,7 @@ module.exports = {
 
     function sendJokeApiJoke(category){
       console.info("Category: " + category);
-      fetch('https://v2.jokeapi.dev/joke/'+category+'?format=xml?type=twopart?blacklistFlags=racist', { 
+      fetch('https://v2.jokeapi.dev/joke/'+category+'?format=xml?type=twopart?blacklistFlags=racist,nsfw,explicit', { 
         method: 'GET'})
         .then(response => { return response.json(); })
         .then(json => {
@@ -44,7 +44,7 @@ module.exports = {
               setTimeout(function () {j.edit(joke)}, 7000); 
             });   
          } else {
-            msg.channel.send("Sorry something wrong witherh the joke /n Try joke [programming, misc, dark, pun, spooky, christmas]");
+            msg.channel.send("Sorry something wrong witherh the joke /n Try joke [programming, misc, pun, spooky, christmas]");
          }     
       });
     }
