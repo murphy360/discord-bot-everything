@@ -19,13 +19,15 @@ module.exports = {
       .then(json => JSON.parse(json))
       //.then(json => msg.channel.send(json))
       .then(json => {
+
+        let imageUrl = json.sprite = msg.content.split('hires');
        
         const messageEmbed = new Discord.MessageEmbed()
           .setColor('#0099ff')
           .setAuthor('Found a wild!')
           //.addFields({name: 'Type', json.type})
           .setTitle(json.name.english)
-          .setThumbnail(he.decode(json.sprite))
+          .setThumbnail(he.decode(imageUrl[1]))
           //.setImage(he.decode(json.sprite))
 				  .addField("HP: "+json.base.HP)
           .addField("Attack: "+json.base.Attack)
