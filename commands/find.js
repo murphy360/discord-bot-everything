@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const { json } = require('sequelize');
+
 const Math = require('math');
 module.exports = {
   name: 'find',
@@ -13,7 +14,7 @@ module.exports = {
       const pokemonId = Math.floor(Math.random() * 897) + 1;
       fetch('https://pokeapi.co/api/v2/pokemon/'+pokemonId).then(response => {
         console.info('got something');
-        console.info(response);
+        //console.info(response);
         console.info(JSON.stringify(response));
         msg.channel.send(response.name);	 
       });   
