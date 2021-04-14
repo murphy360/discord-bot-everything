@@ -43,9 +43,11 @@ module.exports = {
           });            
       });
     }
-    if (args[2] === dad) {
+    if (args[2] === 'dad') {
       sendDadJoke();
-    } else if (args[2] === nsfw)
+    } else if (args[2] === 'nsfw') {
       sendNsfwJoke();
+    }
+      
   },
 };
