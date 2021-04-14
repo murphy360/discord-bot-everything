@@ -9,7 +9,7 @@ module.exports = {
       .then(response => { return response.json(); })
       .then(json => {
         msg.channel.send(json.setup);
-        msg.channel.send(json.punchline);
+        setTimeout(() => msg.channel.send(json.punchline), 4000);
         });
   },
 };
