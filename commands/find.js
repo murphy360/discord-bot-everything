@@ -20,7 +20,8 @@ module.exports = {
       .setThumbnail(he.decode(json.hires))
       .addFields(
 	      {name:"Species",value:json.species,inline:true},
-	      {name:"Type",value:json.type,inline:true}
+	      {name:"Type",value:json.type,inline:true},
+	      { name: '\u200B', value: '\u200B' }
 	)
       .addFields(
 //        {name:"Species",value:json.species},
