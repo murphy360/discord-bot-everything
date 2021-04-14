@@ -11,7 +11,7 @@ module.exports = {
       .then(json => {
         joke = new Discord.MessageEmbed()
           .setAuthor("Joke Bot")
-          .setColor("#FF9900")
+          .setColor("#c5f542")
           .setTitle(json.setup)
 	  .setThumbnail("https://repository-images.githubusercontent.com/193169245/5462aa00-f356-11e9-846d-551973c550a6")
       
