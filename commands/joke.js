@@ -26,7 +26,7 @@ module.exports = {
     }
 
     function sendJokeApiJoke(category){
-      fetch('https://v2.jokeapi.dev/joke/Any?format=xml?type=twopart'+category, { 
+      fetch('https://v2.jokeapi.dev/joke/'+category+'?format=xml?type=twopart?blacklistFlags=racist', { 
         method: 'GET'})
         .then(response => { return response.json(); })
         .then(json => {
@@ -62,7 +62,7 @@ module.exports = {
         console.info('Category Specific');
         sendJokeApiJoke(args[2]);
       } catch (e) {
-        msg.channel.send("Sorry I don't have that category /n Try: nsfw, religious, political, racist, sexist, explicit");
+        msg.channel.send("Sorry I don't have that category /n Try: programming, misc, dark, pun, spooky, christmas");
       }
     }
   },
