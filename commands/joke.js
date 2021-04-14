@@ -31,7 +31,7 @@ module.exports = {
         .then(response => { return response.json(); })
         .then(json => {
           joke = new Discord.MessageEmbed()
-            .setAuthor("Joke Bot")
+            .setAuthor("Bot's Got Jokes")
             .setColor("#c5f542")
             .setTitle(json.setup)
       .setThumbnail("https://sv443.net/resources/images/jokeapi.webp")
