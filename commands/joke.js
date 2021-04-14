@@ -25,8 +25,8 @@ module.exports = {
       });
     }
 
-    function sendJokeApiJoke(){
-      fetch('https://v2.jokeapi.dev/joke/Any?format=xml?type=twopart', { 
+    function sendJokeApiJoke(category){
+      fetch('https://v2.jokeapi.dev/joke/Any?format=xml?type=twopart'+category, { 
         method: 'GET'})
         .then(response => { return response.json(); })
         .then(json => {
@@ -44,11 +44,12 @@ module.exports = {
       });
     }
     if (args[2] === null) {
-      let apiNum = Math.floor(Math.random() * (2 - 1 + 1));
+      let apiNum = Math.floor(Math.random() * (2 - 1 + 1)+2);
+      console.infor("integer: " + apiNum);
       if (apiNum === 1) {
         sendDadJoke();
       } else {
-        sendJokeApiJoke();
+        sendJokeApiJoke("");
       }
     } else if (args[2] === 'dad') {
       sendDadJoke();
