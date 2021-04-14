@@ -11,7 +11,7 @@ module.exports = {
         method: 'GET'})
         .then(response => { return response.json(); })
         .then(json => {
-          joke = new Discord.MessageEmbed()
+          const joke = new Discord.MessageEmbed()
             .setAuthor("Joke Bot")
             .setColor("#c5f542")
             .setTitle(json.setup)
@@ -33,7 +33,7 @@ module.exports = {
         .then(json => {
           console.info(json);
           if (json.error === false) {
-              joke = new Discord.MessageEmbed()
+              const joke = new Discord.MessageEmbed()
               .setAuthor("Bot's Got Jokes")
               .setColor("#c5f542")
               .setTitle(json.setup)
@@ -44,14 +44,16 @@ module.exports = {
               setTimeout(function () {j.edit(joke)}, 7000); 
             });   
          } else {
-            msg.channel.send("Sorry something wrong with the joke /n Try joke [programming, misc, dark, pun, spooky, christmas]");
+            msg.channel.send("Sorry something wrong witherh the joke /n Try joke [programming, misc, dark, pun, spooky, christmas]");
          }     
       });
     }
 
     console.info("ARGS: " + args[2]);
     if (args[2] === undefined) {
-      let apiNum = Math.floor(Math.random() * (2 - 1 + 1)+1);
+      let max = 2;
+      let min = 1;
+      let apiNum = Math.floor(Math.random() * (max - min + 1) + min);
       console.info("integer: " + apiNum);
       if (apiNum === 1) {
         sendDadJoke();
