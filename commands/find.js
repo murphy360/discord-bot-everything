@@ -16,17 +16,22 @@ module.exports = {
       .setAuthor('Found in the wild!')
       //.addFields({name: 'Type', json.type})
       .setTitle(json.name.english)
+      .setDescription(json.description)
       .setThumbnail(he.decode(json.hires))
       .addFields(
-        {name:"Species",value:json.species},
-        {name:"Type",value:json.type},
+	      {name:"Species",value:json.species,inline:true},
+	      {name:"Type",value:json.type,inline:true}
+	)
+      .addFields(
+//        {name:"Species",value:json.species},
+//        {name:"Type",value:json.type},
         {name:"HP",value:json.base.HP,inline:true},
         {name:"Defense",value:json.base.Defense,inline:true},
         {name:"Attack",value:json.base.Attack,inline:true},
         {name:"Sp. Attack",value:json.base['Sp. Attack'],inline:true},
         {name:"Sp. Defense",value:json.base['Sp. Defense'],inline:true},
         {name:"Speed",value:json.base.Speed,inline:true},
-        {name:"Description",value:json.description}
+//        {name:"Description",value:json.description}
       )
       .setFooter("API provided by: https://purukitto.github.io/pokemon-api/")
         message.channel.send(messageEmbed);
