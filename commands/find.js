@@ -21,6 +21,8 @@ module.exports = {
       .then(json => {
 
         let imageUrl = json.sprite = msg.content.split('hires');
+        console.info(imageUrl[0]);
+        console.info(imageUrl[1]);
        
         const messageEmbed = new Discord.MessageEmbed()
           .setColor('#0099ff')
