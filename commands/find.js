@@ -12,17 +12,9 @@ module.exports = {
     } else if (args[2] === 'pokemon'){
       console.info('find pokemon');
       //const pokemonId = Math.floor(Math.random() * 897) + 1;
-      fetch("https://app.pokemon-api.xyz/pokemon/random")
-      .then(response => { 
-        console.info(response);
-        response.json()})
-      .then(json => {
-        //pokemonJson = await response.json(); 
-        console.log(json);
-      })
-      .catch(err => {
-        console.error(err);
-      });
+      const { json } = await fetch("https://app.pokemon-api.xyz/pokemon/random").then(response = response.json());
+      console.info('Random Pokemon');
+      msg.channel.send(json);	  
     } else if (args[2] === 'cat') {
       const { file } = await fetch('https://aws.random.cat/meow').then(response => response.json());
       console.info('Random Cat');
