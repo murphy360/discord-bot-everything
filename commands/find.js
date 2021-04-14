@@ -20,7 +20,7 @@ module.exports = {
       //.then(json => msg.channel.send(json))
       .then(json => {
 
-        let imageUrl = json.sprite = msg.content.split('hires');
+        let imageUrl = json.sprite.split('hires');
         console.info(imageUrl[0]);
         console.info(imageUrl[1]);
        
