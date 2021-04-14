@@ -22,6 +22,14 @@ module.exports = {
         msg.channel.send(json.type)
         console.info(he.decode(json.sprite))
         msg.channel.send(he.decode(json.sprite))
+        const messageEmbed = new Discord.MessageEmbed()
+          .setColor('#0099ff')
+          .setAuthor('Name: '+json.name.english)
+          //.addFields({name: 'Type', json.type})
+          .setTitle("Title: ")
+          .setThumbnail(he.decode(json.sprite))
+          .setFooter("Footer: ")
+          msg.channel.send(messageEmbed);
       });
       console.info('Random Pokemon');
        
@@ -30,6 +38,11 @@ module.exports = {
       console.info('Random Cat');
       msg.channel.send('Random Cat');
       msg.channel.send(file);	  
+      
     }
   },
 };
+
+
+	
+		
