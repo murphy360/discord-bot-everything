@@ -32,7 +32,6 @@ module.exports = {
             name:"Attack: ", value:json.base.Attack,
             name:"Defense:  ", value:json.base.Defense,
             name:"Species: ", value:json.species
-            "Attack":64,"Defense":60,
           })
           .setFooter("Data provided by: https://purukitto.github.io/pokemon-api/")
           msg.channel.send(messageEmbed);
