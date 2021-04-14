@@ -35,8 +35,11 @@ module.exports = {
             {name:"Species",value:json.species},
             {name:"Type",value:json.type},
             {name:"HP",value:json.base.HP,inline:true},
-            {name:"Defence",value:json.base.Defence,inline:true},
+            {name:"Defense",value:json.base.Defense,inline:true},
             {name:"Attack",value:json.base.Attack,inline:true},
+            {name:"Sp. Attack",value:json.base.'Sp. Attack',inline:true},
+            {name:"Sp. Defense",value:json.base.'Sp. Defense',inline:true},
+            {name:"Speed",value:json.base.Speed,inline:true},
             {name:"Description",value:json.description}
           )
           .setFooter("Data provided by: https://purukitto.github.io/pokemon-api/")
