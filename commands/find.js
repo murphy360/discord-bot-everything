@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 const he = require('he');
 const { json } = require('sequelize');
+const Discord = require('discord.js');
 
 const Math = require('math');
 module.exports = {
