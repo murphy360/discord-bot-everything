@@ -27,6 +27,7 @@ class Timer {
         return bar;
     }
 
+<<<<<<< HEAD
 
     update(time_left, progress_bar) {
         if (time_left <= 0)  {
@@ -35,6 +36,21 @@ class Timer {
         } else {
             progress_bar.edit(makeBar(time_left));
             return 1;
+=======
+    start() {
+        var timer_len=this.MAX_TIME;
+        
+        let pBar = function(theBarEmbed) {
+            timer_len-=this.DEC_INT;
+
+            if (timer_len == 0) {
+                theBarEmbed.edit("```"+this.FINISH_TEXT[Math.floor(Math.random() * this.FINISH_TEXT.length)]+"```");
+                clearInterval(this.p)
+                return;
+            } else {
+                theBarEmbed.edit(this.DISP_TEXT+"\n"+this.makeBar(timer_len).bind(this));
+            }
+>>>>>>> 73e85232a59b9bf5730ac3a0e31785a0ecee5eeb
         }
     }
 
