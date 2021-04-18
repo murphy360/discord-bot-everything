@@ -38,7 +38,7 @@ class Timer {
                 clearInterval(this.p)
                 return;
             } else {
-                theBarEmbed.edit(this.DISP_TEXT+"\n"+this.makeBar(timer_len));
+                theBarEmbed.edit(this.DISP_TEXT+"\n"+this.makeBar(timer_len).bind(this));
             }
         }
 
