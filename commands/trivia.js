@@ -4,6 +4,8 @@ const Sequelize = require('sequelize');
 const Discord = require('discord.js');
 const { ReactionCollector } = require('discord.js');
 const REACT=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
+const Timer = require('./../classes/timer.js');
+
 var leaderbd = new Map();
 var userNameId = new Map();
 var q_time; // question time variable to shorten waiting time during testing
@@ -26,7 +28,6 @@ module.exports = {
 	name: 'trivia',
 	description: 'Trivia! based on Open Trivia DB',
 	async execute(msg, args, client) {
-
 
 /********** FUNCTION DEFINITIONS **********/
 
@@ -73,7 +74,7 @@ module.exports = {
 	 		msg.author.send(rules);
 		}
 
-	/***** TIMER: Sets a timer displaying a progress bar countdown *****/
+	/***** TIMER: Sets a timer displaying a progress bar countdown *****
 
 		function timer(time,interval,text) {
 			m_time=time
@@ -98,8 +99,8 @@ module.exports = {
 	    	}
 
 
-
-	/***** GETBAR: Build the Progress Bar for Timer *****/
+*/
+	/***** GETBAR: Build the Progress Bar for Timer *****
  
 		function getBar(value, maxValue, size) {
 			const percentage = value / maxValue;
@@ -112,7 +113,7 @@ module.exports = {
 			return bar;
 	    	}
     
-
+*/
 
 	/***** CLEANTEXT: Remove HTML Entities and replace with characters *****/
 
@@ -535,7 +536,7 @@ module.exports = {
 					sentMsg.react(REACT[i]);
 				}
 
-				timer(q_time,5,'Time Remaining');
+				timer=new Timer.Timer(q_time,5,msg,'Time Remaining').start();
 
 				const filter = (reaction, user) => {
 					//make sure each player has an entry and initial score of 0
