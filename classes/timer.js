@@ -6,10 +6,10 @@ class Timer {
                           "No more time left.",
                           "Finito",
                           "Fin"
-                 ]                                      // Random sayings to dispaly upon expiration of the timer
+                 ]                                      // Random sayings to display upon expiration of the timer
 
     constructor(time_len, interval_sec, message,  text) {
-        this.MAX_TIME=Math.floor(time_len)              // Length of the initial Timer
+        this.MAX_TIME=Math.floor(time_len)              // Length of the initial Timer in Seconds
         this.DEC_INT=Math.floor(interval_sec)           // Value to decrement the timer by in Seconds
         this.DISP_TEXT=text                             // Text to display with the progress bar
         this.MESSAGE=message                            // Initical message that started the trivia game
@@ -27,12 +27,13 @@ class Timer {
         return bar;
     }
 
-    update(time_left, progress_bar) {
+    update(time_left, progress_bar, timer, interval) {
         if (time_left <= 0)  {
             progress_bar.edit("```"+this.FINISH_TEXT[Math.floor(Math.random()*this.FINISH_TEXT.length)]+"```");
+            clearInterval(interval)
             return 0;
         } else {
-            progress_bar.edit(makeBar(time_left));
+            progress_bar.edit(timer.makeBar(time_left));
             return 1;
         }
     }
@@ -41,7 +42,7 @@ class Timer {
         var timer_len=this.MAX_TIME;
         var timeout_interval=this.DEC_INT*1000;        
         this.MESSAGE.channel.send(this.makeBar(timer_len)).then( embed => { 
-            this.p = setInterval(this.update, timeout_interval, timer_len-=this.DEC_INT, embed)
+            this.p = setInterval(this.update, timeout_interval, timer_len-=this.DEC_INT, embed, this, this.p)
         });
     }
 
