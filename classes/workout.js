@@ -93,13 +93,36 @@ class Workout {
         this.MESSAGE.channel.send(roundDetails)	
     }
 
+    messageFinishedDetails(){
+
+        let descriptionString = "In " + this.setTime*this.sets + ", completed " + this.sets " sets and total reps:"
+
+        let exerciseString = ""
+        let repString = ""
+        for (let i = 0; i < this.EXERCISES.length ; i++) {
+            exerciseString += this.EXERCISES[i].name + "\n"
+            repString += this.EXERCISES[i].REPS*this.sets + "\n"
+        }
+
+        const finishedDetails = new Discord.MessageEmbed()
+                            .setTitle("Workout Complete!")
+                            .setColor("#0099ff")
+                            .setDescription(descriptionString)
+                            .addFields(
+                                {name: "Exercise", value: exerciseString, inline: true},
+                                {name: "Reps", value: repString, inline: true}
+                            );
+        this.MESSAGE.channel.send(finishedDetails)	
+    }
+
+
     startSet(){
         this.currentSet++
         console.info("Current Set: " + this.currentSet + "Total Sets: " + this.sets + "Equal?? " + (this.currentSets === this.sets))
         
         if(this.currentSet > this.sets){
             clearInterval(this.INTERVAL)
-            this.MESSAGE.channel.send("WORKOUT COMPLETE!")
+            this.messageFinishedDetails()
             return
         } else if (this.currentSet === this.sets) {
             this.messageRoundDetails("Final Round!")
@@ -112,9 +135,6 @@ class Workout {
     startWorkout() {
                                     
         let interval = (this.setTime * 60) * 1000
-
-       
-        
     // Create the message then, use setInterval to update the message
         this.MESSAGE.channel.send("\n\n************\n\nStarting in " + this.setTime + " minutes.").then( embed => { 
             this.INTERVAL = setInterval(this.startSet.bind(this), interval);
