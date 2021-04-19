@@ -14,7 +14,7 @@ class Workout {
         this.isValid=false 
         this.EXERCISES=[]                      
         for (let i = 4; i < args.length ; i++) {
-            let exercise = getExercise(args[i])
+            let exercise = this.getExercise(args[i])
             if ( exercise !== null) {
                 this.EXERCISES.push(exercise)
             } else { 
