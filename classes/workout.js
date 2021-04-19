@@ -17,8 +17,10 @@ class Workout {
         this.setTime=args[3]
         this.isValid=false 
         this.EXERCISES=[] 
+        this.ATHLETES=[]
         this.color='FF0000'
         this.INTERVAL
+        this.intervalTime = (this.setTime * 60) * 1000
         this.icon='https://previews.123rf.com/images/kongvector/kongvector2003/kongvector200300022/141391692-independence-day-drum-mascot-icon-on-fitness-exercise-trying-barbells-vector-illustration.jpg'
         this.currentSet=0                     
         for (let i = 4; i < args.length ; i+=2) {
@@ -74,7 +76,7 @@ class Workout {
         this.MESSAGE.channel.send(workoutDetails)		
     }
 
-    messageRoundDetails(roundString){
+    async messageRoundDetails(roundString){
 
         let descriptionString = "In " + this.setTime + "-minutes, complete:"
 
@@ -94,7 +96,45 @@ class Workout {
                                 {name: "Exercise", value: exerciseString, inline: true},
                                 {name: "Reps", value: repString, inline: true}
                             );
-        this.MESSAGE.channel.send(roundDetails).then(sentMessage => sentMessage.react('✅'))	
+        let roundMessage = await this.MESSAGE.channel.send(roundDetails)
+        roundMessage.react('✅')	
+        
+        const filter = (reaction, user) => {
+            //make sure each player has an entry and we're not tracking bots
+            if (!user.bot && !this.ATHLETES.has(user)){
+                console.info('adding ' + user.username + ' to athletes list');
+                this.ATHLETES.push(user)
+                //userNameId.set(user.id,user.username);
+                msg.channel.send('Thanks for joining us ' + user.username)
+                console.info('added ' + user.username + ' to athlete list')
+            }
+            // Selected check emoji and not a bot
+            if (reaction.emoji.name === '✅' && !user.bot) {
+                console.info(user.username + ' finished a round');
+                return true;
+            } else {
+                console.info(user.username + ' is being ignored');
+            }
+        }
+        const collector = roundMessage.createReactionCollector(filter, { time: this.intervalTime });
+				collector.on('collect', (reaction, user) => {
+					
+                    //Log a user as finishing a round
+                    //Give them an attaboy 
+                    const attaboyMessage = new Discord.MessageEmbed()
+						.setTitle("Nailed It!")
+						.setColor("#0099ff")
+                        .setDescription('Great job ' + user.username)
+
+					msg.channel.send(ending)
+                    
+				});
+
+				collector.on('end', collected => {
+					
+					console.info('on end');
+					
+				});
     }
 
     messageFinishedDetails(){
@@ -139,11 +179,11 @@ class Workout {
 // Start Publishing exercise on periodic basis
     startWorkout() {
                                     
-        let interval = (this.setTime * 60) * 1000
+        
     // Create the message then, use setInterval to update the message
         this.MESSAGE.channel.send("First Round Starting in " + this.setTime + " minutes.").then( embed => { 
             //this.startSet() can start workout immediate, otherwise first round starts after first interval
-            this.INTERVAL = setInterval(this.startSet.bind(this), interval);
+            this.INTERVAL = setInterval(this.startSet.bind(this), this.intervalTime.bind(this));
         });
     }
 
