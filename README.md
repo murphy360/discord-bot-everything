@@ -6,13 +6,13 @@ Forked from https://github.com/sitepoint-editors/discord-bot-sitepoint
 
 - [Node.js](http://nodejs.org/)
 - [Discord](https://discordapp.com/) account
-- [Sequelize] (https://sequelize.org) npm install --save sequelize
-- [HTML Entities] (https://github.com/mathiasbynens/he) npm install --save he
-- [Youtube Download Core] (https://github.com/fent/node-ytdl-core) npm install --save ytdl-core
-- [OPUS Script] (https://github.com/abalabahaha/opusscript) npm install --save opusscript
-- [Node Fetch] (https://github.com/node-fetch/node-fetch) npm install --save node-fetch
-- [Random Greetings] (https://github.com/hafffe/greetings) npm install --save greetings
-- [Node Sqlite] (https://github.com/kriasoft/node-sqlite) npm install --save sqlite
+- [Sequelize](https://sequelize.org) npm install --save sequelize
+- [HTML Entities](https://github.com/mathiasbynens/he) npm install --save he
+- [Youtube Download Core](https://github.com/fent/node-ytdl-core) npm install --save ytdl-core
+- [OPUS Script](https://github.com/abalabahaha/opusscript) npm install --save opusscript
+- [Node Fetch](https://github.com/node-fetch/node-fetch) npm install --save node-fetch
+- [Random Greetings](https://github.com/hafffe/greetings) npm install --save greetings
+- [Node Sqlite](https://github.com/kriasoft/node-sqlite) npm install --save sqlite
 
 ## Installation Steps (if applicable)
 
