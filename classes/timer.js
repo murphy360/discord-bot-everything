@@ -4,8 +4,8 @@ class Timer {
                  "Round has finished.",
                  "Pencils down.",
                  "No more time left.",
-                 "Finito",
-                 "Fin"
+                 "Finito.",
+                 "Fin."
                 ]                                       // Random sayings to display upon expiration of the timer
 
     constructor(time_len, interval_sec, message,  text) {
@@ -19,13 +19,13 @@ class Timer {
 
 
 // Create the progress bar to display
-    makeBar(time, max, size, text) {
-        const percentage = time / max;
-        const progress = Math.round((size * percentage));
-        const emptyProgress = size - progress;
+    makeBar(time) {
+        const percentage = time / this.MAX_TIME;
+        const progress = Math.round((this.BAR_SIZE * percentage));
+        const emptyProgress = this.BAR_SIZE - progress;
         const progressText = '▇'.repeat(progress);
         const emptyProgressText = ' '.repeat(emptyProgress);
-        const bar = '```'+text+'\n'+progressText + emptyProgressText+'```';
+        const bar = '```'+this.DISP_TEXT+'\n'+progressText + emptyProgressText+'```';
         return bar;
     }
 
@@ -45,12 +45,12 @@ class Timer {
                 clearInterval(int)
                 return 0;
            } else {
-                progress_bar.edit(this.makeBar(this.TIME_LEFT, this.MAX_TIME, this.BAR_SIZE, this.DISP_TEXT))
+                progress_bar.edit(this.makeBar(this.TIME_LEFT))
            }
         }
         
     // Create the message then, use setInterval to update the message
-        this.MESSAGE.channel.send(this.makeBar(this.TIME_LEFT, this.MAX_TIME, this.BAR_SIZE, this.DISP_TEXT)).then( embed => { 
+        this.MESSAGE.channel.send(this.makeBar(this.TIME_LEFT)).then( embed => { 
             int = setInterval(update.bind(this), interval, embed);
         });
     }
