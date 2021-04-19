@@ -50,6 +50,14 @@ class Workout {
         return exercise
     }
 
+    messageWorkoutDetails(){
+      let messageString = 'Get Ready! \n' + this.sets + ", " + this.setTime + "-minute rounds:"
+      for (let i = 0; i < this.EXERCISES.length ; i++) {
+        messageString = messageString + '\n     ' + this.EXERCISES[i].REPS + " " + this.EXERCISES[i].name
+      }
+      msg.channel.send(messageString)
+    }
+
     startSet(){
         this.currentSet++
         console.info("Current Set: " + this.currentSet + "Total Sets: " + this.sets + "Equal?? " + (this.currentSets === this.sets))
@@ -76,10 +84,10 @@ class Workout {
                                     
         let interval = (this.setTime * 60) * 1000
 
- 
+       
         
     // Create the message then, use setInterval to update the message
-        this.MESSAGE.channel.send("starting now").then( embed => { 
+        this.MESSAGE.channel.send("\n\n************\n\nStarting in " + this.setTime + " minutes.").then( embed => { 
             this.INTERVAL = setInterval(this.startSet.bind(this), interval);
         });
     }
