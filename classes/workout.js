@@ -51,9 +51,9 @@ class Workout {
 
     startSet(){
         this.currentSet++
-        let messageString = 'Round ' + this.currentSet + "/n, In " + workout.setTime + "-minutes complete:"
+        let messageString = 'Round ' + this.currentSet + "/n, In " + this.setTime + "-minutes complete:"
         for (let i = 0; i < this.EXERCISES.length ; i++) {
-            messageString = messageString + '\n     ' + workout.EXERCISES[i].REPS + " " + workout.EXERCISES[i].name
+            messageString = messageString + '\n     ' + this.EXERCISES[i].REPS + " " + this.EXERCISES[i].name
         }
         this.MESSAGE.channel.send(messageString)
     }
