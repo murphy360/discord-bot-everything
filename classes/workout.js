@@ -32,13 +32,13 @@ class Workout {
 // Save executed exercise to database
     logWorkout() {
         
-        return false;
+        return false
     }
 
     getExercise(stringName) {
         //Check database to see if this exercise exists create an exercise Object and return
-        let exercise = new Exercise(stringName, "", "", this.MESSAGE);
-        return exercise;
+        let exercise = new Exercise.Exercise(stringName, "", "", this.MESSAGE)
+        return exercise
     }
 
 
