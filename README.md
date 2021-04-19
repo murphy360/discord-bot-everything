@@ -19,7 +19,7 @@ Forked from https://github.com/sitepoint-editors/discord-bot-sitepoint
 1. Clone repo
 2. Add Discord credentials (Bot Token) in a `.env` file
 3. npm install
-4. Install Requirements listed above
+4. Install [Requirements listed above](https://github.com/murphy360/discord-bot-everything/blob/main/README.md#requirements)
 5. apt install ffmpeg
 6. Run `node index.js` or npm run dev (ensure package.json properly configured)
 7. Interact with your Discord bot via your web browser
