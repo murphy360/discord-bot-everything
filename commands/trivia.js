@@ -18,7 +18,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 	                storage: 'database.sqlite',
 });
 
-const Games = require('./../models/Games')(sequelize, Sequelize.DataTypes);
+const Games = require('../models/Games')(sequelize, Sequelize.DataTypes);
 const Users = require('./../models/Users')(sequelize, Sequelize.DataTypes);
 const Servers = require('./../models/Servers')(sequelize, Sequelize.DataTypes);
 const Responses = require('./../models/Responses')(sequelize, Sequelize.DataTypes);

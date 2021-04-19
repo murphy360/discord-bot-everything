@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-	return sequelize.define('games', {
-		game_id: {
+	return sequelize.define('workouts', {
+		workout_id: {
 			type: Sequelize.STRING,
 			primaryKey: true,
 		},
@@ -9,15 +9,14 @@ module.exports = (sequelize, Sequelize) => {
 		},
 		creator_name: {
 			type: Sequelize.STRING,
-
 		},
-		game_start: {
+		workout_start: {
 			type: Sequelize.DATE,
 		},
-		game_end: {
+		workout_end: {
 			type: Sequelize.DATE,
 		},
-		winner_id: {
+		server_id: {
 			type: Sequelize.STRING,
 		}
 	}, {
