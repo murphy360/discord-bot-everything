@@ -14,6 +14,8 @@ class Workout {
         this.isValid=false 
         this.EXERCISES=[]                      
         for (let i = 3; i < args.length ; i+=2) {
+            
+            console.info("Workout Class For Loop: " + args[i])
             let exercise = this.getExercise(args[i])
             if ( exercise === null) {
                 discordMessage.channel.send("Not all exercises are valid: " + args[i] + '! \n Add it Through the Add Exercise Command')
