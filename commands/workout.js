@@ -8,8 +8,8 @@ module.exports = {
     //args[0] = @botname
     //args[1] = 'workout'
     //args[2] = sets
-    //args[3] = reps
-    //args[4...n] = exercises
+    //args[3...n] = exercises
+    //args[3+1..n+1] = reps
     let workout = new Workout(msg, args);
 
     if (workout.isValid()) {

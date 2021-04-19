@@ -1,25 +1,29 @@
+const Exercise = require('./../classes/exercise.js');
 class Workout {
 
     //args[0] = @botname
     //args[1] = 'workout'
     //args[2] = sets
-    //args[3] = reps
-    //args[4...n] = exercises
+    //args[3...n] = exercises
+    //args[3+1...n+1] = exercise reps
  
     constructor(discordMessage, args) {
         this.MESSAGE=discordMessage
         this.coach=discordMessage.author
         this.sets=args[2]
-        this.reps=args[3]  
         this.isValid=false 
         this.EXERCISES=[]                      
-        for (let i = 4; i < args.length ; i++) {
+        for (let i = 3; i < args.length ; i+=2) {
             let exercise = this.getExercise(args[i])
-            if ( exercise !== null) {
-                this.EXERCISES.push(exercise)
-            } else { 
-                discordMessage.channel.send("Not all exercises are valid: " + args[i] + '! /n Add it Through the Add Exercise Command')
+            if ( exercise === null) {
+                discordMessage.channel.send("Not all exercises are valid: " + args[i] + '! \n Add it Through the Add Exercise Command')
                 this.isValid=false
+            } else if(isNaN(args[i+1])) { 
+                discordMessage.channel.send("Reps aren't valid for " + args[i] + '! ' + args[i+1])
+                this.isValid=false
+            } else {
+                exercise.setReps(args[i+1])
+                this.EXERCISES.push(exercise)
             }
         }                
     }
@@ -28,12 +32,12 @@ class Workout {
 // Save executed exercise to database
     logWorkout() {
         
-        return bar;
+        return false;
     }
 
     getExercise(stringName) {
-        //Check database to see if this exercise exists
-        let exercise = null;
+        //Check database to see if this exercise exists create an exercise Object and return
+        let exercise = new Exercise(stringName, "", "", this.MESSAGE);
         return exercise;
     }
 
