@@ -8,6 +8,7 @@ class Workout {
     //args[3+1...n+1] = exercise reps
  
     constructor(discordMessage, args) {
+        console.info("Workout Constructor")
         this.MESSAGE=discordMessage
         this.coach=discordMessage.author
         this.sets=args[2]
