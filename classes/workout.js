@@ -140,8 +140,8 @@ class Workout {
                                     
         let interval = (this.setTime * 60) * 1000
     // Create the message then, use setInterval to update the message
-        this.MESSAGE.channel.send("\n\n************\n\nStarting in " + this.setTime + " minutes.").then( embed => { 
-            this.startSet()
+        this.MESSAGE.channel.send("First Round Starting in " + this.setTime + " minutes.").then( embed => { 
+            //this.startSet() can start workout immediate, otherwise first round starts after first interval
             this.INTERVAL = setInterval(this.startSet.bind(this), interval);
         });
     }
