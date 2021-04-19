@@ -16,6 +16,7 @@ class Workout {
         this.setTime=args[3]
         this.isValid=false 
         this.EXERCISES=[] 
+        this.INTERVAL
         this.currentSet=0                     
         for (let i = 4; i < args.length ; i+=2) {
             
@@ -66,7 +67,7 @@ class Workout {
         
     // Create the message then, use setInterval to update the message
         this.MESSAGE.channel.send("starting now").then( embed => { 
-            int = setInterval(this.startSet, interval);
+            this.INTERVAL = setInterval(this.startSet, interval);
         });
     }
 
