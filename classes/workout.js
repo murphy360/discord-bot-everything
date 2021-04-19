@@ -66,7 +66,7 @@ class Workout {
         
     // Create the message then, use setInterval to update the message
         this.MESSAGE.channel.send("starting now").then( embed => { 
-            int = setInterval(startSet.bind(this), interval);
+            int = setInterval(this.startSet, interval);
         });
     }
 
