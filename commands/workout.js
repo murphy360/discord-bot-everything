@@ -14,7 +14,7 @@ module.exports = {
     console.info("Workout command post new Workout")
 
     if (workout.isValid) {
-      let messageString = 'Get Ready!'
+      let messageString = 'Get Ready! \n ' + workout.sets + " rounds:"
       for (let i = 0; i < workout.EXERCISES.length ; i++) {
         messageString = messageString + '\n' + workout.EXERCISES[i].name + ": " + workout.EXERCISES[i].REPS + " reps"
       }
