@@ -55,4 +55,4 @@ class Exercise {
 
 }
 
-module.exports.Timer = Timer;
+module.exports.Exercise = Exercise;
