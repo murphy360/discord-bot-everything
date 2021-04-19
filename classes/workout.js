@@ -17,7 +17,7 @@ class Workout {
         this.setTime=args[3]
         this.isValid=false 
         this.EXERCISES=[] 
-        this.color='FFA500'
+        this.color='FF0000'
         this.INTERVAL
         this.icon='https://previews.123rf.com/images/kongvector/kongvector2003/kongvector200300022/141391692-independence-day-drum-mascot-icon-on-fitness-exercise-trying-barbells-vector-illustration.jpg'
         this.currentSet=0                     
