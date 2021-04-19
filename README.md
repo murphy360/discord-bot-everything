@@ -6,25 +6,23 @@ Forked from https://github.com/sitepoint-editors/discord-bot-sitepoint
 
 - [Node.js](http://nodejs.org/)
 - [Discord](https://discordapp.com/) account
-- [Sequelize]
+- [Sequelize] (https://sequelize.org) npm install --save sequelize
+- [HTML Entities] (https://github.com/mathiasbynens/he) npm install --save he
+- [Youtube Download Core] (https://github.com/fent/node-ytdl-core) npm install --save ytdl-core
+- [OPUS Script] (https://github.com/abalabahaha/opusscript) npm install --save opusscript
+- [Node Fetch] (https://github.com/node-fetch/node-fetch) npm install --save node-fetch
+- [Random Greetings] (https://github.com/hafffe/greetings) npm install --save greetings
+- [Node Sqlite] (https://github.com/kriasoft/node-sqlite) npm install --save sqlite
 
 ## Installation Steps (if applicable)
 
 1. Clone repo
-2. npm install
-3. npm install --save ytdl-core 
-4. npm install --save opusscript'
-4. apt install ffmpeg
-5. npm install --save node-fetch
-6. npm install --save he
-7. npm install --save sequelize
-8. apt install sqlite3
-9. Add Discord credentials (Bot Token) in a `.env` file
-10. Run `node index.js` or npm run dev (ensure package.json properly configured)
-11. Interact with your Discord bot via your web browser
-12. npm install --save greetings 
-13. npm install --save math
-
+2. Add Discord credentials (Bot Token) in a `.env` file
+3. npm install
+4. Install Requirements listed above
+5. apt install ffmpeg
+6. Run `node index.js` or npm run dev (ensure package.json properly configured)
+7. Interact with your Discord bot via your web browser
 
 ## License
 
