@@ -74,46 +74,6 @@ module.exports = {
 	 		msg.author.send(rules);
 		}
 
-	/***** TIMER: Sets a timer displaying a progress bar countdown *****
-
-		function timer(time,interval,text) {
-			m_time=time
-
-			fin=["Time is Up!","Round has finished.","Pencils down.","No more time left.","Finito.","Fin"]
-			
-			let pBar = function(theBar) {
-				time-=interval;
-
-				if (time == 0) {
-					theBar.edit("```"+fin[Math.floor(Math.random() * fin.length)]+"```");
-					clearInterval(p)
-					return;
-				} else {
-					theBar.edit(text+"\n"+getBar(time,m_time,30));
-				}
-	        	}
-
-			let intv=interval*1000;
-
-			msg.channel.send(text+"\n"+getBar(time,m_time,30)).then(msg => { p = setInterval(pBar,intv,msg) });
-	    	}
-
-
-*/
-	/***** GETBAR: Build the Progress Bar for Timer *****
- 
-		function getBar(value, maxValue, size) {
-			const percentage = value / maxValue;
-			const progress = Math.round((size * percentage));
-			const emptyProgress = size - progress;
-			const progressText = '▇'.repeat(progress);
-			const emptyProgressText = ' '.repeat(emptyProgress);
-			const bar = '```' + progressText + emptyProgressText + '```';
-
-			return bar;
-	    	}
-    
-*/
 
 	/***** CLEANTEXT: Remove HTML Entities and replace with characters *****/
 
