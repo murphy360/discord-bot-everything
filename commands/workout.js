@@ -12,7 +12,7 @@ module.exports = {
     //args[3+1..n+1] = reps
     let workout = new Workout(msg, args);
 
-    if (workout.isValid()) {
+    if (workout.isValid) {
       msg.channel.send('The Workout is valid')
     } else { 
       msg.channel.send('The Workout is not valid')
