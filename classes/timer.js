@@ -10,7 +10,7 @@ class Timer {
 
     constructor(time_len, interval_sec, message,  text) {
         this.MAX_TIME=Math.floor(time_len);             // Length of the initial Timer in Seconds
-        this.DEC_INT=Math.floor(interval_sec);          // Value to decrement the timer by in Seconds
+        this.DEC_INTV=Math.floor(interval_sec);         // Value to decrement the timer by in Seconds
         this.DISP_TEXT=text;                            // Text to display with the progress bar
         this.MESSAGE=message;                           // Initical message that started the trivia game
         this.ID;                                        // Timer ID
@@ -20,7 +20,7 @@ class Timer {
     }
 
 
-// Create the progress bar to display
+    // Create the progress bar to display
     makeBar(time) {
         const percentage = time / this.MAX_TIME;
         const progress = Math.round((this.BAR_SIZE * percentage));
@@ -31,25 +31,37 @@ class Timer {
         return bar;
     }
 
+    // Update the progress bar message, used in the setInterval call
+    update(progress_bar) {
+        this.time_left -= this.DEC_INTV;
+        
+        if (this.time_left <=0) {
+            progress_bar.edit("```"+this.FINISH_TEXT[Math.floor(Math.random()*this.FINISH_TEXT.length)]+"```");
+            clearInterval(this.systemInterval);
+        } else {
+            progres_bar.edit(this.makeBar(this.time_left));
+        }
+    }
 
-// Start the timer with progress bar
+    // Start the timer with progress bar
      start() {
-               
-    // Update the progress message, to be used int he setInterval call
+/*               
+        // Update the progress message, to be used in the setInterval call
         let update = function (progress_bar) {
-            this.time_left -= this.DEC_INT;
+            this.time_left -= this.DEC_INTV;
             
             if (this.time_left <=0) {
                 progress_bar.edit("```"+this.FINISH_TEXT[Math.floor(Math.random()*this.FINISH_TEXT.length)]+"```");
-                clearInterval(this.systemInterval)
+                clearInterval(this.systemInterval);
             } else {
-                progress_bar.edit(this.makeBar(this.time_left))
+                progress_bar.edit(this.makeBar(this.time_left));
            }
         }
-        
-    // Create the message then, use setInterval to update the message
+ */       
+        // Create the message then, use setInterval to update the message
         this.MESSAGE.channel.send(this.makeBar(this.TIME_LEFT)).then( embed => { 
-            this.systemInterval = setInterval(update.bind(this), this.INTV_LEN, embed);
+//            this.systemInterval = setInterval(update.bind(this), this.INTV_LEN, embed);
+            this.systemInterval = setInterval(this.update.bind(this), this.INTV_LEN, embed);
         });
     }
 
