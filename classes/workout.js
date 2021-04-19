@@ -12,7 +12,7 @@ class Workout {
         console.info("Workout Constructor")
         this.MESSAGE=discordMessage
         this.coach=discordMessage.author
-        this.sets=args[2]
+        this.sets=parseInt(args[2], 10)
         this.setTime=args[3]
         this.isValid=false 
         this.EXERCISES=[] 
