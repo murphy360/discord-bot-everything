@@ -128,7 +128,7 @@ class Workout {
 						.setColor("#0099ff")
                         .setDescription('Great job ' + user.username)
 
-					this.MESSAGE.channel.send(ending)
+					this.MESSAGE.channel.send(attaboyMessage)
                     
 				});
 
