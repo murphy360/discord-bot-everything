@@ -68,29 +68,46 @@ class Workout {
                                 {name: "Exercise", value: exerciseString, inline: true},
                                 {name: "Reps", value: repString, inline: true}
                             );
-        this.MESSAGE.channel.send(workoutDetails)
-					
-					
+        this.MESSAGE.channel.send(workoutDetails)		
+    }
+
+    messageRoundDetails(roundString){
+
+        let descriptionString = "In " + this.setTime + "-minutes, complete:"
+
+        let exerciseString = ""
+        let repString = ""
+        for (let i = 0; i < this.EXERCISES.length ; i++) {
+            exerciseString += this.EXERCISES[i].name + "\n"
+            repString += this.EXERCISES[i].REPS + "\n"
+        }
+
+        const roundDetails = new Discord.MessageEmbed()
+                            .setTitle(roundString)
+                            .setColor("#0099ff")
+                            .setDescription(descriptionString)
+                            .addFields(
+                                {name: "Exercise", value: exerciseString, inline: true},
+                                {name: "Reps", value: repString, inline: true}
+                            );
+        this.MESSAGE.channel.send(roundDetails)	
     }
 
     startSet(){
         this.currentSet++
         console.info("Current Set: " + this.currentSet + "Total Sets: " + this.sets + "Equal?? " + (this.currentSets === this.sets))
-        let messageString = ""
+        
         if(this.currentSet > this.sets){
             clearInterval(this.INTERVAL)
             this.MESSAGE.channel.send("WORKOUT COMPLETE!")
             return
         } else if (this.currentSet === this.sets) {
             messageString = "\n\nFinal Round!"
+            this.messageRoundDetails("Final Round!")
         } else {
             messageString = '\n\nRound ' + this.currentSet 
         }
-        messageString += "\n In " + this.setTime + "-minutes complete:"
-        for (let i = 0; i < this.EXERCISES.length ; i++) {
-            messageString = messageString + '\n     ' + this.EXERCISES[i].REPS + " " + this.EXERCISES[i].name
-        }
-        this.MESSAGE.channel.send(messageString)
+       
         
     }
 
