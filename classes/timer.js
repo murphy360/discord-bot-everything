@@ -51,7 +51,7 @@ class Timer {
      start() {
 
         // Create the message then, use setInterval to update the message
-        this.MESSAGE.channel.send(this.makeBar(this.TIME_LEFT)).then( embed => { 
+        this.MESSAGE.channel.send(this.makeBar(this.time_left)).then( embed => { 
             this.systemInterval = setInterval(this.update.bind(this), this.INTV_LEN, embed);
         });
     }
