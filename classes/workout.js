@@ -3,7 +3,8 @@ class Workout {
 
     //args[0] = @botname
     //args[1] = 'workout'
-    //args[2] = sets
+    //args[2] = sets / type (AMRAP)
+    //args[3] = setTime / AMRAP Time
     //args[3...n] = exercises
     //args[3+1...n+1] = exercise reps
  
@@ -12,9 +13,10 @@ class Workout {
         this.MESSAGE=discordMessage
         this.coach=discordMessage.author
         this.sets=args[2]
+        this.setTime=args[3]
         this.isValid=false 
         this.EXERCISES=[]                      
-        for (let i = 3; i < args.length ; i+=2) {
+        for (let i = 4; i < args.length ; i+=2) {
             
             console.info("Workout Class For Loop: " + args[i])
             let exercise = this.getExercise(args[i])
