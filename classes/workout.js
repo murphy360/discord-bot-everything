@@ -25,6 +25,7 @@ class Workout {
                 discordMessage.channel.send("Reps aren't valid for " + args[i] + '! ' + args[i+1])
                 this.isValid=false
             } else {
+                this.isValid=true
                 exercise.setReps(args[i+1])
                 this.EXERCISES.push(exercise)
             }
