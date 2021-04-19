@@ -55,7 +55,7 @@ class Workout {
       for (let i = 0; i < this.EXERCISES.length ; i++) {
         messageString = messageString + '\n     ' + this.EXERCISES[i].REPS + " " + this.EXERCISES[i].name
       }
-      msg.channel.send(messageString)
+      this.MESSAGE.channel.send(messageString)
     }
 
     startSet(){
