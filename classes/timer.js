@@ -11,7 +11,7 @@ class Timer {
         this.MAX_TIME=Math.floor(time_len);             // Length of the initial Timer in Seconds
         this.DEC_INTV=Math.floor(interval_sec);         // Value to decrement the timer by in Seconds
         this.DISP_TEXT=text;                            // Text to display with the progress bar
-        this.MESSAGE=message;                           // Initical message that started the trivia game
+        this.CHANNEL=message.channel;                   // Channel in which the trivia game is runing
         this.ID;                                        // Timer ID
         this.time_left=Math.floor(time_len);            // Time Remaining for the timer
         this.systemInterval=null;                       // null variable to hold reference to systemInterval
@@ -51,8 +51,8 @@ class Timer {
      start() {
 
         // Create the message then, use setInterval to update the message
-        this.MESSAGE.channel.send(this.makeBar(this.time_left)).then( embed => { 
-            this.systemInterval = setInterval(this.update.bind(this), this.INTV_LEN, embed);
+        this.CHANNEL.send(this.makeBar(this.time_left)).then( msg => { 
+            this.systemInterval = setInterval(this.update.bind(this), this.INTV_LEN, msg);
         });
     }
 }
