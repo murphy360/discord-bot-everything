@@ -59,9 +59,9 @@ class Workout {
             this.MESSAGE.channel.send("WORKOUT COMPLETE!")
             return
         } else if (this.currentSet === this.sets) {
-            messageString = "Final Round! \n"
+            messageString = "\n\nFinal Round!"
         } else {
-            messageString = 'Round ' + this.currentSet 
+            messageString = '\n\nRound ' + this.currentSet 
         }
         messageString += "\n In " + this.setTime + "-minutes complete:"
         for (let i = 0; i < this.EXERCISES.length ; i++) {
