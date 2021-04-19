@@ -64,6 +64,7 @@ class Workout {
                             .setTitle(this.MESSAGE.author.username + "Has started a workout!")
                             .setColor("#0099ff")
                             .setDescription(workoutDetailsString)
+                            .setThumbnail('https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.brandcrowd.com%2Fmaker%2Flogo%2Frobot-gym-fitness-tech-67661&psig=AOvVaw2q-bcbw4lbA3U41mggjhTy&ust=1618934479040000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCKD2x43XivACFQAAAAAdAAAAABAD')
                             .addFields(
                                 {name: "Exercise", value: exerciseString, inline: true},
                                 {name: "Reps", value: repString, inline: true}
@@ -85,7 +86,8 @@ class Workout {
         const roundDetails = new Discord.MessageEmbed()
                             .setTitle(roundString)
                             .setColor("#0099ff")
-                            .setDescription(descriptionString)
+                            .setDescription(descriptionString) 
+                            .setThumbnail('https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.brandcrowd.com%2Fmaker%2Flogo%2Frobot-gym-fitness-tech-67661&psig=AOvVaw2q-bcbw4lbA3U41mggjhTy&ust=1618934479040000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCKD2x43XivACFQAAAAAdAAAAABAD')
                             .addFields(
                                 {name: "Exercise", value: exerciseString, inline: true},
                                 {name: "Reps", value: repString, inline: true}
@@ -108,6 +110,7 @@ class Workout {
                             .setTitle("Workout Complete!")
                             .setColor("#0099ff")
                             .setDescription(descriptionString)
+                            .setThumbnail('https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.brandcrowd.com%2Fmaker%2Flogo%2Frobot-gym-fitness-tech-67661&psig=AOvVaw2q-bcbw4lbA3U41mggjhTy&ust=1618934479040000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCKD2x43XivACFQAAAAAdAAAAABAD')
                             .addFields(
                                 {name: "Exercise", value: exerciseString, inline: true},
                                 {name: "Reps", value: repString, inline: true}
