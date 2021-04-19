@@ -8,4 +8,5 @@ module.exports = {
   Stats: require('./stats'),
   Joke: require('./joke'),
   Find: require('./find'),
+  Workout: require('./workout'),
 };
