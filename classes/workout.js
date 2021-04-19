@@ -101,7 +101,9 @@ class Workout {
         
         const filter = (reaction, user) => {
             //make sure each player has an entry and we're not tracking bots
-            if (!user.bot && !this.ATHLETES.has(user)){
+            let athleteInGym = this.ATHLETES.some(athlete => athlete.id === user.id)
+            console.info(user.username + ' is already in the gym')
+            if (!user.bot && !athleteInGym){
                 console.info('adding ' + user.username + ' to athletes list');
                 this.ATHLETES.push(user)
                 //userNameId.set(user.id,user.username);
