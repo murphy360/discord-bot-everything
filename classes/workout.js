@@ -118,7 +118,7 @@ class Workout {
                 console.info(user.username + ' is being ignored');
             }
         }
-        const collector = roundMessage.createReactionCollector(filter, { time: this.intervalTime });
+        const collector = roundMessage.createReactionCollector(filter, { time: this.intervalTime*10 });
 				collector.on('collect', (reaction, user) => {
 					
                     //Log a user as finishing a round
