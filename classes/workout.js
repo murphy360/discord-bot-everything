@@ -7,6 +7,7 @@ class Workout {
     //args[3] = setTime / AMRAP Time
     //args[3...n] = exercises
     //args[3+1...n+1] = exercise reps
+    EXERCISES=[]
  
     constructor(discordMessage, args) {
         console.info("Workout Constructor")
@@ -15,7 +16,6 @@ class Workout {
         this.sets=args[2]
         this.setTime=args[3]
         this.isValid=false 
-        this.EXERCISES=[] 
         this.INTERVAL
         this.currentSet=0                     
         for (let i = 4; i < args.length ; i+=2) {
