@@ -63,7 +63,7 @@ class Workout {
         }
                 
         const workoutDetails = new Discord.MessageEmbed()
-                            .setTitle(this.MESSAGE.author.username + "Has started a workout!")
+                            .setTitle(this.MESSAGE.author.username + " Has started a workout!")
                             .setColor(this.color)
                             .setDescription(workoutDetailsString)
                             .setThumbnail(this.icon)
