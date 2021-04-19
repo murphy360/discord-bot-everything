@@ -17,6 +17,7 @@ class Workout {
         this.setTime=args[3]
         this.isValid=false 
         this.EXERCISES=[] 
+        this.color='FFA500'
         this.INTERVAL
         this.icon='https://previews.123rf.com/images/kongvector/kongvector2003/kongvector200300022/141391692-independence-day-drum-mascot-icon-on-fitness-exercise-trying-barbells-vector-illustration.jpg'
         this.currentSet=0                     
@@ -63,7 +64,7 @@ class Workout {
                 
         const workoutDetails = new Discord.MessageEmbed()
                             .setTitle(this.MESSAGE.author.username + "Has started a workout!")
-                            .setColor("#0099ff")
+                            .setColor(this.color)
                             .setDescription(workoutDetailsString)
                             .setThumbnail(this.icon)
                             .addFields(
@@ -86,7 +87,7 @@ class Workout {
 
         const roundDetails = new Discord.MessageEmbed()
                             .setTitle(roundString)
-                            .setColor("#0099ff")
+                            .setColor(this.color)
                             .setDescription(descriptionString) 
                             .setThumbnail(this.icon)
                             .addFields(
@@ -109,7 +110,7 @@ class Workout {
 
         const finishedDetails = new Discord.MessageEmbed()
                             .setTitle("Workout Complete!")
-                            .setColor("#0099ff")
+                            .setColor(this.color)
                             .setDescription(descriptionString)
                             .setThumbnail(this.icon)
                             .addFields(
