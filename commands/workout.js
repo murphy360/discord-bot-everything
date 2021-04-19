@@ -19,6 +19,7 @@ module.exports = {
         messageString = messageString + '\n     ' + workout.EXERCISES[i].REPS + " " + workout.EXERCISES[i].name
       }
       msg.channel.send(messageString)
+      workout.startWorkout()
     } else { 
       msg.channel.send('The Workout is not valid')
     }

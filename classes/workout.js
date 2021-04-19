@@ -15,7 +15,8 @@ class Workout {
         this.sets=args[2]
         this.setTime=args[3]
         this.isValid=false 
-        this.EXERCISES=[]                      
+        this.EXERCISES=[] 
+        this.currentSet=0                     
         for (let i = 4; i < args.length ; i+=2) {
             
             console.info("Workout Class For Loop: " + args[i])
@@ -47,28 +48,25 @@ class Workout {
         return exercise
     }
 
+    startSet(){
+        this.currentSet++
+        let messageString = 'Round ' + this.currentSet + "/n, In " + workout.setTime + "-minutes complete:"
+        for (let i = 0; i < this.EXERCISES.length ; i++) {
+            messageString = messageString + '\n     ' + workout.EXERCISES[i].REPS + " " + workout.EXERCISES[i].name
+        }
+        this.MESSAGE.channel.send(messageString)
+    }
 
 // Start Publishing exercise on periodic basis
     startWorkout() {
-                                         
+                                    
+        let interval = (this.setTime * 60) * 1000
 
-    // Update the progress message, to be used int he setInterval call
-        let update = function (progress_bar) {
-            this.TIME_LEFT -= this.DEC_INT;
-            
-        // If there is no time left, show the finish text and clear the interval, otherwise update the progress bar
-            if (this.TIME_LEFT <=0) {
-                progress_bar.edit("```"+this.FINISH_TEXT[Math.floor(Math.random()*this.FINISH_TEXT.length)]+"```");
-                clearInterval(int)
-                return 0;
-           } else {
-                progress_bar.edit(this.makeBar(this.TIME_LEFT))
-           }
-        }
+ 
         
     // Create the message then, use setInterval to update the message
-        this.MESSAGE.channel.send(this.makeBar(this.TIME_LEFT)).then( embed => { 
-            int = setInterval(update.bind(this), interval, embed);
+        this.MESSAGE.channel.send("starting now").then( embed => { 
+            int = setInterval(startSet.bind(this), interval);
         });
     }
 
