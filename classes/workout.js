@@ -93,7 +93,7 @@ class Workout {
                                 {name: "Exercise", value: exerciseString, inline: true},
                                 {name: "Reps", value: repString, inline: true}
                             );
-        this.MESSAGE.channel.send(roundDetails)	
+        this.MESSAGE.channel.send(roundDetails).then(sentMessage => sentMessage.react(':white_check_mark:'))	
     }
 
     messageFinishedDetails(){
