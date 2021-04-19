@@ -18,7 +18,6 @@ class Timer {
         this.INTV_LEN=Math.floor(interval_sec)*1000;    // Interval length to pass to setTimeout
     }
 
-
     // Create the progress bar to display
     makeBar(time) {
         const percentage = time / this.MAX_TIME;
@@ -29,11 +28,11 @@ class Timer {
         const bar = '```'+this.DISP_TEXT+'\n'+progressText + emptyProgressText+'```';
         return bar;
     }
-    
+
     // Return a random phrase from the FINISH_TEXT array
     finish() {
-        let finish = this.FINISH_TEXT[Math.floor(Math.random()*this.FINISH_TEXT.length)]
-        return "```"+finish+"```"
+        let finish = this.FINISH_TEXT[Math.floor(Math.random()*this.FINISH_TEXT.length)];
+        return "```"+finish+"```";
     }
 
     // Update the progress bar message, used in the setInterval call
@@ -56,7 +55,6 @@ class Timer {
             this.systemInterval = setInterval(this.update.bind(this), this.INTV_LEN, embed);
         });
     }
-
 }
 
 module.exports.Timer = Timer;
