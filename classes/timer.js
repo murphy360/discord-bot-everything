@@ -30,7 +30,7 @@ class Timer {
         const bar = '```'+this.DISP_TEXT+'\n'+progressText + emptyProgressText+'```';
         return bar;
     }
-
+/*
     // Update the progress bar message, used in the setInterval call
     update(progress_bar) {
         this.time_left -= this.DEC_INTV;
@@ -42,10 +42,10 @@ class Timer {
             progres_bar.edit(this.makeBar(this.time_left));
         }
     }
-
+*/
     // Start the timer with progress bar
      start() {
-/*               
+               
         // Update the progress message, to be used in the setInterval call
         let update = function (progress_bar) {
             this.time_left -= this.DEC_INTV;
@@ -57,11 +57,11 @@ class Timer {
                 progress_bar.edit(this.makeBar(this.time_left));
            }
         }
- */       
+       
         // Create the message then, use setInterval to update the message
         this.MESSAGE.channel.send(this.makeBar(this.TIME_LEFT)).then( embed => { 
-//            this.systemInterval = setInterval(update.bind(this), this.INTV_LEN, embed);
-            this.systemInterval = setInterval(this.update.bind(this), this.INTV_LEN, embed);
+            this.systemInterval = setInterval(update.bind(this), this.INTV_LEN, embed);
+//            this.systemInterval = setInterval(this.update.bind(this), this.INTV_LEN, embed);
         });
     }
 
