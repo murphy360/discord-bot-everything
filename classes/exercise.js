@@ -5,6 +5,7 @@ class Exercise {
         this.description=exerciseDescription            // Short Description of Exercise
         this.image=exerciseImage                        //optional 
         this.MESSAGE=discordMessage                    // original message from user
+        this.REPS
     }
 
 
@@ -18,6 +19,10 @@ class Exercise {
 // Starts a new set of an exercise
     newExerciseSet(){
         
+    }
+
+    setReps(repetitions){
+        this.REPS=repetitions
     }
 
 // Start Publishing exercise on periodic basis
