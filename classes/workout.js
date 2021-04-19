@@ -53,9 +53,9 @@ class Workout {
     startSet(){
         this.currentSet++
         let messageString = 'Round ' + this.currentSet + "/n, In " + this.setTime + "-minutes complete:"
-        //for (let i = 0; i < this.EXERCISES.length ; i++) {
-        //    messageString = messageString + '\n     ' + this.EXERCISES[i].REPS + " " + this.EXERCISES[i].name
-        //}
+        for (let i = 0; i < this.EXERCISES.length ; i++) {
+            messageString = messageString + '\n     ' + this.EXERCISES[i].REPS + " " + this.EXERCISES[i].name
+        }
         this.MESSAGE.channel.send(messageString)
     }
 
@@ -68,7 +68,7 @@ class Workout {
         
     // Create the message then, use setInterval to update the message
         this.MESSAGE.channel.send("starting now").then( embed => { 
-            this.INTERVAL = setInterval(this.startSet, interval);
+            this.INTERVAL = setInterval(this.startSet.bind(this), interval);
         });
     }
 
