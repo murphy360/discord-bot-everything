@@ -52,16 +52,20 @@ class Workout {
 
     startSet(){
         this.currentSet++
-        if(this.currentSet >= this.sets){
+        let messageString = ""
+        if(this.currentSet > this.sets){
             clearInterval(this.INTERVAL)
             return
+        } else if (this.currentSet > this.sets) {
+            messageString = "Final Round! \n"
         } else {
-            let messageString = 'Round ' + this.currentSet + "/n, In " + this.setTime + "-minutes complete:"
-            for (let i = 0; i < this.EXERCISES.length ; i++) {
-                messageString = messageString + '\n     ' + this.EXERCISES[i].REPS + " " + this.EXERCISES[i].name
-            }
-            this.MESSAGE.channel.send(messageString)
+            messageString = 'Round ' + this.currentSet 
         }
+        messageString += "\n In " + this.setTime + "-minutes complete:"
+        for (let i = 0; i < this.EXERCISES.length ; i++) {
+            messageString = messageString + '\n     ' + this.EXERCISES[i].REPS + " " + this.EXERCISES[i].name
+        }
+        this.MESSAGE.channel.send(messageString)
         
     }
 
