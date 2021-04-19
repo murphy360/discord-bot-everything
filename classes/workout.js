@@ -95,7 +95,7 @@ class Workout {
 
     messageFinishedDetails(){
 
-        let descriptionString = "In " + this.setTime*this.sets + ", completed " + this.sets + " sets and total reps:"
+        let descriptionString = this.setTime*this.sets + " minutes\n " + this.sets + " sets"
 
         let exerciseString = ""
         let repString = ""
