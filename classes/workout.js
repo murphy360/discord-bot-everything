@@ -102,13 +102,10 @@ class Workout {
             this.MESSAGE.channel.send("WORKOUT COMPLETE!")
             return
         } else if (this.currentSet === this.sets) {
-            messageString = "\n\nFinal Round!"
             this.messageRoundDetails("Final Round!")
         } else {
-            messageString = '\n\nRound ' + this.currentSet 
+            this.messageRoundDetails('Round ' + this.currentSet)
         }
-       
-        
     }
 
 // Start Publishing exercise on periodic basis
