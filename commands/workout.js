@@ -14,7 +14,11 @@ module.exports = {
     console.info("Workout command post new Workout")
 
     if (workout.isValid) {
-      msg.channel.send('The Workout is valid')
+      let messageString = 'Get Ready!'
+      for (let i = 0; i < workout.EXERCISES.length ; i++) {
+        messageString = messageString + '\n' + workout.EXERCISES[i].name + ": " + workout.EXERCISES[i].REPS + " reps"
+      }
+      msg.channel.send(messageString)
     } else { 
       msg.channel.send('The Workout is not valid')
     }
