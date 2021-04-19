@@ -56,7 +56,7 @@ class Workout {
         if(this.currentSet > this.sets){
             clearInterval(this.INTERVAL)
             return
-        } else if (this.currentSet = this.sets) {
+        } else if (this.currentSet === this.sets) {
             messageString = "Final Round! \n"
         } else {
             messageString = 'Round ' + this.currentSet 
