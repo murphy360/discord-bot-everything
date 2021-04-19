@@ -18,7 +18,7 @@ class Workout {
             if ( exercise !== null) {
                 this.EXERCISES.push(exercise)
             } else { 
-                discordMessage.channel.send("Not all exercises are valid: " + arg[i] + '! /n Add it Through the Add Exercise Command')
+                discordMessage.channel.send("Not all exercises are valid: " + args[i] + '! /n Add it Through the Add Exercise Command')
                 this.isValid=false
             }
         }                
