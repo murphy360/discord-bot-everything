@@ -2,7 +2,7 @@
 
 This bot aims to incorporate a lot of different ideas into one bot. Currently in development for the bot are the following:
  - trivia. Play a trivia game. Trivia questions pulled from [Open Trivia Database](https://theopentdb.com).
- - jokes. Tell random jokes. Jokes are pulled from [https://sv443.net/jokeapi/](https://sv443.net/jokeapi/) and [https://dadsofunny.firebaseapp.com](https://dadsofunny.firebaseapp.com)
+ - jokes. Tell random jokes. Jokes are pulled from [https://sv443.net/](https://sv443.net/jokeapi/v2/) and [https://dadsofunny.firebaseapp.com](https://dadsofunny.firebaseapp.com)
  - play. Play youtube audio to an audio channel.
 
 This code base was forked from [https://github.com/sitepoint-editors/discord-bot-sitepoint](https://github.com/sitepoint-editors/discord-bot-sitepoint)
