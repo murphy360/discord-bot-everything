@@ -110,6 +110,7 @@ class Workout {
         const finishedDetails = new Discord.MessageEmbed()
                             .setTitle("Workout Complete!")
                             .setColor("#0099ff")
+                            .setDescription(descriptionString)
                             .setThumbnail(this.icon)
                             .addFields(
                                 {name: "Exercise", value: exerciseString, inline: true},
