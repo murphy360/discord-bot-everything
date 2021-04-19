@@ -52,20 +52,18 @@ class Workout {
     }
 
     messageWorkoutDetails(){
-        let messageString = 'Get Ready! \n' + this.sets + ", " + this.setTime + "-minute rounds:"
+        let workoutDetails = 'Complete ' + this.sets + ", " + this.setTime + "-minute rounds:"
         let exerciseString = ""
         let repString = ""
         for (let i = 0; i < this.EXERCISES.length ; i++) {
-            messageString = messageString + '\n     ' + this.EXERCISES[i].REPS + " " + this.EXERCISES[i].name
             exerciseString += this.EXERCISES[i].name + "\n"
             repString += this.EXERCISES[i].REPS + "\n"
         }
-        this.MESSAGE.channel.send(messageString)
-
-        
+                
         const workoutDetails = new Discord.MessageEmbed()
                             .setTitle(this.MESSAGE.author.username + "Has started a workout!")
                             .setColor("#0099ff")
+                            .setDescription(workoutDetails)
                             .addFields(
                                 {name: "Exercise", value: exerciseString, inline: true},
                                 {name: "Reps", value: repString, inline: true}
