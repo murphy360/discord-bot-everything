@@ -1,4 +1,5 @@
 const Exercise = require('./../classes/exercise.js');
+const Discord = require('discord.js');
 class Workout {
 
     //args[0] = @botname
