@@ -52,9 +52,11 @@ class Workout {
 
     startSet(){
         this.currentSet++
+        console.info("Current Set: " + this.currentSet + "Total Sets: " + this.sets + "Equal?? " + (this.currentSets === this.sets))
         let messageString = ""
         if(this.currentSet > this.sets){
             clearInterval(this.INTERVAL)
+            this.MESSAGE.channel.send("WORKOUT COMPLETE!")
             return
         } else if (this.currentSet === this.sets) {
             messageString = "Final Round! \n"
