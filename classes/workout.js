@@ -107,7 +107,7 @@ class Workout {
                 console.info('adding ' + user.username + ' to athletes list');
                 this.ATHLETES.push(user)
                 //userNameId.set(user.id,user.username);
-                msg.channel.send('Thanks for joining us ' + user.username)
+                this.MESSAGE.channel.send('Thanks for joining us ' + user.username)
                 console.info('added ' + user.username + ' to athlete list')
             }
             // Selected check emoji and not a bot
@@ -128,7 +128,7 @@ class Workout {
 						.setColor("#0099ff")
                         .setDescription('Great job ' + user.username)
 
-					msg.channel.send(ending)
+					this.MESSAGE.channel.send(ending)
                     
 				});
 
