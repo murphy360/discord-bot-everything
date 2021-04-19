@@ -32,6 +32,7 @@ class Workout {
                 this.isValid=true
                 exercise.setReps(args[i+1])
                 this.EXERCISES.push(exercise)
+                console.info("Exercise length: " + this.EXERCISES.length)
             }
         }                
     }
