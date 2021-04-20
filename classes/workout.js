@@ -80,7 +80,7 @@ class Workout {
             reps: reps,
             set_start: message.createdAt,
             set_end: Date.now(),
-        }).then(value => console.info('Set ' + value.exerciseId + ' was created in the database'));
+        }).then(value => console.info('Set ' + value.exercise_id + ' was created in the database'));
     }
 
     getExercise(stringName) {
