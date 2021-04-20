@@ -22,6 +22,8 @@ const Users = require('./models/Users')(sequelize, Sequelize.DataTypes);
 const Questions = require('./models/Questions')(sequelize, Sequelize.DataTypes);
 const Responses = require('./models/Responses')(sequelize, Sequelize.DataTypes);
 const Servers = require('./models/Servers')(sequelize, Sequelize.DataTypes);
+const Workouts = require('./models/Workouts')(sequelize, Sequelize.DataTypes);
+const ExerciseSets= require('./models/ExerciseSets')(sequelize, Sequelize.DataTypes);
 
 
 //link up commands found in ./commands/
@@ -39,6 +41,8 @@ bot.on('ready', () => {
   Questions.sync({ force: toSync });
   Responses.sync({ force: toSync });
   Servers.sync({ force: toSync });
+  Workouts.sync({ force: toSync });
+  ExerciseSets.sync({ force: toSync });
 //  bot.user.setAvatar('avatar.jpg');
 });
 

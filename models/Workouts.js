@@ -2,7 +2,9 @@ module.exports = (sequelize, Sequelize) => {
 	return sequelize.define('workouts', {
 		workout_id: {
 			type: Sequelize.STRING,
-			primaryKey: true,
+		},
+		server_id: {
+			type: Sequelize.STRING,
 		},
 		creator_id: {
 			type: Sequelize.STRING,
@@ -15,9 +17,6 @@ module.exports = (sequelize, Sequelize) => {
 		},
 		workout_end: {
 			type: Sequelize.DATE,
-		},
-		server_id: {
-			type: Sequelize.STRING,
 		}
 	}, {
 		timestamps: false,

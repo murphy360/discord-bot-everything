@@ -42,11 +42,35 @@ class Workout {
         }                
     }
 
-
-// Save executed exercise to database
-    logWorkout() {
+	/*** Log Workout: save reference to thisworkout to db ***/
+    async logWorkout() {
+			
         
-        return false
+        //Create an entry in the database for this workout. Log asyncronously when result is returned. 
+        Workouts.create({
+            workout_id: this.MESSAGE.id,
+            creator_id: this.MESSAGE.author.id,
+            creator_name: this.MESSAGE.author.username,
+            workout_start: this.MESSAGE.createdAt,
+            workout_end: Date.now(),
+            server_id: this.MESSAGE.guild.id,
+        }).then(value => console.info('Workout ' + value.workout_id + ' was created in the database'));
+    }
+
+    	/*** Log Game: save reference to this game to db ***/
+    async logSet(message, user, exerciseId, reps, weight) {
+        //Create an entry in the database for this set (you get one entry per user+round+exercise)
+        ExerciseSets.create({
+            exercise_id: exerciseId,
+            workout_id: this.MESSAGE.id,
+            user_id: user.author.id,
+            server_id: this.MESSAGE.guild.id,
+            reps: reps,
+            weight: weight,
+            reps: reps,
+            set_start: message.createdAt,
+            set_end: Date.now(),
+        }).then(value => console.info('Set ' + value.exerciseId + ' was created in the database'));
     }
 
     getExercise(stringName) {
@@ -122,6 +146,10 @@ class Workout {
 				collector.on('collect', (reaction, user) => {
 					
                     //Log a user as finishing a round
+                    for (let i = 0; i < this.EXERCISES.length ; i++) {
+                        this.logSet(roundMessage, user, this.EXERCISES[i].name, this.EXERCISES[i].REPS, this.EXERCISES[i].weight)
+                    }
+                    
                     //Give them an attaboy 
                     const attaboyMessage = new Discord.MessageEmbed()
 						.setTitle("Nailed It!")
@@ -170,6 +198,7 @@ class Workout {
         if(this.currentSet > this.sets){
             clearInterval(this.INTERVAL)
             this.messageFinishedDetails()
+            this.logWorkout()
             return
         } else if (this.currentSet === this.sets) {
             this.messageRoundDetails("Final Round!")

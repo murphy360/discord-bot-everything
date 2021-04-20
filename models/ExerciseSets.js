@@ -9,7 +9,6 @@ module.exports = (sequelize, Sequelize) => {
 		},
 		workout_id: {
 			type: Sequelize.STRING,
-
 		},
 		user_id: {
 			type: Sequelize.STRING,
@@ -23,11 +22,8 @@ module.exports = (sequelize, Sequelize) => {
 		set_start: {
 			type: Sequelize.DATE,
 		},
-		game_end: {
+		set_end: {
 			type: Sequelize.DATE,
-		},
-		winner_id: {
-			type: Sequelize.STRING,
 		}
 	}, {
 		timestamps: false,
