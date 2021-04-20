@@ -1,5 +1,7 @@
 const Exercise = require('./../classes/exercise.js');
 
+const Exercises = require('../models/Exercises')(sequelize, Sequelize.DataTypes);
+
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize('database', 'user', 'password', {
     host: 'localhost',
