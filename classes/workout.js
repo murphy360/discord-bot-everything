@@ -1,6 +1,12 @@
 const Exercise = require('./../classes/exercise.js');
 
 const Sequelize = require('sequelize');
+const sequelize = new Sequelize('database', 'user', 'password', {
+    host: 'localhost',
+    dialect: 'sqlite',
+    logging: false,
+    storage: 'database.sqlite',
+});
 const Workouts = require('../models/Workouts')(sequelize, Sequelize.DataTypes);
 const ExerciseSets = require('../models/ExerciseSets')(sequelize, Sequelize.DataTypes);
 const Discord = require('discord.js');
