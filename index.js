@@ -23,6 +23,7 @@ const Questions = require('./models/Questions')(sequelize, Sequelize.DataTypes);
 const Responses = require('./models/Responses')(sequelize, Sequelize.DataTypes);
 const Servers = require('./models/Servers')(sequelize, Sequelize.DataTypes);
 const Workouts = require('./models/Workouts')(sequelize, Sequelize.DataTypes);
+const Exercises= require('./models/Exercises')(sequelize, Sequelize.DataTypes);
 const ExerciseSets= require('./models/ExerciseSets')(sequelize, Sequelize.DataTypes);
 
 
