@@ -19,14 +19,14 @@ module.exports = {
     if (subCommand === "add") {
       //how to find a user in the db
 			let exerciseSearchCriteria = { where: {
-				exercise_name: stringName
+				exercise_name: exerciseName
 			}};
       	//if this is the user's first time on the bot then log them. 
 			// TODO could look into checking if this is the first time on the server / if they are on other servers
 			Exercises.findOne(exerciseSearchCriteria).then(value => {
 				if (value === null) {
 					//first time user on this bot
-					this.MESSAGE.channel.send("Sorry, " + stringName + " is not a current exercise, ask an admin to add it")
+					this.MESSAGE.channel.send("Sorry, " + exerciseName + " is not a current exercise, ask an admin to add it")
 				} else {
 					console.info('Exercise already resides on the server')
           return value
