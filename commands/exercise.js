@@ -1,6 +1,5 @@
 const Exercise = require('./../classes/exercise.js');
 
-const Exercises = require('../models/Exercises')(sequelize, Sequelize.DataTypes);
 
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize('database', 'user', 'password', {
@@ -10,6 +9,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
     storage: 'database.sqlite',
 });
 
+const Exercises = require('../models/Exercises')(sequelize, Sequelize.DataTypes);
 module.exports = {
   name: 'exercise',
   description: 'Adding and removing exercises',
