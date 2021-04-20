@@ -1,6 +1,5 @@
 const Discord = require('discord.js');
 const HE = require('he');
-const COLORS = require('colors.js');        // Need to create this
 
 class Question {
     
@@ -51,7 +50,7 @@ class Question {
     // Create question embed
     createQuestionEmbed(question_num) {
         let theEmbed = new Discord.MessageEmbed();
-            .setColor(COLORS.trivia);
+            .setColor(TRIVIA_COLOR);
             .setAuthor('Question #' + question_num);
             .setTitle(this.question);
             .addFields(
