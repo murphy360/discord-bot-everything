@@ -1,5 +1,5 @@
 require('dotenv').config();
-require('colors.js');
+require('./colors.js');
 const greetings = require('greetings');
 const Discord = require('discord.js');
 const bot = new Discord.Client();
