@@ -9,7 +9,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
     storage: 'database.sqlite',
 });
 
-const Exercises = require('../models/Exercises')(sequelize, Sequelize.DataTypes);
+const Exercises = require('../models/Exercises.jsS')(sequelize, Sequelize.DataTypes);
 module.exports = {
   name: 'exercise',
   description: 'Adding and removing exercises',
