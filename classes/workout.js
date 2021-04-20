@@ -1,5 +1,6 @@
 const Exercise = require('./../classes/exercise.js');
 
+const Sequelize = require('sequelize');
 const Workouts = require('../models/Workouts')(sequelize, Sequelize.DataTypes);
 const ExerciseSets = require('../models/ExerciseSets')(sequelize, Sequelize.DataTypes);
 const Discord = require('discord.js');
