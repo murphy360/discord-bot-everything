@@ -1,22 +1,22 @@
 const Discord = require('discord.js');
-const HE = require('he.js');
-const COLORS = require('colors.js');
+const HE = require('he');
+const COLORS = require('colors.js');        // Need to create this
 
 class Question {
     
     constructor(roundResult, q_num) {
-        this.Q_ID;
-        this.question = this.cleanText(roundResult.question);
-        this.answer = this.cleanText(roundResult.correct_answer);
-        this.choices = this.createChoices(roundResult.incorrect_answers);
-        this.difficulty = roundResult.difficulty;
-        this.category = roundResult.category;
-        this.question_num = q_num;
-        this.num_choices = this.choices.length;
-        this.max_points = this.num_choices * 5;
-        this.embed = this.createQuestionEmbed(q_num);
-        this.displayed_at = null;
-        this.correct_choice = this.findCorrectChoice();
+        this.Q_ID;                                                          // Question ID
+        this.question = this.cleanText(roundResult.question);               // Question Text
+        this.answer = this.cleanText(roundResult.correct_answer);           // Answer to the Question
+        this.choices = this.createChoices(roundResult.incorrect_answers);   // Array of Choices (incorrect and correct answers)
+        this.difficulty = roundResult.difficulty;                           // Question Difficulty
+        this.category = roundResult.category;                               // Question Category
+        this.question_num = q_num;                                          // Question Number in the Round
+        this.num_choices = this.choices.length;                             // Number of Answer Choices (2 or 4)
+        this.max_points = this.num_choices * 5;                             // Max Point Value
+        this.embed = this.createQuestionEmbed(q_num);                       // Discord Message Embed for the Question
+        this.displayed_at = null;                                           // Date/Time the Question was Displayed in the Channel
+        this.correct_choice = this.findCorrectChoice();                     // Integer value indicating correct answer in Choices Array
     }
     
     // Create choice array
@@ -65,7 +65,7 @@ class Question {
         return theEmbed;
     }
     
-    // Display Question in given channel
+    // Display Question in the given Discord channel
     display(channel) {
         this.displayed_at = Date.now();
         channel.send(this.embed);
