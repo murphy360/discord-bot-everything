@@ -13,8 +13,8 @@ module.exports = {
   description: 'Adding and removing exercises',
   async execute(msg, args) {
    
-    let subCommand = args[2].tolower()
-    let exerciseName = args[3].tolower()
+    let subCommand = args[2].toLowerCase()
+    let exerciseName = args[3].toLowerCase()
 
     if (subCommand === "add") {
       //how to find a user in the db
