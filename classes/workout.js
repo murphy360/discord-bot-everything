@@ -73,7 +73,7 @@ class Workout {
         ExerciseSets.create({
             exercise_id: exerciseId,
             workout_id: this.MESSAGE.id,
-            user_id: user.author.id,
+            user_id: user.id,
             server_id: this.MESSAGE.guild.id,
             reps: reps,
             weight: weight,
