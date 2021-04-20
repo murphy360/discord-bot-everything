@@ -13,10 +13,10 @@ class Timer {
         this.DISP_TEXT=text;                            // Text to display with the progress bar
         this.CHANNEL=message.channel;                   // Channel in which the trivia game is runing
         this.ID;                                        // Timer ID
-        this.timeLeft=Math.floor(time_len);            // Time Remaining for the timer
+        this.timeLeft=Math.floor(time_len);             // Time Remaining for the timer
         this.systemInterval=null;                       // null variable to hold reference to systemInterval
         this.INTV_LEN=Math.floor(interval_sec)*1000;    // Interval length to pass to setTimeout
-        this.MESSAGE=null;
+        this.MESSAGE=null;                              // Reference to the timer message
     }
 
     // Create the progress bar to display
@@ -57,7 +57,7 @@ class Timer {
     // Start the timer with progress bar
      start() {
 
-        // Create the message then, use setInterval to update the message
+        // Create the message then, use setInterval to update it
         this.CHANNEL.send(this.makeBar()).then( msg => { 
             this.MESSAGE = msg;
             this.systemInterval = setInterval(this.update.bind(this), this.INTV_LEN);
