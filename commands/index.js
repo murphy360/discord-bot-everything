@@ -9,4 +9,5 @@ module.exports = {
   Joke: require('./joke'),
   Find: require('./find'),
   Workout: require('./workout'),
+  Exercise: require('./exercise'),
 };

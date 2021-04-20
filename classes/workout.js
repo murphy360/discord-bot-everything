@@ -84,8 +84,25 @@ class Workout {
     }
 
     getExercise(stringName) {
-        //Check database to see if this exercise exists create an exercise Object and return
-        let exercise = new Exercise.Exercise(stringName, "", "", this.MESSAGE)
+        
+        
+			//how to find a user in the db
+			let exerciseSearchCriteria = { where: {
+				exercise_name: stringName
+			}};
+
+			//if this is the user's first time on the bot then log them. 
+			// TODO could look into checking if this is the first time on the server / if they are on other servers
+			Exercises.findOne(exerciseSearchCriteria).then(value => {
+				if (value === null) {
+					//first time user on this bot
+					this.MESSAGE.channel.send("Sorry, " + stringName + " is not a current exercise, ask an admin to add it")
+				} else {
+					console.info('Exercise already resides on the server')
+                    return value
+				}
+			});
+
         return exercise
     }
 

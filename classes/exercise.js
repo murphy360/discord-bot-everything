@@ -21,6 +21,31 @@ class Exercise {
         
     }
 
+    async getExercise(exerciseName) {
+        //Create an entry in the database for this set (you get one entry per user+round+exercise)
+        Exercise.findOne(serverSearchCriteria).then(knownServer => {
+			if (knownServer === null) {
+				console.info('First time with this server');
+				try{
+					console.info('Logging server: ' + message.guild.name);
+					Servers.create({
+						server_id: message.guild.id,
+						server_name: message.guild.name,
+					}).then(newServer => {
+						message.channel.send('Hey thanks for the invite! This is my first time on ' + newServer.server_name);
+					});
+				}catch(e) {
+					if (e.name === 'SequelizeUniqueConstraintError') {
+						return console.info('That server already exists.');    
+					}
+					return message.channel.send('Something went wrong with logging the server');       
+				}
+			} else {
+				console.info('This server exists in the db');
+			}
+		});
+    }
+
     setReps(repetitions){
         this.REPS=repetitions
     }
