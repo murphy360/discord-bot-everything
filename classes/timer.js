@@ -39,7 +39,7 @@ class Timer {
 
     // Cancel the Timer
     cancel() {
-        this.message.delete();
+        this.message.edit('Timer cancelled.');
         clearInterval(this.systemInterval);
     }
 
