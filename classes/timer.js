@@ -13,14 +13,15 @@ class Timer {
         this.DISP_TEXT=text;                            // Text to display with the progress bar
         this.CHANNEL=message.channel;                   // Channel in which the trivia game is runing
         this.ID;                                        // Timer ID
-        this.time_left=Math.floor(time_len);            // Time Remaining for the timer
+        this.timeLeft=Math.floor(time_len);            // Time Remaining for the timer
         this.systemInterval=null;                       // null variable to hold reference to systemInterval
         this.INTV_LEN=Math.floor(interval_sec)*1000;    // Interval length to pass to setTimeout
+        this.MESSAGE=null;
     }
 
     // Create the progress bar to display
-    makeBar(time) {
-        const percentage = time / this.MAX_TIME;
+    makeBar() {
+        const percentage = this.timeLeft / this.MAX_TIME;
         const progress = Math.round((this.BAR_SIZE * percentage));
         const emptyProgress = this.BAR_SIZE - progress;
         const progressText = '▇'.repeat(progress);
@@ -35,15 +36,21 @@ class Timer {
         return "```"+finish+"```";
     }
 
+    // Cancel the Timer
+    cancel() {
+        this.MESSAGE.delete()
+        clearInterval(this.systemInterval);
+    }
+
     // Update the progress bar message, used in the setInterval call
-    update(progress_bar) {
-        this.time_left -= this.DEC_INTV;
+    update() {
+        this.timeLeft -= this.DEC_INTV;
         
-        if (this.time_left <=0) {
-            progress_bar.edit( this.finish() );
+        if (this.timeLeft <=0) {
+            this.MESSAGE.edit( this.finish() );
             clearInterval(this.systemInterval);
         } else {
-            progress_bar.edit( this.makeBar(this.time_left) );
+            this.MESSAGE.edit( this.makeBar() );
         }
     }
 
@@ -51,8 +58,9 @@ class Timer {
      start() {
 
         // Create the message then, use setInterval to update the message
-        this.CHANNEL.send(this.makeBar(this.time_left)).then( msg => { 
-            this.systemInterval = setInterval(this.update.bind(this), this.INTV_LEN, msg);
+        this.CHANNEL.send(this.makeBar()).then( msg => { 
+            this.MESSAGE = msg;
+            this.systemInterval = setInterval(this.update.bind(this), this.INTV_LEN);
         });
     }
 }
