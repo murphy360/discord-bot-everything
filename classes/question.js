@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const HE = require('he');
+const Sequelize = require('sequelize');
 
 class Question {
     
@@ -19,7 +20,7 @@ class Question {
     }
     
     storeQuestion() {
-        // store of find question in database
+        // store or find question in database
         // if question exists, increment times_asked counter
         // return question id
     }
