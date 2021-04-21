@@ -41,15 +41,15 @@ module.exports = {
               {name: "__Speed__", value: json.base.Speed, inline: true}
       )*/
       .addField("\u200b",
-		"__Species:__\u0009"+json.species+
-		"\n__Type:__\u0009"+json.type+
-		"\n__Ability:__\u0009"+ability+
-	      	"\n__HP:__\u0009"+json.base.HP+
-              	"\n__Defense:__\u0009"+json.base.Defense+
-              	"\n__Attack:__\u0009"+json.base.Attack+
-              	"\n__Sp. Attack:__\u0009"+json.base['Sp. Attack']+
-              	"\n__Sp. Defense:__\u0009"+json.base['Sp. Defense']+
-              	"\n__Speed:__\u0009"+json.base.Speed)
+		"__Species:__\u0020\u0020\u0020\u0020\u0020\u0020\u0020"+json.species+
+		"\n__Type:__\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020"+json.type+
+		"\n__Ability:__\u0020\u0020\u0020\u0020"+ability+
+	      	"\n__HP:__\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020"+json.base.HP+
+              	"\n__Defense:__\u0020\u0020\u0020\u0020\u0020"+json.base.Defense+
+              	"\n__Attack:__\u0020\u0020\u0020\u0020\u0020\u0020"+json.base.Attack+
+              	"\n__Sp. Attack:__\u0020\u0020"+json.base['Sp. Attack']+
+              	"\n__Sp. Defense:__\u0020"+json.base['Sp. Defense']+
+              	"\n__Speed:__\u0020\u0020\u0020\u0020\u0020\u0020\u0020"+json.base.Speed)
       .setFooter("Pokemon data provided by: https://purukitto.github.io/pokemon-api/")
         message.channel.send(messageEmbed);
     }
