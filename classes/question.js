@@ -3,13 +3,13 @@ const HE = require('he');
 
 class Question {
     
-    constructor(roundResult, q_num) {
+    constructor(questionData, q_num) {
         this.Q_ID;                                                          // Question ID
-        this.question = this.cleanText(roundResult.question);               // Question Text
-        this.answer = this.cleanText(roundResult.correct_answer);           // Answer to the Question
-        this.choices = this.createChoices(roundResult.incorrect_answers);   // Array of Choices (incorrect and correct answers)
-        this.difficulty = roundResult.difficulty;                           // Question Difficulty
-        this.category = roundResult.category;                               // Question Category
+        this.question = this.cleanText(questionData.question);              // Question Text
+        this.answer = this.cleanText(questionData.correct_answer);          // Answer to the Question
+        this.choices = this.createChoices(questionData.incorrect_answers);  // Array of Choices (incorrect and correct answers)
+        this.difficulty = questionData.difficulty;                          // Question Difficulty
+        this.category = questionData.category;                              // Question Category
         this.question_num = q_num;                                          // Question Number in the Round
         this.num_choices = this.choices.length;                             // Number of Answer Choices (2 or 4)
         this.max_points = this.num_choices * 5;                             // Max Point Value
@@ -21,7 +21,7 @@ class Question {
     // Create choice array
     createChoices(wrongAnswers) {
         let choice_array = new Array();
-        for (let i = 0; i < answers.length; i++) {
+        for (let i = 0; i < wrongAnswers.length; i++) {
             choice_array.push(this.cleanText(wrongAnswers[i]))
         }
         choice_array.push(this.answer)
