@@ -1,6 +1,6 @@
 require('dotenv').config();
 require('./colors.js');
-const greetings = require('greetings');
+require('./greetings.js');
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
@@ -33,7 +33,7 @@ Object.keys(botCommands).map(key => {
 //Callback when bot joins the server TODO channelID should be automatically discovered
 bot.on('ready', () => {
   const channelID = "828303498994647134";
-  bot.channels.cache.get(channelID).send(greetings());
+  bot.channels.cache.get(channelID).send(greetings[Math.floor((Math.random()*greetings.length)]);
   const toSync = false;
   Games.sync({ force: toSync });
   Users.sync({ force: toSync });
