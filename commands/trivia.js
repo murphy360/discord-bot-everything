@@ -496,7 +496,7 @@ module.exports = {
 					sentMsg.react(REACT[i]);
 				}
 
-				timer=new Timer.Timer(q_time,5,msg,'Time Remaining').start();
+				timer=new Timer.Timer(q_time,5,msg.channel,'Time Remaining').start();
 
 				const filter = (reaction, user) => {
 					//make sure each player has an entry and initial score of 0
