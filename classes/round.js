@@ -35,7 +35,7 @@ class Round {
         
         for (let i = 0; i < this.question.num_choices; i++) {
             // add reactions
-            this.question_message.react(Reaction[i]);
+            this.question_message.react(Reactions[i]);
         }
         
         this.timer = new Timer.Timer(this.time,5,this.channel,'Time Remaining').start();
