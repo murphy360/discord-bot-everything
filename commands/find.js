@@ -26,9 +26,9 @@ module.exports = {
       .setDescription(json.description)
       .setThumbnail(he.decode(json.hires))
       .addFields(
-	      {name: "__Species__", value:"\u200b"+json.species, inline:true},
-	      {name: "__Type__", value:"\u200b"+json.type, inline:true},
-	      {name: "__Ability__", value:"\u200b"+ability, inline:true},
+	      {name: "__Species__", value:"\u0009"+json.species, inline:true},
+	      {name: "__Type__", value:"\u0009"+json.type, inline:true},
+	      {name: "__Ability__", value:"\u0009"+ability, inline:true},
 	      {name: "__HP__", value:json.base.HP,inline:true},
               {name: "__Defense__", value:json.base.Defense, inline:true},
               {name: "__Attack__", value:json.base.Attack, inline:true},
