@@ -41,7 +41,7 @@ bot.on('ready', () => {
   Responses.sync({ force: toSync });
   Servers.sync({ force: toSync });
 	try {
-	  bot.user.setAvatar('avatar.jpg');
+	//  bot.user.setAvatar('avatar.jpg');
   } catch (e) {
     console.info('Error Setting Avatar: ' + e);
   }
