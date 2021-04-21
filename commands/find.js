@@ -14,7 +14,12 @@ module.exports = {
 	//get abilities from the json provided
 	ability=""
 	for (let i=0;i<json.profile.ability.length;i++) {
-		ability+=json.profile.ability[i][0]+"\n"
+//		ability+=json.profile.ability[i][0]+"\n"
+		if ((i+1) == json.profile.ability.length) {
+			ability+=json.profile.ability[i][0]
+		} else {
+			ability+=json.profile.ability[i][0]+", "
+		}
 	}
 
       const messageEmbed = new Discord.MessageEmbed()
@@ -24,7 +29,7 @@ module.exports = {
       .setURL("https://www.pokemon.com/us/pokedex/"+json.name.english)
       .setDescription(json.description)
       .setThumbnail(he.decode(json.hires))
-      .addFields(
+/*      .addFields(
 	      {name: "__Species__", value: json.species, inline: true},
 	      {name: "__Type__", value: json.type, inline: true},
 	      {name: "__Ability__", value: ability, inline: true},
@@ -34,7 +39,17 @@ module.exports = {
               {name: "__Sp. Attack__", value: json.base['Sp. Attack'], inline: true},
               {name: "__Sp. Defense__", value: json.base['Sp. Defense'], inline: true},
               {name: "__Speed__", value: json.base.Speed, inline: true}
-      )
+      )*/
+      .addField("\u200b",
+		"__Species:__ "+json.species+
+		"\n__Type:__ "+json.type+
+		"\n__Ability:__"+ability+
+	      	"\n__HP:__"+json.base.HP+
+              	"\n__Defense:__"+json.base.Defense+
+              	"\n__Attack:__"+json.base.Attack+
+              	"\n__Sp. Attack:__"+json.base+
+              	"\n__Sp. Defense:__"+json.base+
+              	"\n__Speed:__"+json.base.Speed)
       .setFooter("Pokemon data provided by: https://purukitto.github.io/pokemon-api/")
         message.channel.send(messageEmbed);
     }
