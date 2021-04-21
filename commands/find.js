@@ -26,8 +26,8 @@ module.exports = {
       .setDescription(json.description)
       .setImage(he.decode(json.hires))
       .addFields(
-	      {name:"Species",value:json.species,inline:true},
-	      {name:"Type",value:json.type,inline:true},
+	      {name:"**Species**",value:json.species,inline:true},
+	      {name:"**Type**",value:json.type,inline:true},
 	      {name:"Ability",value:ability,inline:true},
 	      {name:"HP",value:json.base.HP,inline:true},
               {name:"Defense",value:json.base.Defense,inline:true},
