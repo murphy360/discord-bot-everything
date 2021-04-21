@@ -31,7 +31,7 @@ module.exports = {
       .setThumbnail(he.decode(json.hires))
       .addFields(
 	      {name: "__Species__", value: "`"+json.species+"`", inline: true},
-	      {name: "__Type__", value: "`"+json.type+"`", inline: true},
+	      {name: "__Type__", value: "`"+json.type.replace(",","`\n`")+"`", inline: true},
 	      {name: "__Ability__", value: "`"+ability+"`", inline: true},
 	      {name: "__HP__", value: "`"+json.base.HP+"`", inline: true},
               {name: "__Defense__", value: "`"+json.base.Defense+"`", inline: true},
@@ -40,15 +40,6 @@ module.exports = {
               {name: "__Sp. Defense__", value: "`"+json.base['Sp. Defense']+"`", inline: true},
               {name: "__Speed__", value: "`"+json.base.Speed+"`", inline: true}
       )
-      .addField("__Species:__"+json.species,
-		"__Type:__ `"+json.type+"`"+
-		"\n__Ability:__ `"+ability+"`"+
-	      	"\n__HP:__ `"+json.base.HP+"`"+
-              	"\n__Defense:__ `"+json.base.Defense+"`"+
-              	"\n__Attack:__ `"+json.base.Attack+"`"+
-              	"\n__Sp. Attack:__ `"+json.base['Sp. Attack']+"`"+
-              	"\n__Sp. Defense:__ `"+json.base['Sp. Defense']+"`"+
-              	"\n__Speed:__ `"+json.base.Speed+"`")
       .setFooter("Pokemon data provided by: https://purukitto.github.io/pokemon-api/")
         message.channel.send(messageEmbed);
     }
