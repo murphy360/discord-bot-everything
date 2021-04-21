@@ -40,12 +40,13 @@ module.exports = {
 	      {name: "__Species__", value: "`  "+json.species+"  `"},
 	      {name: "__Type__", value: "`  "+type+"  `", inline: true},
 	      {name: "__Ability__", value: "`  "+ability+"  `", inline: true},
-	      {name: "__HP__", value: "`  "+json.base.HP+"  `", inline: true},
+	      {name: "\u200b", value: "\u200b", inline: true},
               {name: "__Defense__", value: "`  "+json.base.Defense+"  `", inline: true},
               {name: "__Attack__", value: "`  "+json.base.Attack+"  `", inline: true},
               {name: "__Speed__", value: "`  "+json.base.Speed+"  `", inline: true},
               {name: "__Sp. Attack__", value: "`  "+json.base['Sp. Attack']+"  `", inline: true},
-              {name: "__Sp. Defense__", value: "`  "+json.base['Sp. Defense']+"  `", inline: true}
+              {name: "__Sp. Defense__", value: "`  "+json.base['Sp. Defense']+"  `", inline: true},
+	      {name: "__HP__", value: "`  "+json.base.HP+"  `", inline: true},
       )
       .setFooter("Pokemon data provided by: https://purukitto.github.io/pokemon-api/")
         message.channel.send(messageEmbed);
