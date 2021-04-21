@@ -37,18 +37,18 @@ module.exports = {
       .setDescription(json.description)
       .setThumbnail(he.decode(json.hires))
       .addFields(
-	      {name: "__Species__", value: "`  "+json.species+"  `"},
+	      {name: "__**Species**__", value: "`  "+json.species+"  `"},
 	      {name: "__Type__", value: "`  "+type+"  `", inline: true},
-	      {name: "__Ability__", value: "`  "+ability+"  `", inline: true},
+	      {name: "__**Ability**__", value: "`  "+ability+"  `", inline: true},
 	      {name: "\u200b", value: "\u200b", inline: true},
-	      {name: "__HP__", value: "`  "+json.base.HP+"  `", inline: true},
-	      {name: "__Speed__", value: "`  "+json.base.Speed+"  `", inline: true},
+	      {name: "__**HP**__", value: "`  "+json.base.HP+"  `", inline: true},
+	      {name: "__**Speed**__", value: "`  "+json.base.Speed+"  `", inline: true},
 	      {name: "\u200b", value: "\u200b", inline: true},
-              {name: "__Defense__", value: "`  "+json.base.Defense+"  `", inline: true},
-              {name: "__Attack__", value: "`  "+json.base.Attack+"  `", inline: true},
+              {name: "__**Defense**__", value: "`  "+json.base.Defense+"  `", inline: true},
+              {name: "__**Attack**__", value: "`  "+json.base.Attack+"  `", inline: true},
 	      {name: "\u200b", value: "\u200b", inline: true},
-              {name: "__Sp. Attack__", value: "`  "+json.base['Sp. Attack']+"  `", inline: true},
-              {name: "__Sp. Defense__", value: "`  "+json.base['Sp. Defense']+"  `", inline: true},
+              {name: "__**Sp. Attack**__", value: "`  "+json.base['Sp. Attack']+"  `", inline: true},
+              {name: "__**Sp. Defense**__", value: "`  "+json.base['Sp. Defense']+"  `", inline: true},
 	      {name: "\u200b", value: "\u200b", inline: true}
       )
       .setFooter("Pokemon data provided by: https://purukitto.github.io/pokemon-api/")
