@@ -6,7 +6,7 @@ const Reactions=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
 
 class Round {
     
-    constructor(question, round_num, channel) {
+    constructor(game_id, question, round_num, channel) {
         this.winner = null;
         this.players = null;
         this.question = question;
@@ -16,6 +16,7 @@ class Round {
         this.timer = null;
         this.stated_at = null;
         this.responses = new Array();
+        this.parent_game = game_id;
     }
     
     play() {
