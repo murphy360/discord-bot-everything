@@ -67,7 +67,7 @@ class Question {
     // Display Question in the given Discord channel
     display(channel) {
         this.displayed_at = Date.now();
-        channel.send(this.embed);
+        return channel.send(this.embed);
     }
 }
 
