@@ -18,13 +18,13 @@ module.exports = {
 	}
 
       const messageEmbed = new Discord.MessageEmbed()
-      .setColor('#ffcb05')      // Changed the color to the Pokemon yellow (just for fun)
+      .setColor(FIND_COLOR)      // Changed the color to the Pokemon yellow (just for fun)
       .setAuthor('Found in the wild!')
       //.addFields({name: 'Type', json.type})
       .setTitle(json.name.english)
       .setURL("https://www.pokemon.com/us/pokedex/"+json.name.english)
       .setDescription(json.description)
-      .setImage(he.decode(json.hires))
+      .setThumbnail(he.decode(json.hires))
       .addFields(
 	      {name:"__Species__",value:json.species,inline:true},
 	      {name:"__Type__",value:json.type,inline:true},
