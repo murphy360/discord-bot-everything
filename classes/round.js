@@ -1,6 +1,7 @@
 const Question = require('./question.js');
 const Timer = require('./timer.js');
 const Response = require('./response.js');
+const Participant = requre('./participant.js');
 const Discord = require('Discord');
 const Reactions = [
     '\u0031\u20E3',     // :one: 
@@ -11,23 +12,25 @@ const Reactions = [
 class Round {
     
     constructor(game_id, question, round_num, channel) {
-        this.winner = null;
-        this.players = null;
-        this.question = question;
-        this.channel = channel;
-        this.question_message = null;
-        this.time = 60;
-        this.timer = null;
-        this.stated_at = null;
-        this.responses = new Array();
-        this.parent_game = game_id;
+        this.winner = null;                         // winning participant
+        this.participants = null;                   // round participants
+        this.question = question;                   // this round's question
+        this.channel = channel;                     // trivia game channel
+        this.question_message = null;               // reference to the question message
+        this.time = this.getQuestionTime();         // time length to display question
+        this.timer = null;                          // reference to timer
+        this.stated_at = null;                      // time the round started
+        this.responses = new Array();               // participant responses
+        this.parent_game = game_id;                 // parent game id
     }
     
     play() {
         this.started_at = Date.now();
         this.channel.send('Round ' + round_num + ' starting');
         this.presentQuestion();
-        this.collectUserReactions();       
+        this.collectUserReactions();
+        this.end();
+        return this.winner;
     }
     
     presentQuestion() {
@@ -39,31 +42,30 @@ class Round {
         }
         
         this.timer = new Timer.Timer(this.time,5,this.channel,'Time Remaining').start();
-        
     }
     
     collectUserReactions() {
         // use collector and filters
     }
     
-    getQuestionTimeLength() {
+    getQuestionTime() {
+        let time = 0;
         switch (this.question.difficulty) {
             case 'easy': 
-                this.time = 30;
+                time = 30;
                 break;
             case 'medium': 
-                this.time = 45;
+                time = 45;
                 break;
             default: 
-                this.time = 60;
+                time = 60;
                 break;
         }
+        
+        return time;
     }
     
     end() {
-    }
-    
-    logRound() {
     }
     
     getWinner() {
