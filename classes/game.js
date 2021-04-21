@@ -41,4 +41,10 @@ class Game {
         }
     }
 
+    logGame() {
+        // Add sequelize code to store game results in database
+    }
+	
 }
+
+module.exports.Game = Game;
