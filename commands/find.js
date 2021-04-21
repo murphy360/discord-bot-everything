@@ -26,15 +26,15 @@ module.exports = {
       .setDescription(json.description)
       .setImage(he.decode(json.hires))
       .addFields(
-	      {name:"**Species**",value:json.species,inline:true},
-	      {name:"**Type**",value:json.type,inline:true},
-	      {name:"Ability",value:ability,inline:true},
-	      {name:"HP",value:json.base.HP,inline:true},
-              {name:"Defense",value:json.base.Defense,inline:true},
-              {name:"Attack",value:json.base.Attack,inline:true},
-              {name:"Sp. Attack",value:json.base['Sp. Attack'],inline:true},
-              {name:"Sp. Defense",value:json.base['Sp. Defense'],inline:true},
-              {name:"Speed",value:json.base.Speed,inline:true},
+	      {name:"__Species__",value:json.species,inline:true},
+	      {name:"__Type__",value:json.type,inline:true},
+	      {name:"__Ability__",value:ability,inline:true},
+	      {name:"__HP__",value:json.base.HP,inline:true},
+              {name:"__Defense__",value:json.base.Defense,inline:true},
+              {name:"__Attack__",value:json.base.Attack,inline:true},
+              {name:"__Sp. Attack__",value:json.base['Sp. Attack'],inline:true},
+              {name:"__Sp. Defense__",value:json.base['Sp. Defense'],inline:true},
+              {name:"__Speed__",value:json.base.Speed,inline:true},
       )
       .setFooter("Pokemon data provided by: https://purukitto.github.io/pokemon-api/")
         message.channel.send(messageEmbed);
