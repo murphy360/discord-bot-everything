@@ -7,12 +7,12 @@ class Timer {
                    'Fin.'
                   ];                                    // Random sayings to display upon expiration of the timer
 
-    constructor(time_len, interval_sec, message,  text) {
+    constructor(time_len, interval_sec, channel,  text) {
         this.ID;                                        // Timer ID
         this.MAX_TIME = Math.floor(time_len);           // Length of the initial timer in Seconds
         this.DEC_INTV = Math.floor(interval_sec);       // Value to decrement the timer by in Seconds
         this.INTV_LEN = Math.floor(interval_sec) * 1000;// Interval length to pass to setTimeout
-        this.CHANNEL = message.channel;                 // Channel in which the trivia game is running
+        this.CHANNEL = channel;                         // Channel in which the trivia game is running
         this.DISP_TEXT = text;                          // Text to display with the progress bar
 
         this.timeLeft = Math.floor(time_len);           // Time remaining for the timer
