@@ -16,7 +16,6 @@ This code base was forked from [https://github.com/sitepoint-editors/discord-bot
 - [Youtube Download Core](https://github.com/fent/node-ytdl-core) `npm install --save ytdl-core`
 - [OPUS Script](https://github.com/abalabahaha/opusscript) `npm install --save opusscript`
 - [Node Fetch](https://github.com/node-fetch/node-fetch) `npm install --save node-fetch`
-- [Random Greetings](https://github.com/hafffe/greetings) `npm install --save greetings`
 - [Node Sqlite](https://github.com/kriasoft/node-sqlite) `npm install --save sqlite`
 
 ## Installation Steps (if applicable)
