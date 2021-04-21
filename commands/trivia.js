@@ -617,13 +617,10 @@ module.exports = {
 			var numRounds = args[2];
 
 			console.info('Round: ' + numRounds);
-		
-			console.info('Round: ' + numRounds); 
+
 			const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
 			var triviaObj = JSON.parse(file);
 			numRounds--;
-			
-			console.info(triviaObj);
 		
 			intro();
 
