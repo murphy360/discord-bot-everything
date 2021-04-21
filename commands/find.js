@@ -38,7 +38,7 @@ module.exports = {
       .setThumbnail(he.decode(json.hires))
       .addFields(
 	      {name: "__**Species**__", value: "`  "+json.species+"  `"},
-	      {name: "__Type__", value: "`  "+type+"  `", inline: true},
+	      {name: "__**Type**__", value: "`  "+type+"  `", inline: true},
 	      {name: "__**Ability**__", value: "`  "+ability+"  `", inline: true},
 	      {name: "\u200b", value: "\u200b", inline: true},
 	      {name: "__**HP**__", value: "`  "+json.base.HP+"  `", inline: true},
