@@ -14,7 +14,7 @@ class Game {
         this.players = new Array();
         this.created_on = Date.now();
         this.current_round = 0;
-	    this.started_by = ""
+		this.started_by = ""
     }
     
     storeGame() {
@@ -45,8 +45,19 @@ class Game {
         for (this.current_round = 0; this.current_round < this.total_rounds; this.current_round++) {
             this.rounds[this.current_round].play(channel);
         }
+		this.end();
     }
 
+	end() {
+		// Display final scoreboard
+		this.logGame();
+	}
+	
+	cancel() {
+		// Cancel game if requested by user
+		this.logGame();
+	}
+	
     logGame() {
         // post game update of the game data in sequelize database
     }
