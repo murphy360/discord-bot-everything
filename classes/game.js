@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 class Game {
      
     constructor(channel, num_rounds) {
-        this.ID;
+        this.ID = this.storeGame();
         this.total_rounds = num_rounds;
         this.questions = this.createQuestions();
         this.rounds = this.createRounds();
@@ -14,6 +14,12 @@ class Game {
         this.players = new Array();
         this.created_on = Date.now();
         this.current_round = 0;
+	    this.started_by = ""
+    }
+    
+    storeGame() {
+        // Store game in database using sequelize
+        // return database id
     }
     
     createQuestions() {
@@ -30,7 +36,7 @@ class Game {
     createRounds() {
         Rnds = new Array();
         for (let i = 0; i < this.total_rounds; i++) {
-            Rnds[i] = new Round(this.questions[i], (i + 1));
+            Rnds[i] = new Round(this.ID, this.questions[i], (i + 1));
         }
         return Rnds;
     }
@@ -42,7 +48,7 @@ class Game {
     }
 
     logGame() {
-        // Add sequelize code to store game results in database
+        // post game update of the game data in sequelize database
     }
 	
 }
