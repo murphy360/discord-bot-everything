@@ -1,5 +1,6 @@
 const Question = require('./question.js');
 const Timer = require('./timer.js');
+const Response = require('./response.js');
 const Discord = require('Discord');
 const Reactions=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
 
@@ -14,6 +15,7 @@ class Round {
         this.time = 60;
         this.timer = null;
         this.stated_at = null;
+        this.responses = new Array();
     }
     
     play() {
