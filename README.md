@@ -14,7 +14,6 @@ This code base was forked from [https://github.com/sitepoint-editors/discord-bot
 - [Sequelize](https://sequelize.org) `npm install --save sequelize`
 - [HTML Entities](https://github.com/mathiasbynens/he) `npm install --save he`
 - [Youtube Download Core](https://github.com/fent/node-ytdl-core) `npm install --save ytdl-core`
-- [OPUS Script](https://github.com/abalabahaha/opusscript) `npm install --save opusscript`
 - [Node Fetch](https://github.com/node-fetch/node-fetch) `npm install --save node-fetch`
 - [Node Sqlite](https://github.com/kriasoft/node-sqlite) `npm install --save sqlite`
 
