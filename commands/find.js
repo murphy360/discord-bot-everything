@@ -14,11 +14,18 @@ module.exports = {
 	//get abilities from the json provided
 	ability=""
 	for (let i=0;i<json.profile.ability.length;i++) {
-//		ability+=json.profile.ability[i][0]+"\n"
 		if ((i+1) == json.profile.ability.length) {
 			ability+=json.profile.ability[i][0]
 		} else {
 			ability+=json.profile.ability[i][0]+"`\n`"
+		}
+	}
+	type=""
+	for (let i=0;i<json.type.length;i++) {
+		if ((i+1) == json.type.length) {
+			type+=json.type[i]
+		} else {
+			type+=json.type[i]+"`\n`"
 		}
 	}
 
@@ -31,7 +38,7 @@ module.exports = {
       .setThumbnail(he.decode(json.hires))
       .addFields(
 	      {name: "__Species__", value: "`"+json.species+"`", inline: true},
-	      {name: "__Type__", value: "`"+json.type.replace(",","`\n`")+"`", inline: true},
+	      {name: "__Type__", value: "`"+type+"`", inline: true},
 	      {name: "__Ability__", value: "`"+ability+"`", inline: true},
 	      {name: "__HP__", value: "`"+json.base.HP+"`", inline: true},
               {name: "__Defense__", value: "`"+json.base.Defense+"`", inline: true},
