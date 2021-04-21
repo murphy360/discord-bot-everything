@@ -4,7 +4,6 @@ const HE = require('he');
 class Question {
     
     constructor(questionData, q_num) {
-        this.Q_ID;                                                          // Question ID
         this.question = this.cleanText(questionData.question);              // Question Text
         this.answer = this.cleanText(questionData.correct_answer);          // Answer to the Question
         this.choices = this.createChoices(questionData.incorrect_answers);  // Array of Choices (incorrect and correct answers)
@@ -16,6 +15,13 @@ class Question {
         this.embed = this.createQuestionEmbed(q_num);                       // Discord Message Embed for the Question
         this.displayed_at = null;                                           // Date/Time the Question was Displayed in the Channel
         this.correct_choice = this.findCorrectChoice();                     // Integer value indicating correct answer in Choices Array
+        this.ID = this.storeQuestion();                                     // Question ID
+    }
+    
+    storeQuestion() {
+        // store of find question in database
+        // if question exists, increment times_asked counter
+        // return question id
     }
     
     // Create choice array
