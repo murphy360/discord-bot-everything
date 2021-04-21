@@ -17,7 +17,7 @@ module.exports = {
 		if ((i+1) == json.profile.ability.length) {
 			ability+=json.profile.ability[i][0]
 		} else {
-			ability+=json.profile.ability[i][0]+"`\n`"
+			ability+=json.profile.ability[i][0]+"  `\n`  "
 		}
 	}
 	type=""
@@ -25,7 +25,7 @@ module.exports = {
 		if ((i+1) == json.type.length) {
 			type+=json.type[i]
 		} else {
-			type+=json.type[i]+"`\n`"
+			type+=json.type[i]+"  `\n`  "
 		}
 	}
 
@@ -37,15 +37,15 @@ module.exports = {
       .setDescription(json.description)
       .setThumbnail(he.decode(json.hires))
       .addFields(
-	      {name: "__Species__", value: "`"+json.species+"`", inline: true},
-	      {name: "__Type__", value: "`"+type+"`", inline: true},
-	      {name: "__Ability__", value: "`"+ability+"`", inline: true},
-	      {name: "__HP__", value: "`"+json.base.HP+"`", inline: true},
-              {name: "__Defense__", value: "`"+json.base.Defense+"`", inline: true},
-              {name: "__Attack__", value: "`"+json.base.Attack+"`", inline: true},
-              {name: "__Sp. Attack__", value: "`"+json.base['Sp. Attack']+"`", inline: true},
-              {name: "__Sp. Defense__", value: "`"+json.base['Sp. Defense']+"`", inline: true},
-              {name: "__Speed__", value: "`"+json.base.Speed+"`", inline: true}
+	      {name: "__Species__", value: "`  "+json.species+"  `", inline: true},
+	      {name: "__Type__", value: "`  "+type+"  `", inline: true},
+	      {name: "__Ability__", value: "`  "+ability+"  `", inline: true},
+	      {name: "__HP__", value: "`  "+json.base.HP+"  `", inline: true},
+              {name: "__Defense__", value: "`  "+json.base.Defense+"  `", inline: true},
+              {name: "__Attack__", value: "`  "+json.base.Attack+"  `", inline: true},
+              {name: "__Sp. Attack__", value: "`  "+json.base['Sp. Attack']+"  `", inline: true},
+              {name: "__Sp. Defense__", value: "`  "+json.base['Sp. Defense']+"  `", inline: true},
+              {name: "__Speed__", value: "`  "+json.base.Speed+"  `", inline: true}
       )
       .setFooter("Pokemon data provided by: https://purukitto.github.io/pokemon-api/")
         message.channel.send(messageEmbed);
