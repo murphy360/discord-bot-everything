@@ -24,7 +24,7 @@ module.exports = {
       .setTitle(json.name.english)
       .setURL("https://www.pokemon.com/us/pokedex/"+json.name.english)
       .setDescription(json.description)
-      .steImage(he.decode(json.hires))
+      .setImage(he.decode(json.hires))
       .addFields(
 	      {name:"Species",value:json.species,inline:true},
 	      {name:"Type",value:json.type,inline:true},
