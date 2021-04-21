@@ -1,27 +1,44 @@
 const Question = require('./question.js');
+const Rounds = require('./round.js');
 const fetch = require('node-fetch');
+
 class Game {
-   
-  
+     
     constructor(channel, num_rounds) {
         this.ID;
         this.total_rounds = num_rounds;
-        this.Questions = this.createQuestions();
+        this.questions = this.createQuestions();
+        this.rounds = this.createRounds();
         this.channel = channel;
-        this.trivia_object = this.fetchObject()
-    }
-    
-    fetchObject() {
-        const file = await fetch('https://opentdb.com/api.php?amount='+this.toal_rounds).then(response => response.text());
-	    retrun JSON.parse(file);
+        this.winner = null;
+        this.players = new Array();
+        this.created_on = Date.now();
+        this.current_round = 0;
     }
     
     createQuestions() {
+        const file = fetch('https://opentdb.com/api.php?amount='+this.total_rounds).then(response => response.text());
+	    let json = JSON.parse(file);
+	    
         Qs = new Array()
         for (let i = 0; i < this.total_rounds; i++) {
-            Qs[i] = new Question(, i+1);
+            Qs[i] = new Question(json.results[i], (i + 1));
         }
         return Qs;
+    }
+    
+    createRounds() {
+        Rnds = new Array();
+        for (let i = 0; i < this.total_rounds; i++) {
+            Rnds[i] = new Round(this.questions[i], (i + 1));
+        }
+        return Rnds;
+    }
+    
+    start(channel) {
+        for (this.current_round = 0; this.current_round < this.total_rounds; this.current_round++) {
+            this.rounds[this.current_round].play(channel);
+        }
     }
 
 }
