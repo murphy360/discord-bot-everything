@@ -2,7 +2,11 @@ const Question = require('./question.js');
 const Timer = require('./timer.js');
 const Response = require('./response.js');
 const Discord = require('Discord');
-const Reactions=['\u0031\u20E3', '\u0032\u20E3','\u0033\u20E3','\u0034\u20E3'];
+const Reactions = [
+    '\u0031\u20E3',     // :one: 
+    '\u0032\u20E3',     // :two:
+    '\u0033\u20E3',     // :three:
+    '\u0034\u20E3'];    // :four:
 
 class Round {
     
