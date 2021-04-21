@@ -18,7 +18,7 @@ module.exports = {
 		if ((i+1) == json.profile.ability.length) {
 			ability+=json.profile.ability[i][0]
 		} else {
-			ability+=json.profile.ability[i][0]+", "
+			ability+=json.profile.ability[i][0]+"`,`"
 		}
 	}
 
@@ -41,14 +41,14 @@ module.exports = {
               {name: "__Speed__", value: json.base.Speed, inline: true}
       )*/
       .addField("__Species:__"+json.species,
-		"`__Type:__"+json.type+
-		"\n__Ability:__"+ability+
-	      	"\n__HP:__"+json.base.HP+
-              	"\n__Defense:__"+json.base.Defense+
-              	"\n__Attack:__"+json.base.Attack+
-              	"\n__Sp. Attack:__"+json.base['Sp. Attack']+
-              	"\n__Sp. Defense:__"+json.base['Sp. Defense']+
-              	"\n__Speed:__"+json.base.Speed+"`")
+		"__Type:__ `"+json.type+"`"+
+		"\n__Ability:__ `"+ability+"`"+
+	      	"\n__HP:__ `"+json.base.HP+"`"+
+              	"\n__Defense:__ `"+json.base.Defense+"`"+
+              	"\n__Attack:__ `"+json.base.Attack+"`"+
+              	"\n__Sp. Attack:__ `"+json.base['Sp. Attack']+"`"+
+              	"\n__Sp. Defense:__ `"+json.base['Sp. Defense']+"`"+
+              	"\n__Speed:__ `"+json.base.Speed+"`")
       .setFooter("Pokemon data provided by: https://purukitto.github.io/pokemon-api/")
         message.channel.send(messageEmbed);
     }
