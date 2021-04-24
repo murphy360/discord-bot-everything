@@ -44,6 +44,7 @@ bot.on('ready', () => {
   Servers.sync({ force: toSync });
   Workouts.sync({ force: toSync });
   ExerciseSets.sync({ force: toSync });
+  Exercises.sync({ force: toSync });
 //  bot.user.setAvatar('avatar.jpg');
 });
 
