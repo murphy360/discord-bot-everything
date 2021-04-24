@@ -1,4 +1,4 @@
-const Exercise = require('./../classes/exercise.js');
+const { Exercise } = require('./../classes/exercise.js');
 
 
 const Sequelize = require('sequelize');
