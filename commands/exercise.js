@@ -49,9 +49,31 @@ module.exports = {
       let exerciseImage = args[5].toLowerCase()
 			this.MESSAGE.channel.send("Sorry, remove is not a current functio, but we're thinking about it...")
     } else if (subCommand === 'list') {
-      
+              // Send a message with all exercises 
+              Exercises.findAll().then(exerciseDbObjectsList => {
+                let exerciseListString
+                if (exerciseDbObjectsList === null) {
+                    //first time user on this bot
+                    this.MESSAGE.channel.send('No Exercises exist - null')
+                } else if (exerciseDbObjectsList.length === 0 ) {
+                  this.MESSAGE.channel.send('No Exercises exist - 0')
+                }else {
+                    console.info(exerciseDbObjectsList.count + ' Exercises already reside on the server')
+                    for (let i = 0; i < exerciseDbObjectsList.length ; i++) {
+                        exerciseListString += exerciseDbObjectsList[i].exercise_name + ": " + exerciseDbObjectsList[i].exercise_description + "\n"
+                    }
+            
+                    const exerciseListMessage = new Discord.MessageEmbed()
+                                        .setTitle("Available Exercises")
+                                        .setColor(this.color)
+                                        .setDescription("Below are a list of available exercises, message an admin to have new Exercises Added")
+                                        //.setThumbnail(this.icon)
+                                        
+                                        this.MESSAGE.channel.send(exerciseListMessage)	
+                }
+            });
      
-      Exercise.Exercise.listExercises(this.MESSAGE)
+      
     }
   
   },
