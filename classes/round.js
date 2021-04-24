@@ -1,7 +1,7 @@
-const Question = require('./question.js');
-const Timer = require('./timer.js');
-const Response = require('./response.js');
-const Participant = requre('./participant.js');     // Need to create
+const { Question } = require('./question.js');
+const { Timer } = require('./timer.js');
+const { Response } = require('./response.js');
+const { Participant } = requre('./participant.js');     // Need to create
 const Discord = require('Discord');
 const Reactions = [
     '\u0031\u20E3',     // :one: 
@@ -41,7 +41,7 @@ class Round {
             this.question_message.react(Reactions[i]);
         }
         
-        this.timer = new Timer.Timer(this.time,5,this.channel,'Time Remaining').start();
+        this.timer = new Timer(this.time,5,this.channel,'Time Remaining').start();
     }
     
     collectUserReactions() {
