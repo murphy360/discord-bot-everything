@@ -53,7 +53,13 @@ class Workout {
                     console.info("Exercise length: " + this.EXERCISES.length)
                 }
             })
-        }                
+        } 
+        if (this.isValid) {
+            this.messageWorkoutDetails()
+            this.startWorkout()
+          } else { 
+            this.MESSAGE.channel.send('The Workout is not valid')
+          }               
     }
 
 	/*** Log Workout: save reference to thisworkout to db ***/
