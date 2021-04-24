@@ -59,9 +59,8 @@ module.exports = {
                   this.MESSAGE.channel.send('No Exercises exist - 0')
                 }else {
                     console.info(exerciseDbObjectsList.length + ' Exercises already reside on the server')
-                    for (let i = 0; i < exerciseDbObjectsList.length ; i++) {
-                        exerciseListString += exerciseDbObjectsList[i].exercise_name + ": " + exerciseDbObjectsList[i].exercise_description + "\n"
-                    }
+                    exerciseDbObjectsList.every(exercise => exerciseListString += exercise.exercise_name + ": " + exercise.exercise_description + "\n")
+                    
             
                     const exerciseListMessage = new Discord.MessageEmbed()
                                         .setTitle("Available Exercises")
