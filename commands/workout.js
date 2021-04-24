@@ -13,13 +13,7 @@ module.exports = {
     let workout = new Workout(msg, args);
     console.info("Workout command post new Workout")
 
-    if (workout.isValid) {
-      workout.messageWorkoutDetails()
-      
-      workout.startWorkout()
-    } else { 
-      msg.channel.send('The Workout is not valid')
-    }
+   
     	  
   },
 };
