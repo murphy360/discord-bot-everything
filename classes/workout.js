@@ -33,19 +33,7 @@ class Workout {
         this.INTERVAL
         this.intervalTime = (this.setTime * 60) * 1000
         this.icon='https://previews.123rf.com/images/kongvector/kongvector2003/kongvector200300022/141391692-independence-day-drum-mascot-icon-on-fitness-exercise-trying-barbells-vector-illustration.jpg'
-        this.currentSet=0    
-        
-        await this.createExerciseList(args)
-
-        if (this.isValid) {
-            this.messageWorkoutDetails()
-            this.startWorkout()
-          } else { 
-            this.MESSAGE.channel.send('The Workout is not valid')
-          }               
-    }
-
-    async createExerciseList(args) {
+        this.currentSet=0                     
         for (let i = 4; i < args.length ; i+=2) {
             
             console.info("Workout Class For Loop: " + args[i])
@@ -66,7 +54,9 @@ class Workout {
                 }
             })
         } 
+                 
     }
+    
 
 	/*** Log Workout: save reference to thisworkout to db ***/
     async logWorkout() {
