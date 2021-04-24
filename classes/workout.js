@@ -34,6 +34,11 @@ class Workout {
         this.intervalTime = (this.setTime * 60) * 1000
         this.icon='https://previews.123rf.com/images/kongvector/kongvector2003/kongvector200300022/141391692-independence-day-drum-mascot-icon-on-fitness-exercise-trying-barbells-vector-illustration.jpg'
         this.currentSet=0                     
+        
+                 
+    }
+    
+    async buildExerciseList(args) {
         for (let i = 4; i < args.length ; i+=2) {
             
             console.info("Workout Class For Loop: " + args[i])
@@ -41,11 +46,11 @@ class Workout {
                 if ( response === null) {
                     this.MESSAGE.channel.send("Not all exercises are valid: " + args[i] + '! \n Add it Through the Add Exercise Command')
                     this.isValid=false
-                    return
+                    return false
                 } else if(isNaN(args[i+1])) { 
                     this.MESSAGE.channel.send("Reps aren't valid for " + args[i] + '! ' + args[i+1])
                     this.isValid=false
-                    return
+                    return false
                 } else {
                     let exercise = new Exercise(response.exercise_name, response.exercise_description, response.exercise_image, this.MESSAGE)
                     exercise.setReps(args[i+1])
@@ -54,9 +59,8 @@ class Workout {
                 }
             })
         } 
-                 
+        return true
     }
-    
 
 	/*** Log Workout: save reference to thisworkout to db ***/
     async logWorkout() {
