@@ -7,6 +7,9 @@ module.exports = (sequelize, Sequelize) => {
 		exercise_id: {
 			type: Sequelize.STRING,
 		},
+		exercise_name: {
+			type: Sequelize.STRING,
+		},
 		description: {
 			type: Sequelize.STRING,
 		},
