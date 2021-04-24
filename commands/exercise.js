@@ -58,7 +58,7 @@ module.exports = {
                 } else if (exerciseDbObjectsList.length === 0 ) {
                   this.MESSAGE.channel.send('No Exercises exist - 0')
                 }else {
-                    console.info(exerciseDbObjectsList.count + ' Exercises already reside on the server')
+                    console.info(exerciseDbObjectsList.length + ' Exercises already reside on the server')
                     for (let i = 0; i < exerciseDbObjectsList.length ; i++) {
                         exerciseListString += exerciseDbObjectsList[i].exercise_name + ": " + exerciseDbObjectsList[i].exercise_description + "\n"
                     }
@@ -68,7 +68,10 @@ module.exports = {
                                         .setColor(this.color)
                                         .setDescription("Below are a list of available exercises, message an admin to have new Exercises Added")
                                         //.setThumbnail(this.icon)
-                                        
+                                        .addField(
+                                          {name: "Exercise", value: exerciseListString, inline: true},
+                                          //{name: "Reps", value: repString, inline: true}
+                                        )
                                         this.MESSAGE.channel.send(exerciseListMessage)	
                 }
             });
