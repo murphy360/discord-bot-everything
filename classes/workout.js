@@ -54,7 +54,7 @@ class Workout {
                     return false
                 } else {
                     
-                    console.info("Exercise length: " + this.EXERCISES.length)
+                    console.info("Exercise length: " + this.EXERCISES.length + " " + response.exercise_name)
                     let exercise = new Exercise(response.exercise_name, response.exercise_description, response.exercise_image, this.MESSAGE)
                     exercise.setReps(args[i+1])
                     this.EXERCISES.push(exercise)
