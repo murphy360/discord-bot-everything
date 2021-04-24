@@ -51,7 +51,7 @@ module.exports = {
     } else if (subCommand === 'list') {
       
      
-      Exercise.listExercises(this.MESSAGE)
+      Exercise.Exercise.listExercises(this.MESSAGE)
     }
   
   },
