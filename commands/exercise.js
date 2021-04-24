@@ -51,7 +51,7 @@ module.exports = {
     } else if (subCommand === 'list') {
               // Send a message with all exercises 
               Exercises.findAll().then(exerciseDbObjectsList => {
-                let exerciseListString
+                let exerciseListString = ''
                 if (exerciseDbObjectsList === null) {
                     //first time user on this bot
                     this.MESSAGE.channel.send('No Exercises exist - null')
