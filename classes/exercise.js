@@ -1,6 +1,7 @@
 class Exercise {
  
-    constructor(exerciseName, exerciseDescription, exerciseImage, discordMessage) {
+    constructor(exerciseId, exerciseName, exerciseDescription, exerciseImage, discordMessage) {
+        this.id=exerciseId
         this.name=exerciseName                          // Name of Exercise
         this.description=exerciseDescription            // Short Description of Exercise
         this.image=exerciseImage                        //optional 

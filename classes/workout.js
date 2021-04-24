@@ -37,8 +37,8 @@ class Workout {
         for (let i = 4; i < args.length ; i+=2) {
             
             console.info("Workout Class For Loop: " + args[i])
-            this.getExercise(args[i]).then(exercise => {
-                if ( exercise === null) {
+            this.getExercise(args[i]).then(response => {
+                if ( response === null) {
                     discordMessage.channel.send("Not all exercises are valid: " + args[i] + '! \n Add it Through the Add Exercise Command')
                     this.isValid=false
                     return
@@ -47,12 +47,12 @@ class Workout {
                     this.isValid=false
                     return
                 } else {
+                    let exercise = new Exercise(response.exercise_name, response.exercise_description, response.exercise_image, this.MESSAGE)
                     exercise.setReps(args[i+1])
                     this.EXERCISES.push(exercise)
                     console.info("Exercise length: " + this.EXERCISES.length)
                 }
             })
-           
         }                
     }
 

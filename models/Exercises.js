@@ -10,10 +10,10 @@ module.exports = (sequelize, Sequelize) => {
 		exercise_name: {
 			type: Sequelize.STRING,
 		},
-		description: {
+		exercise_description: {
 			type: Sequelize.STRING,
 		},
-		image: {
+		exercise_image: {
 			type: Sequelize.STRING,
 		}
 	}, {
