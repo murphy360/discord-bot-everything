@@ -1,5 +1,5 @@
-const Question = require('./question.js');
-const Rounds = require('./round.js');
+const { Question } = require('./question.js');
+const { Round } = require('./round.js');
 const fetch = require('node-fetch');
 
 class Game {
