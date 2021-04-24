@@ -11,7 +11,7 @@ module.exports = {
     //args[3...n] = exercises
     //args[3+1..n+1] = reps
     let workout = new Workout(msg, args)
-    await workout.buildExerciseList(args).then(valid => {
+    workout.buildExerciseList(args).then(valid => {
       if (valid) {
         console.info('isvalid')
         workout.messageWorkoutDetails()

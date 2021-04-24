@@ -62,6 +62,7 @@ class Workout {
                 }
             })
         } 
+        console.info("build ExerciseList returning true")
         return true
     }
 
