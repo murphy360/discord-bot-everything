@@ -1,5 +1,5 @@
 const { Exercise } = require('./../classes/exercise.js');
-
+const Discord = require('discord.js');
 
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize('database', 'user', 'password', {
