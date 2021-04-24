@@ -43,7 +43,7 @@ class Workout {
         for (let i = 4; i < args.length ; i+=2) {
             
             console.info("Workout Class For Loop: " + args[i])
-            this.getExercise(args[i]).then(response => {
+            await this.getExercise(args[i]).then(response => {
                 if ( response === null) {
                     this.MESSAGE.channel.send("Not all exercises are valid: " + args[i] + '! \n Add it Through the Add Exercise Command')
                     this.isValid=false
