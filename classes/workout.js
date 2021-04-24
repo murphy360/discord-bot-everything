@@ -37,7 +37,7 @@ class Workout {
         for (let i = 4; i < args.length ; i+=2) {
             
             console.info("Workout Class For Loop: " + args[i])
-            let exercise = this.getExercise(args[i])
+            let exercise = await this.getExercise(args[i])
             if ( exercise === null) {
                 discordMessage.channel.send("Not all exercises are valid: " + args[i] + '! \n Add it Through the Add Exercise Command')
                 this.isValid=false
@@ -84,7 +84,7 @@ class Workout {
         }).then(value => console.info('Set ' + value.exercise_id + ' was created in the database'));
     }
 
-    getExercise(stringName) {
+    async getExercise(stringName) {
         
         
 			//how to find a user in the db
@@ -94,7 +94,7 @@ class Workout {
 
 			//if this is the user's first time on the bot then log them. 
 			// TODO could look into checking if this is the first time on the server / if they are on other servers
-			Exercises.findOne(exerciseSearchCriteria).then(value => {
+			let exercise = await Exercises.findOne(exerciseSearchCriteria).then(value => {
 				if (value === null) {
 					//first time user on this bot
 					this.MESSAGE.channel.send("Sorry, " + stringName + " is not a current exercise, ask an admin to add it")
