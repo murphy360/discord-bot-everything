@@ -39,6 +39,7 @@ class Workout {
     }
     
     async buildExerciseList(args) {
+
         for (let i = 4; i < args.length ; i+=2) {
             
             console.info("Workout Class For Loop: " + args[i])
@@ -52,6 +53,8 @@ class Workout {
                     this.isValid=false
                     return false
                 } else {
+                    
+                    console.info("Exercise length: " + this.EXERCISES.length)
                     let exercise = new Exercise(response.exercise_name, response.exercise_description, response.exercise_image, this.MESSAGE)
                     exercise.setReps(args[i+1])
                     this.EXERCISES.push(exercise)

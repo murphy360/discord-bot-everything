@@ -13,9 +13,12 @@ module.exports = {
     let workout = new Workout(msg, args)
     await workout.buildExerciseList(args).then(valid => {
       if (valid) {
+        console.info('isvalid')
         workout.messageWorkoutDetails()
         workout.startWorkout()
       } else { 
+        
+        console.info('isNOTvalid')
         msg.channel.send('The Workout is not valid')
       }    
     })
