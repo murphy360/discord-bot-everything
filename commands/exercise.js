@@ -60,7 +60,7 @@ module.exports = {
                 }else {
                     console.info(exerciseDbObjectsList.length + ' Exercises already reside on the server')
                     console.info(exerciseDbObjectsList[0].exercise_name + " is the first one")
-                    exerciseDbObjectsList.every(exercise => exerciseListString += exercise.exercise_name + ": " + exercise.exercise_description + "\n")
+                    exerciseDbObjectsList.every(exercise => exerciseListString += exercise.exercise_name + ": " + exercise.exercise_description + ": " + exercise.exercise_image + "\n")
                     
                     console.info(exerciseListString)
             
