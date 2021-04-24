@@ -14,7 +14,7 @@ module.exports = {
   name: 'exercise',
   description: 'Adding and removing exercises',
   async execute(msg, args) {
-   
+    this.MESSAGE = msg
     let subCommand = args[2].toLowerCase()
     let exerciseName = args[3].toLowerCase()
     let exerciseDescription = args[4].toLowerCase()
