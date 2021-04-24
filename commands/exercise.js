@@ -59,18 +59,19 @@ module.exports = {
                   this.MESSAGE.channel.send('No Exercises exist - 0')
                 }else {
                     console.info(exerciseDbObjectsList.length + ' Exercises already reside on the server')
+                    console.info(exerciseDbObjectsList[0].exercise_name + " is the first one")
                     exerciseDbObjectsList.every(exercise => exerciseListString += exercise.exercise_name + ": " + exercise.exercise_description + "\n")
                     
+                    console.info(exerciseListString)
             
                     const exerciseListMessage = new Discord.MessageEmbed()
                                         .setTitle("Available Exercises")
                                         .setColor(this.color)
                                         .setDescription("Below are a list of available exercises, message an admin to have new Exercises Added")
                                         //.setThumbnail(this.icon)
-                                        .addField(
-                                          {name: "Exercise", value: exerciseListString, inline: true},
-                                          //{name: "Reps", value: repString, inline: true}
-                                        )
+                                        
+				                                .addField("Exercise ",exerciseListString)
+                                       
                                         this.MESSAGE.channel.send(exerciseListMessage)	
                 }
             });
