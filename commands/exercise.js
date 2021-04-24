@@ -30,7 +30,7 @@ module.exports = {
 				if (response === null) {
 					//first time user on this bot
 					this.MESSAGE.channel.send("Adding, " + exerciseName + "yay!")
-          await Exercises.create({
+          Exercises.create({
             exercise_name: exerciseName,
             exercise_description: exerciseDescription,
             exercise_image: exerciseImage,
