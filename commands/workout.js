@@ -10,10 +10,17 @@ module.exports = {
     //args[2] = sets
     //args[3...n] = exercises
     //args[3+1..n+1] = reps
-    let workout = new Workout(msg, args);
-    console.info("Workout command post new Workout")
+    new Workout(msg, args).then(workout => {
+      console.info("Workout command post new Workout")
 
-   
+    if (workout.isValid) {
+      workout.messageWorkoutDetails()
+      workout.startWorkout()
+    } else { 
+      msg.channel.send('The Workout is not valid')
+    }    
+    })
+     
     	  
   },
 };
