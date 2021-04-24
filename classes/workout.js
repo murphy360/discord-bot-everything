@@ -82,9 +82,10 @@ class Workout {
     }
 
     	/*** Log Game: save reference to this game to db ***/
-    async logSet(message, user, exerciseId, reps, weight) {
+    async logSet(message, user, exerciseId, reps, weight, roundNumber) {
         //Create an entry in the database for this set (you get one entry per user+round+exercise)
         ExerciseSets.create({
+            set_id: roundNumber,
             exercise_id: exerciseId,
             workout_id: this.MESSAGE.id,
             user_id: user.id,
@@ -188,7 +189,7 @@ class Workout {
 					
                     //Log a user as finishing a round
                     for (let i = 0; i < this.EXERCISES.length ; i++) {
-                        this.logSet(roundMessage, user, this.EXERCISES[i].name, this.EXERCISES[i].REPS, this.EXERCISES[i].weight)
+                        this.logSet(roundMessage, user, this.EXERCISES[i].name, this.EXERCISES[i].REPS, this.EXERCISES[i].weight, this.currentSet)
                     }
                     
                     //Give them an attaboy 

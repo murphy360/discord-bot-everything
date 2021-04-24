@@ -2,7 +2,6 @@ module.exports = (sequelize, Sequelize) => {
 	return sequelize.define('exercise_sets', {
 		set_id: {
 			type: Sequelize.STRING,
-			primaryKey: true,
 		},
 		exercise_id: {
 			type: Sequelize.STRING,

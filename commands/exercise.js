@@ -16,11 +16,12 @@ module.exports = {
   async execute(msg, args) {
     this.MESSAGE = msg
     let subCommand = args[2].toLowerCase()
-    let exerciseName = args[3].toLowerCase()
-    let exerciseDescription = args[4].toLowerCase()
-    let exerciseImage = args[5].toLowerCase()
 
     if (subCommand === "add") {
+      
+      let exerciseName = args[3].toLowerCase()
+      let exerciseDescription = args[4].toLowerCase()
+      let exerciseImage = args[5].toLowerCase()
       //how to find a user in the db
 			let exerciseSearchCriteria = { where: {
 				exercise_name: exerciseName
@@ -41,9 +42,16 @@ module.exports = {
 				}
 			});
       
-    } else if (subCommand === "remove"){
+    } else if (subCommand === "remove") {
+        
+      let exerciseName = args[3].toLowerCase()
+      let exerciseDescription = args[4].toLowerCase()
+      let exerciseImage = args[5].toLowerCase()
+			this.MESSAGE.channel.send("Sorry, remove is not a current functio, but we're thinking about it...")
+    } else if (subCommand === 'list') {
       
-					this.MESSAGE.channel.send("Sorry, remove is not a current functio, but we're thinking about it...")
+     
+      Exercise.listExercises(this.MESSAGE)
     }
   
   },
