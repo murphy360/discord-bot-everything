@@ -26,7 +26,7 @@ class Workout {
         this.coach=discordMessage.author
         this.sets=parseInt(args[2], 10)
         this.setTime=args[3]
-        this.isValid=false 
+        this.isValid=true 
         this.EXERCISES=[] 
         this.ATHLETES=[]
         this.color='FF0000'
@@ -37,19 +37,22 @@ class Workout {
         for (let i = 4; i < args.length ; i+=2) {
             
             console.info("Workout Class For Loop: " + args[i])
-            let exercise = await this.getExercise(args[i])
-            if ( exercise === null) {
-                discordMessage.channel.send("Not all exercises are valid: " + args[i] + '! \n Add it Through the Add Exercise Command')
-                this.isValid=false
-            } else if(isNaN(args[i+1])) { 
-                discordMessage.channel.send("Reps aren't valid for " + args[i] + '! ' + args[i+1])
-                this.isValid=false
-            } else {
-                this.isValid=true
-                exercise.setReps(args[i+1])
-                this.EXERCISES.push(exercise)
-                console.info("Exercise length: " + this.EXERCISES.length)
-            }
+            this.getExercise(args[i]).then(exercise => {
+                if ( exercise === null) {
+                    discordMessage.channel.send("Not all exercises are valid: " + args[i] + '! \n Add it Through the Add Exercise Command')
+                    this.isValid=false
+                    return
+                } else if(isNaN(args[i+1])) { 
+                    discordMessage.channel.send("Reps aren't valid for " + args[i] + '! ' + args[i+1])
+                    this.isValid=false
+                    return
+                } else {
+                    exercise.setReps(args[i+1])
+                    this.EXERCISES.push(exercise)
+                    console.info("Exercise length: " + this.EXERCISES.length)
+                }
+            })
+           
         }                
     }
 
