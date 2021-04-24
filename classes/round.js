@@ -1,7 +1,7 @@
 const Question = require('./question.js');
 const Timer = require('./timer.js');
 const Response = require('./response.js');
-const Participant = requre('./participant.js');
+const Participant = requre('./participant.js');     // Need to create
 const Discord = require('Discord');
 const Reactions = [
     '\u0031\u20E3',     // :one: 
@@ -66,6 +66,8 @@ class Round {
     }
     
     end() {
+        // Display winner and correct answer
+        // then show current score card
     }
     
     getWinner() {
