@@ -9,10 +9,9 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 const Exercises = require('../models/Exercises')(sequelize, Sequelize.DataTypes);
 class Exercise {
  
-    constructor(exerciseId, exerciseName, exerciseDescription, exerciseImage, discordMessage) {
+    constructor(exerciseName, exerciseDescription, exerciseImage, discordMessage) {
         
         console.info("exercise constructor")
-        this.id=exerciseId
         this.name=exerciseName                          // Name of Exercise
         this.description=exerciseDescription            // Short Description of Exercise
         this.image=exerciseImage                        //optional 

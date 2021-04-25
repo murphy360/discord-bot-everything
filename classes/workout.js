@@ -1,5 +1,7 @@
 const { Exercise } = require('./../classes/exercise.js');
 
+const { Timer } = require('./../classes/timer.js');
+
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize('database', 'user', 'password', {
     host: 'localhost',
@@ -247,6 +249,9 @@ class Workout {
         } else {
             this.messageRoundDetails('Round ' + this.currentSet)
         }
+
+        
+		let timer = new Timer.Timer(this.INTERVAL,5,this.MESSAGE,'Time Remaining').start();
     }
 
 // Start Publishing exercise on periodic basis
