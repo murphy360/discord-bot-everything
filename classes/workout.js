@@ -1,7 +1,7 @@
 const { Exercise } = require('./../classes/exercise.js');
 
 const { Timer } = require('./../classes/timer.js');
-require('./resources/workout_terms.js');
+require('./../resources/workout_terms.js');
 
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize('database', 'user', 'password', {
