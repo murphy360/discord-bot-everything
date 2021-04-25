@@ -1,0 +1,5 @@
+global.TRIVIA_COLOR="#0099ff"
+global.JOKE_COLOR="#FF9900"
+global.FIND_COLOR="#FFCB05"
+global.BOT_COLOR="#000000"
+global.WORKOUT_COLOR="#FF0000"
