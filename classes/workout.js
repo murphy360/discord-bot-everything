@@ -257,11 +257,15 @@ class Workout {
 // Start Publishing exercise on periodic basis
     startWorkout() {
                                     
+        let timer = new Timer(60,5,this.MESSAGE.channel,'Get Ready!').start()
+        setTimeout(this.startset, 60000).then(result => {
+            this.INTERVAL = setInterval(this.startSet.bind(this), this.intervalTime)
+        })
         
     // Create the message then, use setInterval to update the message
         this.MESSAGE.channel.send("First Round Starting in " + this.setTime + " minutes.").then( embed => { 
             //this.startSet() can start workout immediate, otherwise first round starts after first interval
-            this.INTERVAL = setInterval(this.startSet.bind(this), this.intervalTime);
+            
         });
     }
 
