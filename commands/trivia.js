@@ -35,7 +35,7 @@ module.exports = {
 		function about() {
 			const about = new Discord.MessageEmbed()
 				.setAuthor('Trivia Game')
-				.setColor("#0099ff")
+				.setColor(TRIVIA_COLOR)
 				.setTitle("About "+client.user.username+"'s Trivia Game")
 				.setDescription("This bot was created by Corey Murphy and Christian Acord")
 				.setImage("https://opentdb.com/images/logo.png")
@@ -50,7 +50,7 @@ module.exports = {
 		function intro() {
 			const intro = new Discord.MessageEmbed()
 				.setAuthor('Trivia Game')
-				.setColor("#0099ff")
+				.setColor(TRIVIA_COLOR)
 				.setTitle(msg.author.username+" has challenged everyone to a game of trivia.")
 				.setDescription("As the questions are displayed answer by reacting to the question with the correct emoji. First to answer correctly gets the most points, subsequent correct answers decrease by 5 points with a minimum of 5 points given per correct answer. Answer correctly (or incorrectly) before time runs out.")
 			msg.channel.send(intro);
@@ -496,7 +496,7 @@ module.exports = {
 					sentMsg.react(REACT[i]);
 				}
 
-				timer=new Timer.Timer(q_time,5,msg,'Time Remaining').start();
+				timer=new Timer.Timer(q_time,5,msg.channel,'Time Remaining').start();
 
 				const filter = (reaction, user) => {
 					//make sure each player has an entry and initial score of 0
@@ -617,8 +617,7 @@ module.exports = {
 			var numRounds = args[2];
 
 			console.info('Round: ' + numRounds);
-		
-			console.info('Round: ' + numRounds); 
+
 			const file = await fetch('https://opentdb.com/api.php?amount='+numRounds).then(response => response.text());
 			var triviaObj = JSON.parse(file);
 			numRounds--;

@@ -14,27 +14,42 @@ module.exports = {
 	//get abilities from the json provided
 	ability=""
 	for (let i=0;i<json.profile.ability.length;i++) {
-		ability+=json.profile.ability[i][0]+"\n"
+		if ((i+1) == json.profile.ability.length) {
+			ability+=json.profile.ability[i][0]
+		} else {
+			ability+=json.profile.ability[i][0]+"  `\n`  "
+		}
+	}
+	type=""
+	for (let i=0;i<json.type.length;i++) {
+		if ((i+1) == json.type.length) {
+			type+=json.type[i]
+		} else {
+			type+=json.type[i]+"  `\n`  "
+		}
 	}
 
       const messageEmbed = new Discord.MessageEmbed()
-      .setColor('#ffcb05')      // Changed the color to the Pokemon yellow (just for fun)
+      .setColor(FIND_COLOR)
       .setAuthor('Found in the wild!')
-      //.addFields({name: 'Type', json.type})
       .setTitle(json.name.english)
       .setURL("https://www.pokemon.com/us/pokedex/"+json.name.english)
       .setDescription(json.description)
       .setThumbnail(he.decode(json.hires))
       .addFields(
-	      {name:"Species",value:json.species,inline:true},
-	      {name:"Type",value:json.type,inline:true},
-	      {name:"Ability",value:ability,inline:true},
-	      {name:"HP",value:json.base.HP,inline:true},
-              {name:"Defense",value:json.base.Defense,inline:true},
-              {name:"Attack",value:json.base.Attack,inline:true},
-              {name:"Sp. Attack",value:json.base['Sp. Attack'],inline:true},
-              {name:"Sp. Defense",value:json.base['Sp. Defense'],inline:true},
-              {name:"Speed",value:json.base.Speed,inline:true},
+	      {name: "__**Species**__", value: "`  "+json.species+"  `"},
+	      {name: "__**Type**__", value: "`  "+type+"  `", inline: true},
+	      {name: "__**Ability**__", value: "`  "+ability+"  `", inline: true},
+	      {name: "\u200b", value: "\u200b", inline: true},
+	      {name: "__**HP**__", value: "`  "+json.base.HP+"  `", inline: true},
+	      {name: "__**Speed**__", value: "`  "+json.base.Speed+"  `", inline: true},
+	      {name: "\u200b", value: "\u200b", inline: true},
+	      {name: "__**Attack**__", value: "`  "+json.base.Attack+"  `", inline: true},
+              {name: "__**Defense**__", value: "`  "+json.base.Defense+"  `", inline: true},
+	      {name: "\u200b", value: "\u200b", inline: true},
+              {name: "__**Sp. Attack**__", value: "`  "+json.base['Sp. Attack']+"  `", inline: true},
+              {name: "__**Sp. Defense**__", value: "`  "+json.base['Sp. Defense']+"  `", inline: true},
+	      {name: "\u200b", value: "\u200b", inline: true}
       )
       .setFooter("Pokemon data provided by: https://purukitto.github.io/pokemon-api/")
         message.channel.send(messageEmbed);
@@ -46,7 +61,7 @@ module.exports = {
     } else if (args[2] === 'pokemon'){
       
       //Make an API call for a single random Pokemon
-      await fetch("https://app.pokemon-api.xyz/pokemon/random")
+      fetch("https://app.pokemon-api.xyz/pokemon/random")
       .then(response => response.text())
       //create a JSON object
       .then(json => JSON.parse(json))

@@ -1,64 +1,81 @@
-class Player {
+const Discord = require('discord.js');
+const HE = require('he');
+const Sequelize = require('sequelize');
 
-    GAMES_PLAYED=new Array();       // Array of all Games the player has played in
-    GAMES_WON=0;                    // Number of Games won by player
-    CORRECT_ANSWERS=0;              // Total number of correct answers
-    WRONG_ANSWERS=0;                // Total number of incorrect answers
-    WINS=0;                         // Total number of wins
-    WIN_STREAK=0;                   // Number of consecutive wins
+class Question {
+    
+    constructor(questionData, q_num) {
+        this.question = this.cleanText(questionData.question);              // Question Text
+        this.answer = this.cleanText(questionData.correct_answer);          // Answer to the Question
+        this.choices = this.createChoices(questionData.incorrect_answers);  // Array of Choices (incorrect and correct answers)
+        this.difficulty = questionData.difficulty;                          // Question Difficulty
+        this.category = questionData.category;                              // Question Category
+        this.question_num = q_num;                                          // Question Number in the Round
+        this.num_choices = this.choices.length;                             // Number of Answer Choices (2 or 4)
+        this.max_points = this.num_choices * 5;                             // Max Point Value
+        this.embed = this.createQuestionEmbed(q_num);                       // Discord Message Embed for the Question
+        this.displayed_at = null;                                           // Date/Time the Question was Displayed in the Channel
+        this.correct_choice = this.findCorrectChoice();                     // Integer value indicating correct answer in Choices Array
+        this.ID = this.storeQuestion();                                     // Question ID
+    }
+    
+    storeQuestion() {
+        // store or find question in database
+        // if question exists, increment times_asked counter
+        // return question id
+    }
+    
+    // Create choice array
+    createChoices(wrongAnswers) {
+        let choice_array = new Array();
+        for (let i = 0; i < wrongAnswers.length; i++) {
+            choice_array.push(this.cleanText(wrongAnswers[i]))
+        }
+        choice_array.push(this.answer)
+        choice_array.sort()
+        
+        if (choice_array.length == 2) {
+            choice_array.reverse()
+        }
+        
+        return choice_array;
+    }
 
-    constructor(id, username) {
-        this.USER_ID=id;
-        this.USERNAME=username;
-        this.DATE_JOINED=new Date();
+    // Remove HTML Entities from text
+    cleanText(dirtyText) {
+        return HE.decode(dirtyText)
     }
-    
-    getStreak() {                   // Return the player's win streak
-        return this.WIN_STREAK;
-    }
-    
-    getWinPercentage() {            // Return Win Percentage rounded to the nearest whole number
-        return Math.round((this.GAMES_WON/this.GAMES_PLAYED.length)*100);
-    }
-    
-    getCorrectAnswerPercentage() {  // Return Percentage of Correct Answers rounded to the nearest whole number
-        return Math.round((this.CORRECT_ANSWERS / (this.CORRECT_ANSWERS + this.WRONG_ANSWERS))*100);
-    }
-    
-    addGame(last_game, did_win) {   // Adds a new game to the GAMES_PLAYED array
-        this.GAMES_PLAYED[this.GAMES_PLAYED.length]=last_game
-        if (did_win) {              // If player won increment GAMES_WON and WIN_STREAK
-            this.GAMES_WON++;
-            this.WIN_STREAK++;
-        } else {                    // If player lost reset WIN_STREAK;
-            this.WIN_STREAK=0;
+
+    // Return array position of correct answer within choices
+    findCorrectChoice() {
+        for (let i = 0; i < this.choices.length; i++) {
+            if (this.choices[i] === this.answer)
+                return i;            
         }
     }
-    
-    getDateJoined() {               // Returns a Date Object of the player join Date
-        return this.DATE_JOINED;
+
+    // Create question embed
+    createQuestionEmbed(question_num) {
+        let theEmbed = new Discord.MessageEmbed();
+            .setColor(TRIVIA_COLOR);
+            .setAuthor('Question #' + question_num);
+            .setTitle(this.question);
+            .addFields(
+                {name: 'Choices', value: this.choices},
+                {name: 'Category', value: this.category, inline: true},
+                {name: 'Difficulty', vlaue: this.difficulty, inline: true}
+            );
+            .setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png');
+            .setFooter('Question provided by The Open Trivia Database (https://opentdb.com)","https://opentdb.com/images/logo.png');
+        
+        return theEmbed;
     }
     
-    getTimePlaying() {              // Returns length of time since the plaer was created
-        now=new Date();
-        return now-this.DATE_JOINED;
-    }
-    
-    getNumberGamesPlayed() {        // Returns the number of Games Played by player
-        return this.GAMES_PLAYED.length;
-    }
-    
-    getGames() {                    // Returns an Array of Games Played
-        return this.GAMES_PLAYED;
-    }
-    
-    getUsername() {                 // Returns string containing Player's Discord username
-        return this.USERNAME;
-    }
-    
-    getUserID() {                   // Returns the Discord User ID
-        return this.USER_ID;
+    // Display Question in the given Discord channel
+    display(channel) {
+        this.displayed_at = Date.now();
+        return channel.send(this.embed);
     }
 }
 
-module.exports.Player = Player;
+module.exports.Question = Question;

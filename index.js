@@ -1,5 +1,6 @@
 require('dotenv').config();
-const greetings = require('greetings');
+require('./colors.js');
+require('./greetings.js');
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
@@ -31,15 +32,19 @@ Object.keys(botCommands).map(key => {
 
 //Callback when bot joins the server TODO channelID should be automatically discovered
 bot.on('ready', () => {
-  const channelID = "828303498994647134"
-  bot.channels.cache.get(channelID).send(greetings());
+  const channelID = "828303498994647134";
+  bot.channels.cache.get(channelID).send(greetings[Math.floor((Math.random()*greetings.length))]);
   const toSync = false;
   Games.sync({ force: toSync });
   Users.sync({ force: toSync });
   Questions.sync({ force: toSync });
   Responses.sync({ force: toSync });
   Servers.sync({ force: toSync });
-//  bot.user.setAvatar('avatar.jpg');
+	try {
+	//  bot.user.setAvatar('avatar.jpg');
+  } catch (e) {
+    console.info('Error Setting Avatar: ' + e);
+  }
 });
 
 //Callback when bot reads a message
