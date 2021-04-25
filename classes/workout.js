@@ -193,11 +193,11 @@ class Workout {
                     for (let i = 0; i < this.EXERCISES.length ; i++) {
                         this.logSet(roundMessage, user, this.EXERCISES[i].name, this.EXERCISES[i].REPS, this.EXERCISES[i].weight, this.currentSet)
                     }
-                    let attaboy = attaboy[Math.floor((Math.random()*attaboy.length))]
+                    let attaboyString = attaboy[Math.floor((Math.random()*attaboy.length))]
                     bot.channels.cache.get(channelID).send();
                     //Give them an attaboy 
                     const attaboyMessage = new Discord.MessageEmbed()
-						.setTitle(attaboy)
+						.setTitle(attaboyString)
 						.setColor("#0099ff")
                         .setDescription('Great job ' + user.username)
 
