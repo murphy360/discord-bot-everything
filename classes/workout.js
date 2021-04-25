@@ -128,7 +128,7 @@ class Workout {
         let exerciseString = ""
         let repString = ""
         for (let i = 0; i < this.EXERCISES.length ; i++) {
-            exerciseString += this.EXERCISES[i].name + "\n"
+            exerciseString += this.EXERCISES[i].exercise_name + "\n"
             repString += this.EXERCISES[i].REPS + "\n"
         }
                 
@@ -151,7 +151,7 @@ class Workout {
         let exerciseString = ""
         let repString = ""
         for (let i = 0; i < this.EXERCISES.length ; i++) {
-            exerciseString += this.EXERCISES[i].name + "\n"
+            exerciseString += this.EXERCISES[i].exercise_name + "\n"
             repString += this.EXERCISES[i].REPS + "\n"
         }
 
