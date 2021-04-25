@@ -57,7 +57,7 @@ class Workout {
                 } else {
                     
                     console.info("Exercise length: " + this.EXERCISES.length + " " + response.exercise_name)
-                    let exercise = new Exercise(response.exercise_id, response.exercise_name, response.exercise_description, response.exercise_image, this.MESSAGE)
+                    let exercise = new Exercise(response.exercise_name, response.exercise_description, response.exercise_image, this.MESSAGE)
                     exercise.setReps(args[i+1])
                     this.EXERCISES.push(exercise)
                     console.info("Exercise length: " + this.EXERCISES.length)
@@ -128,7 +128,7 @@ class Workout {
         let exerciseString = ""
         let repString = ""
         for (let i = 0; i < this.EXERCISES.length ; i++) {
-            exerciseString += this.EXERCISES[i].exercise_name + "\n"
+            exerciseString += this.EXERCISES[i].name + "\n"
             repString += this.EXERCISES[i].REPS + "\n"
         }
                 
@@ -151,7 +151,7 @@ class Workout {
         let exerciseString = ""
         let repString = ""
         for (let i = 0; i < this.EXERCISES.length ; i++) {
-            exerciseString += this.EXERCISES[i].exercise_name + "\n"
+            exerciseString += this.EXERCISES[i].name + "\n"
             repString += this.EXERCISES[i].REPS + "\n"
         }
 
