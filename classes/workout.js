@@ -194,7 +194,7 @@ class Workout {
                         this.logSet(roundMessage, user, this.EXERCISES[i].name, this.EXERCISES[i].REPS, this.EXERCISES[i].weight, this.currentSet)
                     }
                     let attaboyString = attaboy[Math.floor((Math.random()*attaboy.length))]
-                    bot.channels.cache.get(channelID).send();
+                    
                     //Give them an attaboy 
                     const attaboyMessage = new Discord.MessageEmbed()
 						.setTitle(attaboyString)
