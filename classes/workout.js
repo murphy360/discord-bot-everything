@@ -251,7 +251,7 @@ class Workout {
         }
 
         
-		let timer = new Timer(this.INTERVAL,5,this.MESSAGE.channel,'Time Remaining').start();
+		let timer = new Timer((this.setTime * 60),5,this.MESSAGE.channel,'Time Remaining').start();
     }
 
 // Start Publishing exercise on periodic basis
