@@ -1,5 +1,3 @@
-require('./../workout_terms.js');
-require('./../colors.js');
 const { Exercise } = require('./../classes/exercise.js');
 const { Timer } = require('./../classes/timer.js');
 const Sequelize = require('sequelize');
@@ -31,7 +29,6 @@ class Workout {
         this.isValid=true 
         this.EXERCISES=[] 
         this.ATHLETES=[]
-        this.color='FF0000'
         this.INTERVAL
         this.intervalTime = (this.setTime * 60) * 1000
         this.icon='https://previews.123rf.com/images/kongvector/kongvector2003/kongvector200300022/141391692-independence-day-drum-mascot-icon-on-fitness-exercise-trying-barbells-vector-illustration.jpg'
@@ -134,7 +131,7 @@ class Workout {
                 
         const workoutDetails = new Discord.MessageEmbed()
                             .setTitle(this.MESSAGE.author.username + " Has started a workout!")
-                            .setColor(this.color)
+                            .setColor(WORKOUT_COLOR)
                             .setDescription(workoutDetailsString)
                             .setThumbnail(this.icon)
                             .addFields(
@@ -157,7 +154,7 @@ class Workout {
 
         const roundDetails = new Discord.MessageEmbed()
                             .setTitle(roundString)
-                            .setColor(this.color)
+                            .setColor(WORKOUT_COLOR)
                             .setDescription(descriptionString) 
                             .setThumbnail(this.icon)
                             .addFields(
@@ -198,7 +195,7 @@ class Workout {
                     //Give them an attaboy 
                     const attaboyMessage = new Discord.MessageEmbed()
 						.setTitle(attaboyString)
-						.setColor("#0099ff")
+						.setColor(WORKOUT_COLOR)
                         .setDescription('Great job ' + user.username)
 
 					this.MESSAGE.channel.send(attaboyMessage)
@@ -225,7 +222,7 @@ class Workout {
 
         const finishedDetails = new Discord.MessageEmbed()
                             .setTitle("Workout Complete!")
-                            .setColor(this.color)
+                            .setColor(WORKOUT_COLOR)
                             .setDescription(descriptionString)
                             .setThumbnail(this.icon)
                             .addFields(
