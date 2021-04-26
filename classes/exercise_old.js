@@ -6,7 +6,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
     logging: false,
     storage: 'database.sqlite',
 });
-const Exercises = require('../models/Exercise')(sequelize, Sequelize.DataTypes);
+//const Exercises = require('../models/Exercise')(sequelize, Sequelize.DataTypes);
 class Exercise {
  
     constructor(exerciseName, exerciseDescription, exerciseImage, discordChannel) {
