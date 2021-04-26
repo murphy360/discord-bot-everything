@@ -11,6 +11,8 @@ const Workouts = require('../models/Workouts')(sequelize, Sequelize.DataTypes);
 const ExerciseSets = require('../models/ExerciseSets')(sequelize, Sequelize.DataTypes);
 const Exercises = require('../models/Exercises')(sequelize, Sequelize.DataTypes);
 const Discord = require('discord.js');
+
+require('../workout_terms.js')
 class Workout {
 
     //args[0] = @botname
@@ -190,7 +192,7 @@ class Workout {
                     for (let i = 0; i < this.EXERCISES.length ; i++) {
                         this.logSet(roundMessage, user, this.EXERCISES[i].name, this.EXERCISES[i].REPS, this.EXERCISES[i].weight, this.currentSet)
                     }
-                    let attaboyString = attaboy[Math.floor((Math.random()*attaboy.length))]
+                    let attaboyString = ATTABOY[Math.floor((Math.random()*ATTABOY.length))]
                     
                     //Give them an attaboy 
                     const attaboyMessage = new Discord.MessageEmbed()
