@@ -1,4 +1,11 @@
 const { Model, DataTypes, Deferrable } = require("sequelize");
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize('database', 'user', 'password', {
+    host: 'localhost',
+    dialect: 'sqlite',
+    logging: false,
+    storage: 'database.sqlite',
+});
 class Exercise extends Model {
 	//class leve Method
 	static listExercises(discordChannel) {
