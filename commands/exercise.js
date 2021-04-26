@@ -1,4 +1,4 @@
-const { Exercise } = require('./../classes/exercise.js');
+//const { Exercise } = require('./../classes/Exercise.js');
 const Discord = require('discord.js');
 
 const Sequelize = require('sequelize');
@@ -9,7 +9,8 @@ const sequelize = new Sequelize('database', 'user', 'password', {
     storage: 'database.sqlite',
 });
 
-const Exercises = require('../models/Exercises.js')(sequelize, Sequelize.DataTypes);
+const Exercise = require('./models/Exercise')(sequelize, Sequelize.DataTypes);
+
 module.exports = {
   name: 'exercise',
   description: 'Adding and removing exercises',
@@ -22,61 +23,31 @@ module.exports = {
       let exerciseName = args[3].toLowerCase()
       let exerciseDescription = args[4].toLowerCase()
       let exerciseImage = args[5].toLowerCase()
-      //how to find a user in the db
-			let exerciseSearchCriteria = { where: {
-				exercise_name: exerciseName
-			}};
-      	//Check if exercise exists
-			Exercises.findOne(exerciseSearchCriteria).then(response => {
-				if (response === null) {
-					//first time user on this bot
-					this.MESSAGE.channel.send("Adding, " + exerciseName + "yay!")
-          Exercises.create({
-            exercise_name: exerciseName,
-            exercise_description: exerciseDescription,
-            exercise_image: exerciseImage,
-          });
-				} else {
-					console.info('Exercise already resides on the server')
-          return response.id
-				}
-			});
-      
+
+      //create a new row which is defined as exercise
+      const [exercise, created] = await Exercise.findOrCreate({
+        where: { name: exerciseName },
+        defaults: {
+          name: exerciseName,
+          description: exerciseDescription,
+          image: exerciseImage
+        }
+      });
+      if (created) {
+        this.MESSAGE.channel.send(exercise + " was created!")
+      } else {
+        this.MESSAGE.channel.send(exercise + " already existed!")
+      }      
     } else if (subCommand === "remove") {
         
       let exerciseName = args[3].toLowerCase()
       let exerciseDescription = args[4].toLowerCase()
       let exerciseImage = args[5].toLowerCase()
+
 			this.MESSAGE.channel.send("Sorry, remove is not a current functio, but we're thinking about it...")
     } else if (subCommand === 'list') {
               // Send a message with all exercises 
-              Exercises.findAll().then(exerciseDbObjectsList => {
-                let exerciseListString = ''
-                if (exerciseDbObjectsList === null) {
-                    //first time user on this bot
-                    this.MESSAGE.channel.send('No Exercises exist - null')
-                } else if (exerciseDbObjectsList.length === 0 ) {
-                  this.MESSAGE.channel.send('No Exercises exist - 0')
-                }else {
-                    console.info(exerciseDbObjectsList.length + ' Exercises already reside on the server')
-                    console.info(exerciseDbObjectsList[0].exercise_name + " is the first one")
-                    exerciseDbObjectsList.every(exercise => exerciseListString += exercise.exercise_name + ": " + exercise.exercise_description + ": " + exercise.exercise_image + "\n")
-                    
-                    console.info(exerciseListString)
-            
-                    const exerciseListMessage = new Discord.MessageEmbed()
-                                        .setTitle("Available Exercises")
-                                        .setColor(this.color)
-                                        .setDescription("Below are a list of available exercises, message an admin to have new Exercises Added")
-                                        //.setThumbnail(this.icon)
-                                        
-				                                .addField("Exercise ",exerciseListString)
-                                       
-                                        this.MESSAGE.channel.send(exerciseListMessage)	
-                }
-            });
-     
-      
+              Exercise.listExercises(this.MESSAGE.channel)
     }
   
   },
