@@ -24,7 +24,7 @@ const Questions = require('./models/Questions')(sequelize, Sequelize.DataTypes);
 const Responses = require('./models/Responses')(sequelize, Sequelize.DataTypes);
 const Servers = require('./models/Servers')(sequelize, Sequelize.DataTypes);
 const Workouts = require('./models/Workouts')(sequelize, Sequelize.DataTypes);
-const Exercises= require('./models/Exercises')(sequelize, Sequelize.DataTypes);
+const Exercise= require('./models/Exercise')(sequelize, Sequelize.DataTypes);
 const ExerciseSets= require('./models/ExerciseSets')(sequelize, Sequelize.DataTypes);
 
 
@@ -37,7 +37,7 @@ Object.keys(botCommands).map(key => {
 bot.on('ready', () => {
   const channelID = "828303498994647134";
   bot.channels.cache.get(channelID).send(greetings[Math.floor((Math.random()*greetings.length))]);
-  const toSync = false;
+  const toSync = true;
   Games.sync({ force: toSync });
   Users.sync({ force: toSync });
   Questions.sync({ force: toSync });
@@ -46,7 +46,7 @@ bot.on('ready', () => {
 
   Workouts.sync({ force: toSync });
   ExerciseSets.sync({ force: toSync });
-  Exercises.sync({ force: toSync });
+  Exercise.sync({ force: toSync });
 	try {
 	//  bot.user.setAvatar('avatar.jpg');
   } catch (e) {

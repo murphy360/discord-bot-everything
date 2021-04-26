@@ -6,24 +6,46 @@ const sequelize = new Sequelize('database', 'user', 'password', {
     logging: false,
     storage: 'database.sqlite',
 });
-const Exercises = require('../models/Exercises')(sequelize, Sequelize.DataTypes);
+const Exercises = require('../models/Exercise')(sequelize, Sequelize.DataTypes);
 class Exercise {
  
-    constructor(exerciseName, exerciseDescription, exerciseImage, discordMessage) {
+    constructor(exerciseName, exerciseDescription, exerciseImage, discordChannel) {
         
         console.info("exercise constructor")
         this.name=exerciseName                          // Name of Exercise
         this.description=exerciseDescription            // Short Description of Exercise
         this.image=exerciseImage                        //optional 
-        this.MESSAGE=discordMessage                    // original message from user
+        this.CHANNEL=discordChannel                    // original message from user
         this.REPS
     }
 
 
-// Save executed exercise to database
-    logExercise(reps, time, user) {
+    // Save executed exercise to database
+    storeExercise(exerciseName, exerciseDescription, exerciseImage) {
         
-        return bar;
+        let exerciseSearchCriteria = { where: {
+            exercise_name: exerciseName
+        }};
+      //Check if exercise exists
+        Exercises.findOne(exerciseSearchCriteria).then(response => {
+            if (response === null) {
+                //first time user on this bot
+                this.CHANNEL.send("Adding " + exerciseName)
+                Exercises.create({
+                    exercise_name: exerciseName,
+                    exercise_description: exerciseDescription,
+                    exercise_image: exerciseImage
+                });
+            } else {
+                this.CHANNEL.send(response.exercise_name + ' exists')
+                this.description = response.exercise_description
+                this.image = response.exercise_image
+            }
+        });
+    }
+
+    removeExercise(exerciseName) {
+
     }
 
     // Save executed exercise to database
@@ -97,4 +119,4 @@ class Exercise {
 
 }
 
-module.exports.Exercise = Exercise;
+//module.exports.Exercise = Exercise;
