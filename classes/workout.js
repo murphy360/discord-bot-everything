@@ -8,7 +8,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
 });
 const Workouts = require('../models/Workouts')(sequelize, Sequelize.DataTypes);
 const ExerciseSets = require('../models/ExerciseSets')(sequelize, Sequelize.DataTypes);
-const Exercise = require('../models/Exercise')(sequelize, Sequelize.DataTypes);
+const { Exercise } = require('../models/Exercise')
 const Discord = require('discord.js');
 
 require('../workout_terms.js')
