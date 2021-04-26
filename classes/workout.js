@@ -1,4 +1,3 @@
-const { Exercise } = require('./exercise_old.js');
 const { Timer } = require('./../classes/timer.js');
 const Sequelize = require('sequelize');
 const sequelize = new Sequelize('database', 'user', 'password', {
