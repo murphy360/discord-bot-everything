@@ -9,7 +9,7 @@ const sequelize = new Sequelize('database', 'user', 'password', {
     storage: 'database.sqlite',
 });
 
-const Exercise = require('./models/Exercise')(sequelize, Sequelize.DataTypes);
+const Exercise = require('../models/Exercise')(sequelize, Sequelize.DataTypes);
 
 module.exports = {
   name: 'exercise',
