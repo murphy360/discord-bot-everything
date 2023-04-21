@@ -4,9 +4,13 @@ module.exports = {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
         console.info('interactionCreate.js');
-		if (!interaction.isChatInputCommand()) return;
-            console.info('interactionCreate.js: isChatInputCommand');
-		    const command = interaction.client.commands.get(interaction.commandName);
+		if (!interaction.isChatInputCommand()) {
+			console.info(`Command ${interaction.commandName} was found.`);
+			return;
+		}
+
+		console.info('interactionCreate.js: isChatInputCommand');
+		const command = interaction.client.commands.get(interaction.commandName);
 
 		if (!command) {
 			console.error(`No command matching ${interaction.commandName} was found.`);

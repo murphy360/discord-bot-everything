@@ -15,7 +15,7 @@ module.exports = {
             textChannelId="";
             generalChannelId="";
             // TODO Remove this line in development.  For now we're just using the Discord Bot Development server
-            if (guild.name != "Discord Bot Development") return;
+            //if (guild.name != "Discord Bot Development") return;
             // Iterate through the channels in the guild
             guild.channels.cache.forEach((channel) => {
                 //Find the Text Channels (Parent ID of all text channels)
