@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const { EmbedBuilder }  = require('discord.js');
 const HE = require('he');
 const Sequelize = require('sequelize');
 
@@ -56,16 +56,16 @@ class Question {
 
     // Create question embed
     createQuestionEmbed(question_num) {
-        let theEmbed = new Discord.MessageEmbed();
-            .setColor(TRIVIA_COLOR);
-            .setAuthor('Question #' + question_num);
-            .setTitle(this.question);
+        let theEmbed = new EmbedBuilder()
+            .setColor(TRIVIA_COLOR)
+            .setAuthor('Question #' + question_num)
+            .setTitle(this.question)
             .addFields(
                 {name: 'Choices', value: this.choices},
                 {name: 'Category', value: this.category, inline: true},
                 {name: 'Difficulty', vlaue: this.difficulty, inline: true}
-            );
-            .setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png');
+            )
+            .setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png')
             .setFooter('Question provided by The Open Trivia Database (https://opentdb.com)","https://opentdb.com/images/logo.png');
         
         return theEmbed;

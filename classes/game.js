@@ -1,25 +1,32 @@
+const { EmbedBuilder } = require('discord.js');
 const { Question } = require('./question.js');
 const { Round } = require('./round.js');
 const fetch = require('node-fetch');
 
 class Game {
      
-    constructor(channel, num_rounds) {
+    constructor(client, hostMember, hostGuild, rounds, difficulty, category) {
+        
         this.ID = this.storeGame();
-        this.total_rounds = num_rounds;
-        this.questions = this.createQuestions();
-        this.rounds = this.createRounds();
-        this.channel = channel;
+        this.client = client;
+		this.hostMember = hostMember;
+		this.hostGuild = hostGuild;
+        this.total_rounds = rounds;
+        this.current_round = 0;
+        this.difficulty = difficulty;
+        this.category = category;
+        this.created_on = Date.now();
+        //this.questions = this.createQuestions();
+        //this.rounds = this.createRounds();
         this.winner = null;
         this.players = new Array();
-        this.created_on = Date.now();
         this.current_round = 0;
-		this.started_by = ""
     }
     
     storeGame() {
+        const database_id = 0;
         // Store game in database using sequelize
-        // return database id
+        return database_id;
     }
     
     createQuestions() {
@@ -39,6 +46,36 @@ class Game {
             Rnds[i] = new Round(this.ID, this.questions[i], (i + 1));
         }
         return Rnds;
+    }
+
+    /***** INTRO: Display Intro before game *****/
+    intro() {
+        this.client.guilds.cache.forEach((guild) => {
+            const channel = guild.channels.cache.find(
+                channel => channel.name.toLowerCase() === "trivia")
+            
+            const embed = new EmbedBuilder()
+            // Set the title of the field
+            .setTitle('New Game!')
+            // Set the color of the embed
+            .setColor(0x0066ff)
+            // Set the main content of the embed
+            .setDescription('A new game has started!')
+            // Add originGuild icon to embedd
+            .setThumbnail(this.hostGuild.iconURL())
+            .addFields(
+                { name: 'Host', value: this.hostMember.displayName, inline: true  },
+                { name: 'Host Guild', value: this.hostGuild.name, inline: true },
+                { name: '\u200B', value: '\u200B' },
+                { name: 'Rounds', value: this.total_rounds.toString(), inline: true },
+                { name: 'Category', value: this.category, inline: true },
+                { name: 'Difficulty', value: this.difficulty, inline: true },
+            )
+            .setTimestamp()
+            .setFooter({ text: 'Trivia Game# ' + this.ID, iconURL: this.hostGuild.iconURL() });
+            // Send the embed to the trivia channel
+            channel.send({ embeds: [embed] });  
+        });
     }
     
     start(channel) {

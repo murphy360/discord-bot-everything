@@ -1,4 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { Timer } = require('./../../classes/timer.js');
+const { Game } = require('./../../classes/game.js');
 
 module.exports = {
 
@@ -43,6 +45,10 @@ module.exports = {
 
     // This is the function that will be called when the command is executed
 	async execute(interaction) {
+
+
+
+
         // Check which subcommand was called
         if (interaction.options.getSubcommand() === 'about') {
             return interaction.reply('This is a trivia game! Written by Corey Murphy');
@@ -62,43 +68,16 @@ module.exports = {
                 difficulty = interaction.options.getString('difficulty');
             }   
 
-            // Get the user that started the game
-            const target = interaction.member;
-            console.info('initiating player: ' + target.displayName);
-            // Get the Guild object of the guild the command was sent in
-            const originGuild = interaction.guild;
-            console.info('ICON: ' + originGuild.iconURL());
+            // Get the user and guild that started the game (Hosts)
+            const hostMember = interaction.member;
+            const hostGuild = interaction.guild;
 
-            interaction.client.guilds.cache.forEach((guild) => {
-                const channel = guild.channels.cache.find(
-                    channel => channel.name.toLowerCase() === "trivia")
-                
-                const embed = new EmbedBuilder()
-                // Set the title of the field
-                .setTitle('New Game!')
-                // Set the color of the embed
-                .setColor(0x0066ff)
-                // Set the main content of the embed
-                .setDescription('A new game has started!')
-                // Add originGuild icon to embedd
-                .setThumbnail(interaction.guild.iconURL())
-                .addFields(
-                    { name: 'Host', value: target.displayName, inline: true  },
-                    { name: 'Host Guild', value: originGuild.name, inline: true },
-                    { name: '\u200B', value: '\u200B' },
-                    { name: 'Rounds', value: rounds.toString(), inline: true },
-                    { name: 'Category', value: category, inline: true },
-                    { name: 'Difficulty', value: difficulty, inline: true },
-                )
-                .setTimestamp()
-                .setFooter({ text: 'Trivia Game', iconURL: originGuild.iconURL() });
-                // Send the embed to the trivia channel
-                channel.send({ embeds: [embed] });  
-            });
+            const game = new Game(interaction.client, interaction.member, interaction.guild, rounds, difficulty, category);
+            game.intro();
             
 
-
-            return interaction.reply(target.name + ' wants to play ' + rounds + ' rounds! Difficulty: ' + difficulty + '!');
+            //Respond to hostMember
+            return interaction.reply(hostMember.displayName + ', OK! ' + rounds + ' rounds! Difficulty: ' + difficulty + ' New game coming up!');
 
         } else if (interaction.options.getSubcommand() === 'leaderboard') {
             return interaction.reply('This will be the leaderboard!');
