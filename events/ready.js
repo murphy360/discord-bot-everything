@@ -26,10 +26,10 @@ module.exports = {
                 // Find the General Channel - TODO this should be updated to the default channel for the guild
                 if (channel.name == "general") {
                     console.info(`General Channel - ${channel.name} ${channel.type} ${channel.id}`);
-                    channel.send(greetings[Math.floor((Math.random()*greetings.length))]);
+                    //channel.send(greetings[Math.floor((Math.random()*greetings.length))]);
                     
                 } else {    
-                    console.info(`Not General Channel - ${channel.name} ${channel.type} ${channel.id}`);
+                    //console.log(`Not General Channel - ${channel.name} ${channel.type} ${channel.id}`);
                 }
                 // See if Trivia Channel Exists - if not create it
                 if (channel.name == "trivia" && channel.type == 0) {
