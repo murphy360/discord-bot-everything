@@ -74,8 +74,9 @@ module.exports = {
             if (game_in_progress === false) {
                 const game = new Game(interaction.client, hostMember, hostGuild, rounds, difficulty, category);
                 console.info("game should exist");
-                await game.createQuestions();
                 game.intro();
+                await game.createQuestions();
+                
                 game_in_progress = true;
                 console.info(game_in_progress);
                 await game.play();
