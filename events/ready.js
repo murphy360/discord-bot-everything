@@ -20,25 +20,20 @@ module.exports = {
             guild.channels.cache.forEach((channel) => {
                 //Find the Text Channels (Parent ID of all text channels)
                 if (channel.name == "Text Channels") {
-                    console.info(`Text Channels - ${channel.name} ${channel.type} ${channel.id}`);
+                    //console.info(`Text Channels - ${channel.name} ${channel.type} ${channel.id}`);
                     textChannelId = channel.id;
-                }
-                // Find the General Channel - TODO this should be updated to the default channel for the guild
-                if (channel.name == "general") {
-                    console.info(`General Channel - ${channel.name} ${channel.type} ${channel.id}`);
-                    //channel.send(greetings[Math.floor((Math.random()*greetings.length))]);
-                    
-                } else {    
-                    //console.log(`Not General Channel - ${channel.name} ${channel.type} ${channel.id}`);
                 }
                 // See if Trivia Channel Exists - if not create it
                 if (channel.name == "trivia" && channel.type == 0) {
-                    console.info(` Trivia Exists- ${channel.name} ${channel.type} ${channel.id}`);
+                    //console.info(` Trivia Exists- ${channel.name} ${channel.type} ${channel.id}`);
                     triviaExists = true;
                 }else{
 
                 }
             });  
+
+            const defaultChannel = guild.systemChannel;
+            defaultChannel.send(greetings[Math.floor((Math.random()*greetings.length))]);
             
             // Trivia Channel doesn't exist on this guild - create it
             if (!triviaExists){
