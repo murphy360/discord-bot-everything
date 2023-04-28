@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const { Timer } = require('./../../classes/timer.js');
 const { Game } = require('./../../classes/game.js');
 
@@ -45,18 +45,15 @@ module.exports = {
 
     // This is the function that will be called when the command is executed
 	async execute(interaction) {
-
-
-
-
+        let game_in_progress = false;
         // Check which subcommand was called
         if (interaction.options.getSubcommand() === 'about') {
             return interaction.reply('This is a trivia game! Written by Corey Murphy');
         } else if (interaction.options.getSubcommand() === 'play') {
 
-            const rounds = 5;
-            const difficulty = 'medium';
-            const category = 'all';
+            let rounds = 3;
+            let difficulty = 'medium';
+            let category = 'all';
 
             // Check if the user provided a number of rounds
             if (interaction.options.getString('rounds')) {
@@ -68,12 +65,28 @@ module.exports = {
                 difficulty = interaction.options.getString('difficulty');
             }   
 
+            // ToDo:  Add Category checking
+
             // Get the user and guild that started the game (Hosts)
             const hostMember = interaction.member;
             const hostGuild = interaction.guild;
 
-            const game = new Game(interaction.client, interaction.member, interaction.guild, rounds, difficulty, category);
-            game.intro();
+            if (game_in_progress === false) {
+                const game = new Game(interaction.client, hostMember, hostGuild, rounds, difficulty, category);
+                console.info("game should exist");
+                await game.createQuestions();
+                game.intro();
+                game_in_progress = true;
+                console.info(game_in_progress);
+                await game.play();
+                game_in_progress = false;
+                console.info(game_in_progress);
+            } else {
+                // Respond that a game is already in play
+                return interaction.reply(hostMember.displayName + ', Sorry! a game is already in progress.  Check the Trivia Room!');
+
+            }
+
             
 
             //Respond to hostMember
