@@ -17,7 +17,8 @@ class Timer {
 
         this.timeLeft = Math.floor(time_len);           // Time remaining for the timer
         this.systemInterval = null;                     // null variable to hold reference to systemInterval
-        this.message = null;                            // Reference to the timer message
+        this.message = null; 
+        this.isActive = false;                           // Reference to the timer message
     }
 
     // Create the progress bar to display
@@ -34,6 +35,7 @@ class Timer {
     // Return a random phrase from the FINISH_TEXT array
     finish() {
         let finish = this.FINISH_TEXT[Math.floor((Math.random() * this.FINISH_TEXT.length))];
+        this.isActive = false;
         return '```' + finish + '```';
     }
 
@@ -41,6 +43,7 @@ class Timer {
     cancel() {
         this.message.edit('Timer cancelled.');
         clearInterval(this.systemInterval);
+        this.isActive = false;
     }
 
     // Update the progress bar message, used in the setInterval call
@@ -56,11 +59,24 @@ class Timer {
     }
 
     // Start the timer with progress bar, create message and start updating
-    start() {
-        this.CHANNEL.send(this.makeBar()).then( msg => { 
+    async start() {
+        await this.CHANNEL.send(this.makeBar()).then( msg => { 
             this.message = msg;
             this.systemInterval = setInterval(this.update.bind(this), this.INTV_LEN);
+            this.isActive = true;
+            return new Promise(resolve => setTimeout(resolve, this.MAX_TIME * 1000));
         });
+    }
+
+    // returns when timer is finished.
+    async isOver() {
+        console.info('Waiting for timer to finish...' + this.isActive);
+        while (this.isActive) {
+            await sleep(1000);
+            console.info('Waiting for timer to finish...');
+        } 
+        console.info('Timer is finished.');
+        return true;
     }
 }
 
