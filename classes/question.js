@@ -88,11 +88,10 @@ class Question {
         // check if answer is correct and if no one has answered correctly yet set winner
         if (answer.isCorrect) {
             if (!this.answers.some(answer => answer.isCorrect)) {
-                console.info("Winner! " + answer.user.username);
                 answer.setGuildWinner();
             } 
         }
-        console.info("Adding Answer");
+        
         this.answers.push(answer);
         return false;
 
@@ -139,7 +138,7 @@ class Question {
         // Format Score String
         let scoreString = "";
         for (let i = 0; i < this.answers.length; i++) {
-            scoreString += this.answers[i].user.username + ": " + this.answers[i].points + "\n";
+            scoreString += this.answers[i].points + ":   " + this.answers[i].user.username + "\n";
         }
         const winner = this.answers.find(answer => answer.isWinner);
 
