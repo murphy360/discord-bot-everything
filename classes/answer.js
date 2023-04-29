@@ -1,9 +1,10 @@
 class Answer {
 
-    constructor(questionId, user, reaction, isCorrect, difficulty) {
+    constructor(questionId, user, reaction, isCorrect, difficulty, guild) {
         
         this.questionId = questionId;
         this.user = user;
+        this.guild = guild;
         this.reaction = reaction;
         this.isCorrect = isCorrect;
         this.difficulty = difficulty;
@@ -22,7 +23,8 @@ class Answer {
     }
 
     setGuildWinner() {
-        this.isWinner = true;
+        console.info('setGuildWinner: ' + this.user.username + ' is the guild winner! ' + this.guild.name);
+        this.isGuildWinner = true;
         this.gradeAnswer();
     }
 
@@ -49,7 +51,7 @@ class Answer {
                     break;
             }
         }
-        if (this.isWinner) {
+        if (this.isGuildWinner) {
             this.points += 5;
         }
 

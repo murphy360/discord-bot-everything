@@ -7,10 +7,12 @@ class Player {
     WINS=0;                         // Total number of wins
     WIN_STREAK=0;                   // Number of consecutive wins
 
-    constructor(id, username) {
-        this.USER_ID=id;
-        this.USERNAME=username;
-        this.DATE_JOINED=new Date();
+    constructor(answer) {
+        this.user = answer.user;
+        this.DATE_JOINED = new Date();
+        this.answers = new Array();
+        this.addAnswer(answer);
+        this.currentScore = 0;
     }
     
     getStreak() {                   // Return the player's win streak
@@ -32,6 +34,16 @@ class Player {
             this.WIN_STREAK++;
         } else {                    // If player lost reset WIN_STREAK;
             this.WIN_STREAK=0;
+        }
+    }
+
+    addAnswer(answer) {             // Adds an answer to the player's answers array 
+        this.answers.push(answer);
+        if (answer.isCorrect) {     // If answer is correct increment CORRECT_ANSWERS
+            this.CORRECT_ANSWERS++;
+            this.currentScore += answer.points;
+        } else {                    // If answer is incorrect increment WRONG_ANSWERS
+            this.WRONG_ANSWERS++;
         }
     }
     

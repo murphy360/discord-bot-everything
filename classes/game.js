@@ -1,5 +1,7 @@
-const { EmbedBuilder } = require('discord.js');
 const { Question } = require('./question.js');
+const { Intro } = require('./trivia/intro.js');
+const { Player } = require('./trivia/player.js');
+const { TriviaGuild } = require('./trivia/triviaGuild.js');
 //const { Round } = require('./round.js');
 const fetch = require('node-fetch');
 //const { like } = require('sequelize/types/lib/operators.js');
@@ -19,7 +21,9 @@ class Game {
         this.created_on = Date.now();
         this.winner = null;
         this.players = new Array();
+        this.guilds = new Array();
         this.current_round = 0;
+        this.questions = new Array();
     }
     
     storeGame() {
@@ -40,46 +44,41 @@ class Game {
         }
         return;
     }
-    
-    /***** INTRO: Display Intro before game *****/
-    intro() {
-        this.client.guilds.cache.forEach((guild) => {
-            const channel = guild.channels.cache.find(
-                channel => channel.name.toLowerCase() === "trivia")
-            
-            const embed = new EmbedBuilder()
-            // Set the title of the field
-            .setTitle('New Game!')
-            // Set the color of the embed
-            .setColor(0x0066ff)
-            // Set the main content of the embed
-            .setDescription('A new game has started!')
-            // Add originGuild icon to embedd
-            .setThumbnail(this.hostGuild.iconURL())
-            .addFields(
-                { name: 'Host', value: this.hostMember.displayName, inline: true  },
-                { name: 'Host Guild', value: this.hostGuild.name, inline: true },
-                { name: '\u200B', value: '\u200B' },
-                { name: 'Rounds', value: this.total_rounds.toString(), inline: true },
-                { name: 'Category', value: this.category, inline: true },
-                { name: 'Difficulty', value: this.difficulty, inline: true },
-            )
-            .setTimestamp()
-            .setFooter({ text: 'Trivia Game# ' + this.ID, iconURL: this.client.user.displayAvatarURL() });
-            // Send the embed to the trivia channel
-            channel.send({ embeds: [embed] });  
-        });
-    }
-    
+
     async play() {
+        
+        await this.createQuestions();
+        const intro = new Intro(this.client, this.hostMember, this.hostGuild, this.total_rounds, this.difficulty, this.category);
+        await this.sendIntroToGuilds(intro);
+   
         for (this.current_round = 0; this.current_round < this.total_rounds; this.current_round++) {
             console.info('Round ' + this.current_round + ' starting');
             await this.askQuestionToGuilds(this.questions[this.current_round]);
             console.info('Round ' + this.current_round + ' complete');
         }
-        
-        this.end();
+        this.gradeGame();
         return;
+    }
+
+    /***** INTRO: Display Intro before game *****/
+    async sendIntroToGuilds(intro) {
+        
+        return new Promise((resolve, reject) => {
+            console.info('Inside Intro Promise');
+            const guilds = this.client.guilds.cache;
+            const promises = [];
+            guilds.forEach((guild) => {
+                console.info('Sending Intro to Guild: ' + guild.name);
+                const channel = guild.channels.cache.find(
+                    channel => channel.name.toLowerCase() === "trivia");
+                
+                promises.push(intro.send(channel)); 
+                //console.info('There are ' + promises.length + ' intro promises'); 
+            });
+            Promise.all(promises).then(() => {
+                resolve();
+            });
+        });
     }
 
     // Ask a question to all guilds, returns once the question has been answered from each
@@ -87,23 +86,95 @@ class Game {
 
 
         return new Promise((resolve, reject) => {
-            console.info('Inside Promise');
+            console.info('Inside Question Promise');
             const guilds = this.client.guilds.cache;
             const promises = [];
-            // print guild names
             guilds.forEach((guild) => {
                 console.info('Sending Question to Guild: ' + guild.name);
                 const channel = guild.channels.cache.find(
                     channel => channel.name.toLowerCase() === "trivia");
                 
                 promises.push(question.ask(channel)); 
-                console.info('There are ' + promises.length + ' promises'); 
+                //console.info('There are ' + promises.length + ' question promises'); 
             });
             
             console.info('Waiting for all promises to resolve');
-            Promise.all(promises); 
-            console.info('All promises resolved');
+            const promise = Promise.all(promises); 
+            promise.then(() => {
+                console.info('All promises resolved');
+                resolve();
+            });
+            
         });
+    }
+
+    /***** INTRO: Display Intro before game *****/
+    async sendScoreToGuilds(intro) {
+    
+        return new Promise((resolve, reject) => {
+            console.info('Results');
+            const guilds = this.client.guilds.cache;
+            const promises = [];
+            guilds.forEach((guild) => {
+                console.info('Sending Score to Guild: ' + guild.name);
+                const channel = guild.channels.cache.find(
+                    channel => channel.name.toLowerCase() === "trivia");
+                
+                promises.push(intro.send(channel)); 
+                //console.info('There are ' + promises.length + ' intro promises'); 
+            });
+            Promise.all(promises).then(() => {
+                resolve();
+            });
+        });
+    }
+
+    gradeGame() {
+        console.info('Grading Game');
+        for (let i = 0; i < this.questions.length; i++) {
+            console.info('Question ' + i + ' grading ' + this.questions[i].question);
+            const answersToQuestion = this.questions[i].answers;
+            for (let j = 0; j < answersToQuestion.length; j++) {
+                const answer = answersToQuestion[j];
+                console.info('User: ' + answer.user.username + ' id: ' + answer.user.id + ' Guild: ' + answer.guild.name + 'Guild Id: ' + answer.guild.id + ' Correct? ' + answer.isCorrect + ' Score: ' + answer.points + ' Guild Winner? ' + answer.isGuildWinner);
+                
+                if (this.players.find(player => player.user.id === answer.user.id) === undefined) {
+                    console.info('Adding player to game: ' + answer.user.username);
+                    this.players.push(new Player(answer));
+                } else {
+                    console.info('Player already in game: ' + answer.user.username);
+                    this.players.find(player => player.user.id === answer.user.id).addAnswer(answer);
+                }
+                
+                console.info('answer.guild.name=  ' + answer.guild.name + ' answer.guild.id = ' + answer.guild.id);
+                if (this.guilds.find(triviaGuild => triviaGuild.guild.id === answer.guild.id) === undefined) {
+                    console.info('Adding guild to game: ' + answer.guild.name);
+                    this.guilds.push(new TriviaGuild(answer));
+                } else {    
+                    console.info('Guild already in game: ' + answer.guild.name);
+                    this.guilds.find(guild => guild.id === answer.guild.id).addAnswer(answer);
+                }
+
+
+               
+            }
+
+            console.info('Question Winner: ' + this.questions[i].question.winnerId);   
+        }
+
+        for (let i = 0; i < this.players.length; i++) {
+            console.info('Player: ' + this.players[i].user.username + ' Score: ' + this.players[i].currentScore);
+        }
+
+        for (let i = 0; i < this.guilds.length; i++) {
+            console.info('Guild: ' + this.guilds[i].guild.name + ' Score: ' + this.guilds[i].currentScore);
+        }
+        // Grade the game and determine the winner
+        //this.winner = this.players[0];
+        //this.end();
+         //TODO Player with most correct answers gets extra points
+                //TODO Check if players played in two guilds 
+                //TODO Guild with most correct answers gets extra points
     }
 
 	end() {

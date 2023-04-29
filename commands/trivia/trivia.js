@@ -72,16 +72,18 @@ module.exports = {
             const hostGuild = interaction.guild;
 
             if (game_in_progress === false) {
+                  //Respond to hostMember
+                interaction.reply(hostMember.displayName + ', OK! ' + rounds + ' rounds! Difficulty: ' + difficulty + ' New game coming up!');
+
                 const game = new Game(interaction.client, hostMember, hostGuild, rounds, difficulty, category);
                 console.info("game should exist");
-                game.intro();
-                await game.createQuestions();
+                //game.intro();
+                //await game.createQuestions();
                 
                 game_in_progress = true;
-                console.info(game_in_progress);
                 await game.play();
                 game_in_progress = false;
-                console.info(game_in_progress);
+
             } else {
                 // Respond that a game is already in play
                 return interaction.reply(hostMember.displayName + ', Sorry! a game is already in progress.  Check the Trivia Room!');
@@ -90,9 +92,7 @@ module.exports = {
 
             
 
-            //Respond to hostMember
-            return interaction.reply(hostMember.displayName + ', OK! ' + rounds + ' rounds! Difficulty: ' + difficulty + ' New game coming up!');
-
+          
         } else if (interaction.options.getSubcommand() === 'leaderboard') {
             return interaction.reply('This will be the leaderboard!');
         } else if (interaction.options.getSubcommand() === 'rules') {

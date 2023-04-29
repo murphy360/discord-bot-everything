@@ -26,7 +26,8 @@ class Question {
         this.correct_choice = this.findCorrectChoice();                     // Integer value indicating correct answer in Choices Array
         this.ID = this.storeQuestion();                                     // Question ID
         this.answers = new Array();                                         // Array of Answers
-        this.winnerID = null;                                               // ID of the Winner
+        this.questionWinnerUser = null;                                     // Player who answered the question correctly first
+        this.questionWinnerGuild = null;                                    // Guild where the question was answered correctly first
     }
     
     storeQuestion() {
@@ -69,7 +70,7 @@ class Question {
     findCorrectChoice() {
         console.info("Finding Correct Choice");
         for (let i = 0; i < this.choices.length; i++) {
-            console.info(this.choices[i] + " =?= " + this.answer);
+            //console.info(this.choices[i] + " =?= " + this.answer);
             if (this.choices[i] === this.answer){
                 console.info("Correct Choice: " + this.choices[i]);
                 return i;  
@@ -80,8 +81,8 @@ class Question {
     // checks if a player has answered this question and if they are the winner
     checkAnswer(answer) {
         // check if player has already answered this question return early
-        if (this.answers.some(a => a.userId === answer.userId)) {
-            console.info("Player has already answered this question " + answer.userId);
+        if (this.answers.some(a => a.user.id === answer.user.id)) {
+            console.info("Player has already answered this question " + answer.user.id);
             return true;
         } 
         
@@ -99,13 +100,20 @@ class Question {
 
     // Grade Results
     gradeResults(channel) {
-        console.info("Grading Results");
+        console.info("Grading Results on " + channel.guild.name + " in " + channel.name);
         // Sort answers by points
         this.answers.sort((a, b) => (a.points > b.points) ? 1 : -1);
         this.answers.reverse();
         let embed = null;
         // Check if there is a winner
-        if (this.answers.some(answer => answer.isWinner)) {
+        if (this.answers.some(answer => answer.isGuildWinner)) {
+            if (this.questionWinnerGuild == null) {
+                const guildWinnerAnswer = this.answers.find(answer => answer.isGuildWinner);
+                this.questionWinnerGuild = guildWinnerAnswer.guild;
+                this.questionWinnerUser = guildWinnerAnswer.user;
+                console.info("Guild Winner: " + this.questionWinnerGuild.name);
+                console.info("User Winner: " + this.questionWinnerUser.username);
+            }
             embed = this.createQuestionWinnerEmbed();
         } else {
             embed = this.createQuestionLoserEmbed();
@@ -140,10 +148,10 @@ class Question {
         for (let i = 0; i < this.answers.length; i++) {
             scoreString += this.answers[i].points + ":   " + this.answers[i].user.username + "\n";
         }
-        const winner = this.answers.find(answer => answer.isWinner);
+        const winner = this.answers.find(answer => answer.isGuildWinner);
 
         let winnerEmbed = new EmbedBuilder()
-            .setTitle('Winner!')
+            .setTitle('Round over!')
             .addFields(
                 {name: 'Winner', value: winner.user.username, inline: false},
                 {name: 'Answer', value: this.answer, inline: false},
@@ -198,16 +206,17 @@ class Question {
 
             const timer = new Timer(30, 1, channel, "It's time to answer!");
             timer.start().then(() => {
-                console.info("Timer finished");
+                //console.info("Timer finished");
                 this.gradeResults(channel);
                 this.logQuestion();
-                resolve();
+                resolve("Resolved");
+                //console.info("Question resolved");
             });
 
 
             // Create a reaction collector
             this.client.on('messageReactionAdd', async (reaction, user) => {
-                console.info("REACTION: " + user.id + " from " + reaction.message.guild.name);
+                //console.info("REACTION: " + user.id + " from " + reaction.message.guild.name);
                 
                 // If timer is inactive, return early
                 if (!timer.isActive) return;
@@ -244,21 +253,12 @@ class Question {
                 console.info("isReactionCorrect: " + isReactionCorrect + " responseNum: " + responseNum + " correct_choice: " + this.correct_choice);
     
                 // A new Answer needs to be checked if this user has already answered
-                const anAnswer = new Answer(this.ID, user, reaction, isReactionCorrect, this.difficulty);
+                const anAnswer = new Answer(this.ID, user, reaction, isReactionCorrect, this.difficulty, channel.guild);
                 // Only one answer allowed
                 if (this.checkAnswer(anAnswer)) return;
     
-    
             });
-
-        });
-
-        
-
-
-       
-      
-        
+        }); 
     }
 
     // Log Question to Database
