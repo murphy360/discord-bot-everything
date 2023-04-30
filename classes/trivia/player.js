@@ -11,8 +11,8 @@ class Player {
         this.user = answer.user;
         this.DATE_JOINED = new Date();
         this.answers = new Array();
-        this.addAnswer(answer);
         this.currentScore = 0;
+        this.addAnswer(answer);
     }
     
     getStreak() {                   // Return the player's win streak
@@ -38,6 +38,7 @@ class Player {
     }
 
     addAnswer(answer) {             // Adds an answer to the player's answers array 
+        console.info('Adding answer to player: ' + this.user.username + ' ' + this.currentScore);
         this.answers.push(answer);
         if (answer.isCorrect) {     // If answer is correct increment CORRECT_ANSWERS
             this.CORRECT_ANSWERS++;
@@ -45,6 +46,7 @@ class Player {
         } else {                    // If answer is incorrect increment WRONG_ANSWERS
             this.WRONG_ANSWERS++;
         }
+        console.info('Adding answer to player: ' + this.user.username + ' ' + this.currentScore);
     }
     
     getDateJoined() {               // Returns a Date Object of the player join Date

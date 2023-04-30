@@ -5,7 +5,7 @@ const { TriviaGuild } = require('./trivia/triviaGuild.js');
 //const { Round } = require('./round.js');
 const fetch = require('node-fetch');
 //const { like } = require('sequelize/types/lib/operators.js');
-
+// TODO create triviaGuilds from beginning of game
 class Game {
      
     constructor(client, hostMember, hostGuild, rounds, difficulty, category) {
@@ -21,7 +21,7 @@ class Game {
         this.created_on = Date.now();
         this.winner = null;
         this.players = new Array();
-        this.guilds = new Array();
+        this.triviaGuilds = new Array();
         this.current_round = 0;
         this.questions = new Array();
     }
@@ -56,7 +56,8 @@ class Game {
             await this.askQuestionToGuilds(this.questions[this.current_round]);
             console.info('Round ' + this.current_round + ' complete');
         }
-        this.gradeGame();
+        await this.gradeGame();
+        this.sendScoreToGuilds();
         return;
     }
 
@@ -109,19 +110,17 @@ class Game {
     }
 
     /***** INTRO: Display Intro before game *****/
-    async sendScoreToGuilds(intro) {
+    async sendScoreToGuilds() {
     
         return new Promise((resolve, reject) => {
             console.info('Results');
-            const guilds = this.client.guilds.cache;
+            
             const promises = [];
-            guilds.forEach((guild) => {
-                console.info('Sending Score to Guild: ' + guild.name);
-                const channel = guild.channels.cache.find(
-                    channel => channel.name.toLowerCase() === "trivia");
+            this.triviaGuilds.forEach((triviaGuild) => {
+                console.info('Sending Score to Guild: ' + triviaGuild.guild.name);
+
+                promises.push(triviaGuild.sendGameGuildScoreBoard());
                 
-                promises.push(intro.send(channel)); 
-                //console.info('There are ' + promises.length + ' intro promises'); 
             });
             Promise.all(promises).then(() => {
                 resolve();
@@ -131,44 +130,55 @@ class Game {
 
     gradeGame() {
         console.info('Grading Game');
-        for (let i = 0; i < this.questions.length; i++) {
-            console.info('Question ' + i + ' grading ' + this.questions[i].question);
-            const answersToQuestion = this.questions[i].answers;
-            for (let j = 0; j < answersToQuestion.length; j++) {
-                const answer = answersToQuestion[j];
-                console.info('User: ' + answer.user.username + ' id: ' + answer.user.id + ' Guild: ' + answer.guild.name + 'Guild Id: ' + answer.guild.id + ' Correct? ' + answer.isCorrect + ' Score: ' + answer.points + ' Guild Winner? ' + answer.isGuildWinner);
-                
-                if (this.players.find(player => player.user.id === answer.user.id) === undefined) {
-                    console.info('Adding player to game: ' + answer.user.username);
-                    this.players.push(new Player(answer));
-                } else {
-                    console.info('Player already in game: ' + answer.user.username);
-                    this.players.find(player => player.user.id === answer.user.id).addAnswer(answer);
-                }
-                
-                console.info('answer.guild.name=  ' + answer.guild.name + ' answer.guild.id = ' + answer.guild.id);
-                if (this.guilds.find(triviaGuild => triviaGuild.guild.id === answer.guild.id) === undefined) {
-                    console.info('Adding guild to game: ' + answer.guild.name);
-                    this.guilds.push(new TriviaGuild(answer));
-                } else {    
-                    console.info('Guild already in game: ' + answer.guild.name);
-                    this.guilds.find(guild => guild.id === answer.guild.id).addAnswer(answer);
+        return new Promise((resolve, reject) => {
+            for (let i = 0; i < this.questions.length; i++) {
+                console.info('Question ' + i + ' grading ' + this.questions[i].question);
+                const answersToQuestion = this.questions[i].answers;
+                for (let j = 0; j < answersToQuestion.length; j++) {
+                    const answer = answersToQuestion[j];
+                    console.info('User: ' + answer.user.username + ' id: ' + answer.user.id + ' Guild: ' + answer.guild.name + 'Guild Id: ' + answer.guild.id + ' Correct? ' + answer.isCorrect + ' Score: ' + answer.points + ' Guild Winner? ' + answer.isGuildWinner);
+                    
+                    let answerPlayer = this.players.find(player => player.user.id === answer.user.id);
+                    if (answerPlayer === undefined) {
+                        console.info('Adding player to game: ' + answer.user.username);
+                        answerPlayer = new Player(answer);
+                        this.players.push(answerPlayer);
+                    } else {
+                        console.info('Player already in game: ' + answer.user.username);
+                        answerPlayer.addAnswer(answer);
+                    }
+                    
+                    let answerGuild = this.triviaGuilds.find(triviaGuild => triviaGuild.guild.id === answer.guild.id);
+                    console.info('answer.guild.name=  ' + answer.guild.name + ' answer.guild.id = ' + answer.guild.id);
+                    if (answerGuild === undefined) {
+                        console.info('Adding guild to game: ' + answer.guild.name);
+                        answerGuild = new TriviaGuild(answer);
+                        this.triviaGuilds.push(answerGuild);
+                    } else {    
+                        console.info('Guild already in game: ' + answer.guild.name);
+                        answerGuild.addAnswer(answer);
+                    } 
+                    // Add the player to the guild if they are not already in it
+                    if (!answerGuild.players.includes(answerPlayer)) {
+                        console.info('Adding player to guild: ' + answer.user.username);
+                        answerGuild.addPlayer(answerPlayer);
+                    } else {    
+                        console.info('Player already in guild: ' + answer.user.username);
+                    }
                 }
 
-
-               
+                console.info('Question Winner: ' + this.questions[i].question.winnerId);   
             }
 
-            console.info('Question Winner: ' + this.questions[i].question.winnerId);   
-        }
+            for (let i = 0; i < this.players.length; i++) {
+                console.info('Player: ' + this.players[i].user.username + ' Score: ' + this.players[i].currentScore);
+            }
 
-        for (let i = 0; i < this.players.length; i++) {
-            console.info('Player: ' + this.players[i].user.username + ' Score: ' + this.players[i].currentScore);
-        }
-
-        for (let i = 0; i < this.guilds.length; i++) {
-            console.info('Guild: ' + this.guilds[i].guild.name + ' Score: ' + this.guilds[i].currentScore);
-        }
+            for (let i = 0; i < this.triviaGuilds.length; i++) {
+                console.info('Guild: ' + this.triviaGuilds[i].guild.name + ' Score: ' + this.triviaGuilds[i].currentScore);
+            }
+            resolve("Grading Complete");
+        });
         // Grade the game and determine the winner
         //this.winner = this.players[0];
         //this.end();

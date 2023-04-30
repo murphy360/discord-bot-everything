@@ -1,7 +1,7 @@
 const { EmbedBuilder }  = require('discord.js');
 const HE = require('he');
 const Sequelize = require('sequelize');
-const { Answer } = require('./answer.js');
+const { Answer } = require('./trivia/answer.js');
 const { Timer } = require('./timer.js');
 const Reactions = [
     '\u0031\u20E3',     // :one: 

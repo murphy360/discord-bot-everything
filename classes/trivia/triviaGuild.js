@@ -1,3 +1,4 @@
+const { EmbedBuilder }  = require('discord.js');
 class TriviaGuild {
 
     GAMES_PLAYED=new Array();       // Array of all Games the player has played in
@@ -12,8 +13,10 @@ class TriviaGuild {
         console.info("New TriviaGuild answer.user.guild.name: " + this.guild.name);
         this.DATE_JOINED = new Date();
         this.answers = new Array();
-        this.addAnswer(answer);
+        this.players = new Array();
         this.currentScore = 0;
+        this.addAnswer(answer);
+        
     }
     
     getStreak() {                   // Return the player's win streak
@@ -46,6 +49,12 @@ class TriviaGuild {
         } else {                    // If answer is incorrect increment WRONG_ANSWERS
             this.WRONG_ANSWERS++;
         }
+        console.info('Adding answer to guild: ' + this.guild.name + ' ' + this.currentScore);
+    }
+
+    addPlayer(player) {            // Adds a player to the player's array
+        console.info('Adding player to guild: ' + this.guild.name + ' ' + player.username);
+        this.players.push(player);
     }
     
     getDateJoined() {               // Returns a Date Object of the player join Date
@@ -71,6 +80,53 @@ class TriviaGuild {
     
     getGuildID() {                   // Returns the Discord User ID
         return this.USER_ID;
+    }
+
+    async sendGameGuildScoreBoard() {
+        console.info('sendGameGuildScore: ' + this.guild.name);
+        const channel = this.guild.channels.cache.find(
+            channel => channel.name.toLowerCase() === "trivia");
+
+        const embed = this.createGameScoreboardEmbed();
+
+        
+        //console.info('There are ' + promises.length + ' intro promises'); 
+        //console.info('sendGameGuildScore: ' + this.guild.name + ' ' + this.currentScore);
+        //const scoreboard = new ScoreboardGame(this.client, this.hostMember, this.hostGuild, this.total_rounds, this.difficulty, this.category, this.answers, this.players, this.triviaGuilds, this.ID, channel);
+        
+        channel.send({ embeds: [embed] });
+    }
+
+   
+
+    // Create question winner embed
+    createGameScoreboardEmbed() {
+        console.info("Creating Game Scoreboard Embed for " + this.guild.name);
+        // Sort players by points
+        this.players.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
+        this.players.reverse();
+        // Get winner
+        let winner = this.players[0];
+
+        // Format Score String
+        let scoreString = "";
+        for (let i = 0; i < this.players.length; i++) {
+            scoreString += this.players[i].currentScore + ":   " + this.players[i].user.username + "\n";
+        }
+        
+        console.info("Guild Score: " + this.currentScore + " Winner: " + winner.user.username);
+        let embed = new EmbedBuilder()
+            .setTitle(this.guild.name + ' Final Scoreboard')
+            .addFields(
+                //{name: 'Guild Score', value: this.currentScore, inline: false},
+                {name: 'Guild Score', value: this.currentScore.toString(), inline: false},
+                {name: 'Guild Winner', value: winner.user.username, inline: false},
+                {name: 'Scores', value: scoreString, inline: false}
+            )
+            .setThumbnail(this.guild.iconURL())
+            .setFooter({ text: 'Question provided by The Open Trivia Database (https://opentdb.com)' });
+            
+        return embed;
     }
 }
 

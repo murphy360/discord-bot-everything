@@ -20,7 +20,7 @@ class Intro {
     async send(channel) {
         return new Promise((resolve, reject) => {
 
-            const timer = new Timer(5, 1, channel, "A new game is starting!");
+            const timer = new Timer(60, 1, channel, "A new game is starting!");
             timer.start().then(() => {
                 console.info("Intro Timer finished");
                 resolve("Resolved");
