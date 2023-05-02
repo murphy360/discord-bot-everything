@@ -30,8 +30,12 @@ This code base was forked from [https://github.com/sitepoint-editors/discord-bot
 ## Installation Steps (Docker) <--- Needs Tested
 
 1. Clone repo
-2. Add Discord credentials (Bot Token) in a `.env` file
 3. Build Docker Container
+
+4. Load Container
+
+5. Create Volume Mount point on host
+- Add Discord credentials (Bot Token) in a `.env` file
 
 ## License
 

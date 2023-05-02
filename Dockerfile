@@ -7,7 +7,7 @@ WORKDIR /usr/src/bot
 # Copy and Install our bot
 COPY package.json /usr/src/bot
 RUN npm install
-RUN apt update && apt install vim
+RUN apt update && apt install vim -y
 
 # Our precious bot
 COPY . /usr/src/bot
