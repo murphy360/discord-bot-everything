@@ -1,7 +1,7 @@
 const { Question } = require('./question.js');
-const { Intro } = require('./trivia/intro.js');
-const { Player } = require('./trivia/player.js');
-const { TriviaGuild } = require('./trivia/triviaGuild.js');
+const { Intro } = require('./intro.js');
+const { Player } = require('./player.js');
+const { TriviaGuild } = require('./triviaGuild.js');
 //const { Round } = require('./round.js');
 const fetch = require('node-fetch');
 //const { like } = require('sequelize/types/lib/operators.js');

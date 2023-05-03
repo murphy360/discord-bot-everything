@@ -1,5 +1,5 @@
 
-const { Timer } = require('./../timer.js');
+const { Timer } = require('../common/timer.js');
 const { EmbedBuilder }  = require('discord.js');
 
 //This class sends the game introduction
