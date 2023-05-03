@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { Timer } = require('./../../classes/timer.js');
-const { Game } = require('./../../classes/game.js');
+const { Game } = require('./../../classes/trivia/game.js');
+let game_in_progress = false;
 
 module.exports = {
 
@@ -45,7 +45,7 @@ module.exports = {
 
     // This is the function that will be called when the command is executed
 	async execute(interaction) {
-        let game_in_progress = false;
+        
         // Check which subcommand was called
         if (interaction.options.getSubcommand() === 'about') {
             return interaction.reply('This is a trivia game! Written by Corey Murphy');
