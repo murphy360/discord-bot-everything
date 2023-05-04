@@ -2,6 +2,7 @@ const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder } = require('discor
 const fetch = require('node-fetch');
 
 
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('cat')
