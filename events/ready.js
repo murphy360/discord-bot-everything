@@ -12,6 +12,7 @@ module.exports = {
         client.guilds.cache.forEach((guild) => {
             console.info(guild.name);
             triviaExists = false;
+            chatGPTExists = false;
             textChannelId="";
             generalChannelId="";
             // TODO Remove this line in development.  For now we're just using the Discord Bot Development server
@@ -27,9 +28,14 @@ module.exports = {
                 if (channel.name == "trivia" && channel.type == 0) {
                     //console.info(` Trivia Exists- ${channel.name} ${channel.type} ${channel.id}`);
                     triviaExists = true;
-                }else{
-
                 }
+
+                // See if Chat GPT Channel Exists - if not create it
+                if (channel.name == "chat-gpt" && channel.type == 0) {
+                    //console.info(` Chat GPT Exists- ${channel.name} ${channel.type} ${channel.id}`);
+                    chatGPTExists = true;
+                }
+
             });  
 
             const defaultChannel = guild.systemChannel;
@@ -40,6 +46,16 @@ module.exports = {
                 console.info(`Creating Trivia Channel + ${textChannelId}`);
                 guild.channels.create({
                    name: "trivia",
+                    type: 0,
+                    parent: textChannelId,
+                });
+            }
+
+            // Chat GPT Channel doesn't exist on this guild - create it
+            if (!chatGPTExists){
+                console.info(`Creating Chat GPT Channel + ${textChannelId}`);
+                guild.channels.create({
+                   name: "chat-gpt",
                     type: 0,
                     parent: textChannelId,
                 });
