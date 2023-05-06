@@ -1,8 +1,6 @@
 const { EmbedBuilder, Colors, Message, ChatInputCommandInteraction } = require('discord.js');
 require('dotenv').config({ path: './../../data/.env' }) 
 const { Configuration, OpenAIApi } = require("openai");
-const develop = require('../../commands/development/develop');
-
 
 /**
  * Class for creating a Discord.JS ChatGPTClient.
@@ -20,6 +18,7 @@ class ChatGPTClient {
    * @param {{contextRemembering:boolean, responseType: 'embed' | 'string', maxLength:number}} options `.contextRemembering` Whether to keep track of ongoing conversations for each user.
    */
   constructor() {
+
     console.info('ChatGPTClient.constructor()');
   }
 
@@ -34,10 +33,12 @@ class ChatGPTClient {
   }
 
   // address a message (used in chat-gpt channels)
+
   async addressMessage(message) {
     const channel = message.channel;
     console.info('ChatGPTClient.addressChannel()');
     console.info(message.content);
+
     let genericContextData = await this.gatherContextData(this.contextData, channel);
     await this.sendChatCompletion(genericContextData, channel);  
   }
@@ -47,6 +48,7 @@ class ChatGPTClient {
     await this.openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: contextData,
+
       })
       .then((result) => {
       
@@ -62,6 +64,7 @@ class ChatGPTClient {
       .catch((error) => {
       console.log(`OPENAI ERR: ${error}`);
     });
+
   }
 
   // gather contextData from a specific Channel.  Used by askDevelopmentQuestion() and addressMessage()
@@ -77,6 +80,7 @@ class ChatGPTClient {
       });
     });
     return contextData;
+
   }
 
 }
