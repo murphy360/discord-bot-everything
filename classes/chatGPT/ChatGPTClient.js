@@ -1,6 +1,7 @@
 const { EmbedBuilder, Colors, Message, ChatInputCommandInteraction } = require('discord.js');
 require('dotenv').config({ path: './../../data/.env' }) 
 const { Configuration, OpenAIApi } = require("openai");
+const develop = require('../../commands/development/develop');
 
 
 /**
@@ -19,28 +20,33 @@ class ChatGPTClient {
    * @param {{contextRemembering:boolean, responseType: 'embed' | 'string', maxLength:number}} options `.contextRemembering` Whether to keep track of ongoing conversations for each user.
    */
   constructor() {
-    
- 
+    console.info('ChatGPTClient.constructor()');
   }
 
+  // Response to /develop command
+  async askDevelopmentQuestion(interaction) {
+    let developerContextData = [{ role: 'system', content: 'You are a friendly pair programmer. You are here to assist a developer with their coding.' }];
+    const channel = interaction.channel;
+    console.info('ChatGPTClient.askDevelopmentQuestion()');
+    developerContextData = await this.gatherContextData(developerContextData, channel);
+    await this.sendChatCompletion(developerContextData, channel); 
+
+  }
+
+  // address a message (used in chat-gpt channels)
   async addressMessage(message) {
     const channel = message.channel;
     console.info('ChatGPTClient.addressChannel()');
     console.info(message.content);
-    let prevMessages = await channel.messages.fetch({ limit: 15 });
-    prevMessages.reverse();
-    
-    prevMessages.forEach((msg) => {
-      console.info(msg.content);
-      this.contextData.push({
-      role: 'user',
-      content: msg.content,
-      });
-    });
+    let genericContextData = await this.gatherContextData(this.contextData, channel);
+    await this.sendChatCompletion(genericContextData, channel);  
+  }
 
-    const result = await this.openai.createChatCompletion({
+  // send chat completion to a specific Channel.  Used by askDevelopmentQuestion() and addressMessage()
+  async sendChatCompletion(contextData, channel) {
+    await this.openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
-      messages: this.contextData,
+      messages: contextData,
       })
       .then((result) => {
       
@@ -56,7 +62,21 @@ class ChatGPTClient {
       .catch((error) => {
       console.log(`OPENAI ERR: ${error}`);
     });
-   
+  }
+
+  // gather contextData from a specific Channel.  Used by askDevelopmentQuestion() and addressMessage()
+  async gatherContextData(contextData, channel) {
+    let prevMessages = await channel.messages.fetch({ limit: 15 });
+    prevMessages.reverse();
+    
+    prevMessages.forEach((msg) => {
+      console.info(msg.content);
+      contextData.push({
+      role: 'user',
+      content: msg.content,
+      });
+    });
+    return contextData;
   }
 
 }
