@@ -1,20 +1,17 @@
-
 const { Timer } = require('../common/timer.js');
 const { EmbedBuilder }  = require('discord.js');
 
 //This class sends the game introduction
 class Intro {
 
-    constructor(client, hostMember, hostGuild, rounds, difficulty, category, gameId) {
-        
+    constructor(client, hostMember, hostGuild, rounds, difficulty, categoryName, gameId) {
         this.client = client;
         this.hostMember = hostMember;
         this.hostGuild = hostGuild;
         this.rounds = rounds;
         this.difficulty = difficulty;
-        this.category = category;
+        this.categoryName = categoryName;
         this.gameId = gameId;
-
     }
 
     async send(channel) {
@@ -41,7 +38,7 @@ class Intro {
                 { name: 'Host Guild', value: this.hostGuild.name, inline: true },
                 { name: '\u200B', value: '\u200B' },
                 { name: 'Rounds', value: this.rounds.toString(), inline: true },
-                { name: 'Category', value: this.category, inline: true },
+                { name: 'Category', value: this.categoryName, inline: true },
                 { name: 'Difficulty', value: this.difficulty, inline: true },
             )
             .setTimestamp()
@@ -49,7 +46,6 @@ class Intro {
             // Send the embed to the trivia channel
             channel.send({ embeds: [embed] });  
         });
-     
     }
 }
   

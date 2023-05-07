@@ -1,6 +1,32 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { Game } = require('./../../classes/trivia/game.js');
 let game_in_progress = false;
+const triviaCategories = [
+    { name: 'General Knowledge', value: '9' },
+    { name: 'Entertainment: Books', value: '10' },
+    { name: 'Entertainment: Film', value: '11' },
+    { name: 'Entertainment: Music', value: '12' },
+    { name: 'Entertainment: Musicals & Theatres', value: '13' },
+    { name: 'Entertainment: Television', value: '14' },
+    { name: 'Entertainment: Video Games', value: '15' },
+    { name: 'Entertainment: Board Games', value: '16' },
+    { name: 'Entertainment: Japanese Anime & Manga', value: '31' },
+    { name: 'Entertainment: Cartoon & Animations', value: '32' },
+    { name: 'Entertainment: Comics', value: '29' },
+    { name: 'Science & Nature', value: '17' },
+    { name: 'Science: Computers', value: '18' },
+    { name: 'Science: Mathematics', value: '19' },
+    { name: 'Science: Gadgets', value: '30' },
+    { name: 'Mythology', value: '20' },
+    { name: 'Sports', value: '21' },
+    { name: 'Geography', value: '22' },
+    { name: 'History', value: '23' },
+    { name: 'Politics', value: '24' },
+    { name: 'Art', value: '25' },
+    { name: 'Celebrities', value: '26' },
+    { name: 'Animals', value: '27' },
+    { name: 'Vehicles', value: '28' }
+];
 
 module.exports = {
 
@@ -23,7 +49,7 @@ module.exports = {
                     .addChoices(
                         { name: 'Five', value: '5' },
                         { name: 'Ten', value: '10' },
-                        { name: 'Fifteen', value: '15' },
+                        { name: 'Fifteen', value: '15' }
                 ))
                 .addStringOption(option => 
                     option.setName('difficulty')
@@ -32,8 +58,38 @@ module.exports = {
                     .addChoices(
                         { name: 'Easy', value: 'easy' },
                         { name: 'Medium', value: 'medium' },
-                        { name: 'hard', value: 'hard' },
-                )))
+                        { name: 'hard', value: 'hard' }
+                ))
+                .addStringOption(option => 
+                    option.setName('category')
+                    .setDescription('What Category?')
+                    .setRequired(false)
+                    .addChoices(  
+                        { name: 'General Knowledge', value: '9' },
+                        { name: 'Entertainment: Books', value: '10' },
+                        { name: 'Entertainment: Film', value: '11' },
+                        { name: 'Entertainment: Music', value: '12' },
+                        { name: 'Entertainment: Musicals & Theatres', value: '13' },
+                        { name: 'Entertainment: Television', value: '14' },
+                        { name: 'Entertainment: Video Games', value: '15' },
+                        { name: 'Entertainment: Board Games', value: '16' },
+                        { name: 'Entertainment: Japanese Anime & Manga', value: '31' },
+                        { name: 'Entertainment: Cartoon & Animations', value: '32' },
+                        { name: 'Entertainment: Comics', value: '29' },
+                        { name: 'Science & Nature', value: '17' },
+                        { name: 'Science: Computers', value: '18' },
+                        { name: 'Science: Mathematics', value: '19' },
+                        { name: 'Science: Gadgets', value: '30' },
+                        { name: 'Mythology', value: '20' },
+                        { name: 'Sports', value: '21' },
+                        { name: 'Geography', value: '22' },
+                        { name: 'History', value: '23' },
+                        { name: 'Politics', value: '24' },
+                        { name: 'Art', value: '25' },
+                        { name: 'Celebrities', value: '26' },
+                        { name: 'Animals', value: '27' },
+                        { name: 'Vehicles', value: '28' }
+                )))              
         .addSubcommand(subcommand =>
             subcommand
                 .setName('leaderboard')
@@ -52,8 +108,9 @@ module.exports = {
         } else if (interaction.options.getSubcommand() === 'play') {
 
             let rounds = 3;
-            let difficulty = 'medium';
-            let category = 'all';
+            let difficulty = 'all';
+            let categoryName = 'All';
+            let categoryValue = '0';
 
             // Check if the user provided a number of rounds
             if (interaction.options.getString('rounds')) {
@@ -65,7 +122,18 @@ module.exports = {
                 difficulty = interaction.options.getString('difficulty');
             }   
 
-            // ToDo:  Add Category checking
+            // Check if the user provided a category
+            if (interaction.options.getString('category')) {
+                categoryValue = interaction.options.getString('category');
+                const mythologyCategory = triviaCategories.find(category => category.value === categoryValue);
+
+            if (mythologyCategory) {
+                console.log('myth categoryName: ' + mythologyCategory.name);
+                categoryName = mythologyCategory.name;
+            } else {
+                console.log('Mythology category not found');
+            }
+            }
 
             // Get the user and guild that started the game (Hosts)
             const hostMember = interaction.member;
@@ -75,11 +143,8 @@ module.exports = {
                   //Respond to hostMember
                 interaction.reply(hostMember.displayName + ', OK! ' + rounds + ' rounds! Difficulty: ' + difficulty + ' New game coming up!');
 
-                const game = new Game(interaction.client, hostMember, hostGuild, rounds, difficulty, category);
-                console.info("game should exist");
-                //game.intro();
-                //await game.createQuestions();
-                
+                const game = new Game(interaction.client, hostMember, hostGuild, rounds, difficulty, categoryValue, categoryName);
+                console.info("game should exist");                
                 game_in_progress = true;
                 await game.play();
                 game_in_progress = false;
@@ -87,11 +152,7 @@ module.exports = {
             } else {
                 // Respond that a game is already in play
                 return interaction.reply(hostMember.displayName + ', Sorry! a game is already in progress.  Check the Trivia Room!');
-
             }
-
-            
-
           
         } else if (interaction.options.getSubcommand() === 'leaderboard') {
             return interaction.reply('This will be the leaderboard!');

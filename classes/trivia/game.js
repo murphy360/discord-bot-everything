@@ -8,7 +8,7 @@ const fetch = require('node-fetch');
 // TODO create triviaGuilds from beginning of game
 class Game {
      
-    constructor(client, hostMember, hostGuild, rounds, difficulty, category) {
+    constructor(client, hostMember, hostGuild, rounds, difficulty, categoryValue, categoryName) {
         
         this.ID = this.storeGame();
         this.client = client;
@@ -17,7 +17,8 @@ class Game {
         this.total_rounds = rounds;
         this.current_round = 0;
         this.difficulty = difficulty;
-        this.category = category;
+        this.categoryValue = categoryValue;
+        this.categoryName = categoryName;
         this.created_on = Date.now();
         this.winner = null;
         this.players = new Array();
@@ -34,7 +35,16 @@ class Game {
     
     async createQuestions() {
         console.info("createQuestions");
-        const file = await fetch('https://opentdb.com/api.php?amount='+this.total_rounds).then(response => response.text());
+        let url = 'https://opentdb.com/api.php?amount='+this.total_rounds;
+        if (this.difficulty !== 'all') {
+            url = url + '&difficulty=' + this.difficulty;
+        }
+        console.info('categoryName: ' + this.categoryName);
+        if (this.categoryName !== 'All') {
+            url = url + '&category=' + this.categoryValue;
+        }
+        console.info('URL: ' + url);
+        const file = await fetch(url).then(response => response.text());
         const json = JSON.parse(file);
 	    console.info('JSON: ' + json);
         this.questions = new Array()
@@ -48,9 +58,8 @@ class Game {
     async play() {
         
         await this.createQuestions();
-        const intro = new Intro(this.client, this.hostMember, this.hostGuild, this.total_rounds, this.difficulty, this.category);
+        const intro = new Intro(this.client, this.hostMember, this.hostGuild, this.total_rounds, this.difficulty, this.categoryName);
         await this.sendIntroToGuilds(intro);
-   
         for (this.current_round = 0; this.current_round < this.total_rounds; this.current_round++) {
             console.info('Round ' + this.current_round + ' starting');
             await this.askQuestionToGuilds(this.questions[this.current_round]);
@@ -84,8 +93,6 @@ class Game {
 
     // Ask a question to all guilds, returns once the question has been answered from each
     async askQuestionToGuilds(question) {
-
-
         return new Promise((resolve, reject) => {
             console.info('Inside Question Promise');
             const guilds = this.client.guilds.cache;
@@ -94,9 +101,7 @@ class Game {
                 console.info('Sending Question to Guild: ' + guild.name);
                 const channel = guild.channels.cache.find(
                     channel => channel.name.toLowerCase() === "trivia");
-                
                 promises.push(question.ask(channel)); 
-                //console.info('There are ' + promises.length + ' question promises'); 
             });
             
             console.info('Waiting for all promises to resolve');
@@ -105,7 +110,6 @@ class Game {
                 console.info('All promises resolved');
                 resolve();
             });
-            
         });
     }
 
@@ -114,13 +118,10 @@ class Game {
     
         return new Promise((resolve, reject) => {
             console.info('Results');
-            
             const promises = [];
             this.triviaGuilds.forEach((triviaGuild) => {
                 console.info('Sending Score to Guild: ' + triviaGuild.guild.name);
-
-                promises.push(triviaGuild.sendGameGuildScoreBoard());
-                
+                promises.push(triviaGuild.sendGameGuildScoreBoard()); 
             });
             Promise.all(promises).then(() => {
                 resolve();
@@ -137,7 +138,8 @@ class Game {
                 for (let j = 0; j < answersToQuestion.length; j++) {
                     const answer = answersToQuestion[j];
                     console.info('User: ' + answer.user.username + ' id: ' + answer.user.id + ' Guild: ' + answer.guild.name + 'Guild Id: ' + answer.guild.id + ' Correct? ' + answer.isCorrect + ' Score: ' + answer.points + ' Guild Winner? ' + answer.isGuildWinner);
-                    
+
+                    // Add the player to the game if they are not already in it
                     let answerPlayer = this.players.find(player => player.user.id === answer.user.id);
                     if (answerPlayer === undefined) {
                         console.info('Adding player to game: ' + answer.user.username);
@@ -148,6 +150,7 @@ class Game {
                         answerPlayer.addAnswer(answer);
                     }
                     
+                    // Add the guild to the game if it is not already in it
                     let answerGuild = this.triviaGuilds.find(triviaGuild => triviaGuild.guild.id === answer.guild.id);
                     console.info('answer.guild.name=  ' + answer.guild.name + ' answer.guild.id = ' + answer.guild.id);
                     if (answerGuild === undefined) {
@@ -158,6 +161,7 @@ class Game {
                         console.info('Guild already in game: ' + answer.guild.name);
                         answerGuild.addAnswer(answer);
                     } 
+
                     // Add the player to the guild if they are not already in it
                     if (!answerGuild.players.includes(answerPlayer)) {
                         console.info('Adding player to guild: ' + answer.user.username);
@@ -165,15 +169,15 @@ class Game {
                     } else {    
                         console.info('Player already in guild: ' + answer.user.username);
                     }
-                }
-
-                console.info('Question Winner: ' + this.questions[i].question.winnerId);   
+                }  
             }
 
+            // Sort the players by score
             for (let i = 0; i < this.players.length; i++) {
                 console.info('Player: ' + this.players[i].user.username + ' Score: ' + this.players[i].currentScore);
             }
 
+            // Sort the guilds by score
             for (let i = 0; i < this.triviaGuilds.length; i++) {
                 console.info('Guild: ' + this.triviaGuilds[i].guild.name + ' Score: ' + this.triviaGuilds[i].currentScore);
             }
