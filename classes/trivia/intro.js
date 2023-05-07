@@ -3,8 +3,9 @@ const { EmbedBuilder }  = require('discord.js');
 
 //This class sends the game introduction
 class Intro {
-
+   
     constructor(client, hostMember, hostGuild, rounds, difficulty, categoryName, gameId) {
+        this.timerSec = 10;
         this.client = client;
         this.hostMember = hostMember;
         this.hostGuild = hostGuild;
@@ -17,12 +18,7 @@ class Intro {
     async send(channel) {
         return new Promise((resolve, reject) => {
 
-            const timer = new Timer(60, 1, channel, "A new game is starting!");
-            timer.start().then(() => {
-                console.info("Intro Timer finished");
-                resolve("Resolved");
-                console.info("Intro resolved");
-            });
+
 
             const embed = new EmbedBuilder()
             // Set the title of the field
@@ -45,6 +41,13 @@ class Intro {
             .setFooter({ text: 'Trivia Game# ' + this.gameId, iconURL: this.client.user.displayAvatarURL() });
             // Send the embed to the trivia channel
             channel.send({ embeds: [embed] });  
+
+            const timer = new Timer(this.timerSec, 1, channel, "A new game is starting!");
+            timer.start().then(() => {
+                console.info("Intro Timer finished");
+                resolve("Resolved");
+                console.info("Intro resolved");
+            });
         });
     }
 }

@@ -107,7 +107,7 @@ module.exports = {
             return interaction.reply('This is a trivia game! Written by Corey Murphy');
         } else if (interaction.options.getSubcommand() === 'play') {
 
-            let rounds = 3;
+            let rounds = 1;
             let difficulty = 'all';
             let categoryName = 'All';
             let categoryValue = '0';
@@ -144,10 +144,12 @@ module.exports = {
                 interaction.reply(hostMember.displayName + ', OK! ' + rounds + ' rounds! Difficulty: ' + difficulty + ' New game coming up!');
 
                 const game = new Game(interaction.client, hostMember, hostGuild, rounds, difficulty, categoryValue, categoryName);
-                console.info("game should exist");                
+                await game.init();
+                console.info('game ' + game.ID + ' should exist');                
                 game_in_progress = true;
                 await game.play();
                 game_in_progress = false;
+                game.end();
 
             } else {
                 // Respond that a game is already in play

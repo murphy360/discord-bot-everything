@@ -2,6 +2,8 @@ const { Question } = require('./question.js');
 const { Intro } = require('./intro.js');
 const { Player } = require('./player.js');
 const { TriviaGuild } = require('./triviaGuild.js');
+const { Sequelize } = require('sequelize');
+const { Games } = require('./../../dbObjects.js');
 //const { Round } = require('./round.js');
 const fetch = require('node-fetch');
 //const { like } = require('sequelize/types/lib/operators.js');
@@ -10,7 +12,7 @@ class Game {
      
     constructor(client, hostMember, hostGuild, rounds, difficulty, categoryValue, categoryName) {
         
-        this.ID = this.storeGame();
+        this.ID = 0
         this.client = client;
 		this.hostMember = hostMember;
 		this.hostGuild = hostGuild;
@@ -25,15 +27,30 @@ class Game {
         this.triviaGuilds = new Array();
         this.current_round = 0;
         this.questions = new Array();
+        this.winningMember = null;
+        this.winningGuild = null;
     }
     
-    storeGame() {
-        const database_id = 0;
-        // Store game in database using sequelize
-        return database_id;
+    async storeGame(endType) {
+        const DBgame = await Games.findOne({ where: { game_id: this.ID, game_end_type: endType } });
+ 
+        if (DBgame) {
+            console.info('Game found in database, updating game_end: ' + this.ID);
+            DBgame.update({ game_end: Sequelize.fn('datetime', 'now') });
+        } else {
+            
+            const game = await Games.create({ 
+                host_player_id: this.hostMember.id, 
+                host_guild_id: this.hostGuild.id, 
+                game_start: Sequelize.fn('datetime', 'now'),
+                game_end_type: endType, 
+            });
+            this.ID = game.game_id;
+            console.info('Creating entry for new game. ' + this.ID);
+        }
     }
-    
-    async createQuestions() {
+
+    async getTDBQuestions() {
         console.info("createQuestions");
         let url = 'https://opentdb.com/api.php?amount='+this.total_rounds;
         if (this.difficulty !== 'all') {
@@ -47,10 +64,30 @@ class Game {
         const file = await fetch(url).then(response => response.text());
         const json = JSON.parse(file);
 	    console.info('JSON: ' + json);
+
         this.questions = new Array()
         for (let i = 0; i < this.total_rounds; i++) {
-            this.questions[i] = new Question(this.client, json.results[i], (i + 1));
+            this.questions[i] = new Question(this.client, json.results[i], (i + 1), 'https://opentdb.com' );
             console.info("Question: " + this.questions[i].question);
+        }
+        return;
+    }
+    
+    async createQuestions() {
+        console.info("createQuestions");
+        let url = 'https://opentdb.com/api.php?amount='+this.total_rounds;
+        if (this.difficulty !== 'all') {
+            url = url + '&difficulty=' + this.difficulty;
+        }
+        if (this.categoryName !== 'All') {
+            url = url + '&category=' + this.categoryValue;
+        }
+        const file = await fetch(url).then(response => response.text());
+        const json = JSON.parse(file);
+
+        this.questions = new Array()
+        for (let i = 0; i < this.total_rounds; i++) {
+            this.questions[i] = new Question(this.client, json.results[i], (i + 1), 'https://opentdb.com' );
         }
         return;
     }
@@ -58,15 +95,13 @@ class Game {
     async play() {
         
         await this.createQuestions();
-        const intro = new Intro(this.client, this.hostMember, this.hostGuild, this.total_rounds, this.difficulty, this.categoryName);
+        const intro = new Intro(this.client, this.hostMember, this.hostGuild, this.total_rounds, this.difficulty, this.categoryName, this.ID.toString());
         await this.sendIntroToGuilds(intro);
         for (this.current_round = 0; this.current_round < this.total_rounds; this.current_round++) {
-            console.info('Round ' + this.current_round + ' starting');
             await this.askQuestionToGuilds(this.questions[this.current_round]);
-            console.info('Round ' + this.current_round + ' complete');
         }
         await this.gradeGame();
-        this.sendScoreToGuilds();
+        this.sendScoreToGuilds(this.winningMember, this.winningGuild);
         return;
     }
 
@@ -74,16 +109,13 @@ class Game {
     async sendIntroToGuilds(intro) {
         
         return new Promise((resolve, reject) => {
-            console.info('Inside Intro Promise');
             const guilds = this.client.guilds.cache;
             const promises = [];
             guilds.forEach((guild) => {
-                console.info('Sending Intro to Guild: ' + guild.name);
                 const channel = guild.channels.cache.find(
                     channel => channel.name.toLowerCase() === "trivia");
-                
+    
                 promises.push(intro.send(channel)); 
-                //console.info('There are ' + promises.length + ' intro promises'); 
             });
             Promise.all(promises).then(() => {
                 resolve();
@@ -113,7 +145,7 @@ class Game {
         });
     }
 
-    /***** INTRO: Display Intro before game *****/
+    /***** Send Results Scoreboards to Guilds *****/
     async sendScoreToGuilds() {
     
         return new Promise((resolve, reject) => {
@@ -121,7 +153,7 @@ class Game {
             const promises = [];
             this.triviaGuilds.forEach((triviaGuild) => {
                 console.info('Sending Score to Guild: ' + triviaGuild.guild.name);
-                promises.push(triviaGuild.sendGameGuildScoreBoard()); 
+                promises.push(triviaGuild.sendGameGuildScoreBoard(this.winningMember, this.winningGuild)); 
             });
             Promise.all(promises).then(() => {
                 resolve();
@@ -135,77 +167,78 @@ class Game {
             for (let i = 0; i < this.questions.length; i++) {
                 console.info('Question ' + i + ' grading ' + this.questions[i].question);
                 const answersToQuestion = this.questions[i].answers;
+
                 for (let j = 0; j < answersToQuestion.length; j++) {
                     const answer = answersToQuestion[j];
-                    console.info('User: ' + answer.user.username + ' id: ' + answer.user.id + ' Guild: ' + answer.guild.name + 'Guild Id: ' + answer.guild.id + ' Correct? ' + answer.isCorrect + ' Score: ' + answer.points + ' Guild Winner? ' + answer.isGuildWinner);
 
                     // Add the player to the game if they are not already in it
                     let answerPlayer = this.players.find(player => player.user.id === answer.user.id);
                     if (answerPlayer === undefined) {
-                        console.info('Adding player to game: ' + answer.user.username);
                         answerPlayer = new Player(answer);
-                        this.players.push(answerPlayer);
+                        this.players.push(answerPlayer); // TODO I'd like to move this logic to the end of each question
                     } else {
-                        console.info('Player already in game: ' + answer.user.username);
                         answerPlayer.addAnswer(answer);
                     }
                     
                     // Add the guild to the game if it is not already in it
                     let answerGuild = this.triviaGuilds.find(triviaGuild => triviaGuild.guild.id === answer.guild.id);
-                    console.info('answer.guild.name=  ' + answer.guild.name + ' answer.guild.id = ' + answer.guild.id);
                     if (answerGuild === undefined) {
-                        console.info('Adding guild to game: ' + answer.guild.name);
-                        answerGuild = new TriviaGuild(answer);
+                        answerGuild = new TriviaGuild(answer); // TODO I'd like to move this logic to the end of each question
                         this.triviaGuilds.push(answerGuild);
                     } else {    
-                        console.info('Guild already in game: ' + answer.guild.name);
                         answerGuild.addAnswer(answer);
                     } 
 
                     // Add the player to the guild if they are not already in it
                     if (!answerGuild.players.includes(answerPlayer)) {
-                        console.info('Adding player to guild: ' + answer.user.username);
                         answerGuild.addPlayer(answerPlayer);
-                    } else {    
-                        console.info('Player already in guild: ' + answer.user.username);
                     }
                 }  
             }
 
-            // Sort the players by score
+            // Sort the players by score highest to lowest      
+            this.players.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
+            this.players.reverse();
             for (let i = 0; i < this.players.length; i++) {
                 console.info('Player: ' + this.players[i].user.username + ' Score: ' + this.players[i].currentScore);
+                // TODO Address ties
             }
+            this.winningMember = this.players[0].user;
+            this.players[0].user.username;
+            console.info('Winning Member: ' + this.winningMember.username);
 
             // Sort the guilds by score
+            this.triviaGuilds.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
+            this.triviaGuilds.reverse();
+            
             for (let i = 0; i < this.triviaGuilds.length; i++) {
                 console.info('Guild: ' + this.triviaGuilds[i].guild.name + ' Score: ' + this.triviaGuilds[i].currentScore);
+                // TODO Address ties
             }
+            this.winningGuild = this.triviaGuilds[0].guild;
+            console.info('Winning Guild: ' + this.winningGuild.name);
             resolve("Grading Complete");
         });
-        // Grade the game and determine the winner
-        //this.winner = this.players[0];
-        //this.end();
-         //TODO Player with most correct answers gets extra points
-                //TODO Check if players played in two guilds 
-                //TODO Guild with most correct answers gets extra points
+    }
+
+    async init() {
+        // Display intro and add game to database
+        console.info('Game Init');
+        await this.storeGame('Initialized');
     }
 
 	end() {
 		// Display final scoreboard
         console.info('Game Over');
-		this.logGame();
+		this.storeGame('Completed');
 	}
 	
 	cancel() {
 		// Cancel game if requested by user
-		this.logGame();
+        console.info('Game Cancelled');
+		this.storeGame('Cancelled');
 	}
 	
-    logGame() {
-        console.info("Log Game " + this.ID);
-        // post game update of the game data in sequelize database
-    }
 	
 }
 

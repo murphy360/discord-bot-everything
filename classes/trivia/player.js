@@ -1,3 +1,4 @@
+const { Users } = require('./../../dbObjects.js');
 class Player {
 
     GAMES_PLAYED=new Array();       // Array of all Games the player has played in
@@ -8,11 +9,24 @@ class Player {
     WIN_STREAK=0;                   // Number of consecutive wins
 
     constructor(answer) {
+        console.info('Creating new player: ' + answer.user.username);
         this.user = answer.user;
         this.DATE_JOINED = new Date();
         this.answers = new Array();
         this.currentScore = 0;
         this.addAnswer(answer);
+        this.storePlayerToDb();
+    }
+
+    async storePlayerToDb() {
+        
+		const DBuser = await Users.findOne({ where: { user_id: this.user.id } });
+        if (DBuser) {
+            console.info('User found in database: ' + this.user.username);
+        } else {
+            console.info('User not found in database, adding now. ' + this.user.username);
+            await Users.create({ user_id: this.user.id, user_name: this.user.username });
+        }
     }
     
     getStreak() {                   // Return the player's win streak
@@ -67,11 +81,11 @@ class Player {
     }
     
     getUsername() {                 // Returns string containing Player's Discord username
-        return this.USERNAME;
+        return this.userNAME;
     }
     
     getUserID() {                   // Returns the Discord User ID
-        return this.USER_ID;
+        return this.user_ID;
     }
 }
 

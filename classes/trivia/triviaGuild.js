@@ -82,12 +82,12 @@ class TriviaGuild {
         return this.USER_ID;
     }
 
-    async sendGameGuildScoreBoard() {
+    async sendGameGuildScoreBoard(winningMember, winningGuild) {
         console.info('sendGameGuildScore: ' + this.guild.name);
         const channel = this.guild.channels.cache.find(
             channel => channel.name.toLowerCase() === "trivia");
 
-        const embed = this.createGameScoreboardEmbed();
+        const embed = this.createGameScoreboardEmbed(winningMember, winningGuild);
 
         
         //console.info('There are ' + promises.length + ' intro promises'); 
@@ -100,7 +100,7 @@ class TriviaGuild {
    
 
     // Create question winner embed
-    createGameScoreboardEmbed() {
+    createGameScoreboardEmbed(winningMember, winningGuild) {
         console.info("Creating Game Scoreboard Embed for " + this.guild.name);
         // Sort players by points
         this.players.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
@@ -119,12 +119,15 @@ class TriviaGuild {
             .setTitle(this.guild.name + ' Final Scoreboard')
             .addFields(
                 //{name: 'Guild Score', value: this.currentScore, inline: false},
-                {name: 'Guild Score', value: this.currentScore.toString(), inline: false},
-                {name: 'Guild Winner', value: winner.user.username, inline: false},
+                {name: 'Game Winner', value: winningMember.username, inline: true},
+                {name: 'Winning Guild', value: winningGuild.name, inline: true},
+                { name: '\u200B', value: '\u200B' },
+                {name: this.guild.name + ' Winner', value: winner.user.username, inline: true},
+                {name: 'Guild Score', value: this.currentScore.toString(), inline: true},
                 {name: 'Scores', value: scoreString, inline: false}
             )
-            .setThumbnail(this.guild.iconURL())
-            .setFooter({ text: 'Question provided by The Open Trivia Database (https://opentdb.com)' });
+            .setThumbnail(winningGuild.iconURL())
+            .setFooter({ text: 'Questions provided by The Open Trivia Database (https://opentdb.com)' });
             
         return embed;
     }

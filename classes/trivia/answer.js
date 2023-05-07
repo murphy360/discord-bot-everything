@@ -12,8 +12,6 @@ class Answer {
         this.isGuildWinner = false;
         this.isGlobalWinner = false;
         this.points = 0;
-        this.gradeAnswer();
-
     }
 
     storeAnswer() {
@@ -25,15 +23,13 @@ class Answer {
     setGuildWinner() {
         console.info('setGuildWinner: ' + this.user.username + ' is the guild winner! ' + this.guild.name);
         this.isGuildWinner = true;
-        this.gradeAnswer();
     }
 
     setGlobalWinner() {
         this.isGlobalWinner = true;
-        this.gradeAnswer();
     }
 
-    gradeAnswer() {
+    gradeAnswer(numPlayers) {
         if (this.isCorrect) {
             // Assign points based on difficulty
             switch (this.difficulty) {
@@ -58,6 +54,9 @@ class Answer {
         if (this.isGlobalWinner) {
             this.points += 10;
         }
+
+        // You get more points based on the number of players in the game
+        this.points = this.points * numPlayers;
     }
 }
   

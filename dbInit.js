@@ -10,17 +10,18 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 const Games = require('./models/Games')(sequelize, Sequelize.DataTypes);
 const Users = require('./models/Users')(sequelize, Sequelize.DataTypes);
 const Questions = require('./models/Questions')(sequelize, Sequelize.DataTypes);
-const Responses = require('./models/Responses')(sequelize, Sequelize.DataTypes);
-Questions.belongToMany(Games, (through: 'Responses' });
-Games.belongToMany(Questions, (through: 'Responses' });
-Questions.belongToMany(Users, (through: 'Responses' });
-Users.belongToMany(Questions, (through: 'Responses' });
-Games.belongToMany(Users, (through: 'Responses' });
-Users.belongToMany(Games, (through: 'Responses' });
+//const Responses = require('./models/Responses')(sequelize, Sequelize.DataTypes);
+
+//Questions.belongToMany(Games, (through: 'Responses' });
+//Games.belongToMany(Questions, (through: 'Responses' });
+//Questions.belongToMany(Users, (through: 'Responses' });
+//Users.belongToMany(Questions, (through: 'Responses' });
+//Games.belongToMany(Users, (through: 'Responses' });
+//Users.belongToMany(Games, (through: 'Responses' });
 
 
-
-const force = process.argv.includes('--force') || process.argv.includes('-f');
+// force true will remake database every time
+const force = true;
 
 sequelize.sync({ force }).then(async () => {
 		console.log('Database synced');
