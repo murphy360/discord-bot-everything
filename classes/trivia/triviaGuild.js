@@ -1,4 +1,5 @@
 const { EmbedBuilder }  = require('discord.js');
+const { Guilds } = require('./../../dbObjects.js');
 class TriviaGuild {
 
     GAMES_PLAYED=new Array();       // Array of all Games the player has played in
@@ -95,6 +96,7 @@ class TriviaGuild {
         //const scoreboard = new ScoreboardGame(this.client, this.hostMember, this.hostGuild, this.total_rounds, this.difficulty, this.category, this.answers, this.players, this.triviaGuilds, this.ID, channel);
         
         channel.send({ embeds: [embed] });
+        this.setGuildChampionRole();
     }
 
    
@@ -105,7 +107,8 @@ class TriviaGuild {
         // Sort players by points
         this.players.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
         this.players.reverse();
-        // Get winner
+
+        // Get Game winner
         let winner = this.players[0];
 
         // Format Score String
@@ -118,18 +121,104 @@ class TriviaGuild {
         let embed = new EmbedBuilder()
             .setTitle(this.guild.name + ' Final Scoreboard')
             .addFields(
-                //{name: 'Guild Score', value: this.currentScore, inline: false},
                 {name: 'Game Winner', value: winningMember.username, inline: true},
+                {name: 'Guild Winner', value: winner.user.username, inline: true},
                 {name: 'Winning Guild', value: winningGuild.name, inline: true},
                 { name: '\u200B', value: '\u200B' },
                 {name: this.guild.name + ' Winner', value: winner.user.username, inline: true},
                 {name: 'Guild Score', value: this.currentScore.toString(), inline: true},
                 {name: 'Scores', value: scoreString, inline: false}
             )
-            .setThumbnail(winningGuild.iconURL())
-            .setFooter({ text: 'Questions provided by The Open Trivia Database (https://opentdb.com)' });
+            .setThumbnail(winningMember.displayAvatarURL())
+            .setFooter({ text: 'Wasn\'t that a fun game?' });
             
         return embed;
+    }
+
+    // set Guild Champion Role
+    async setGuildChampionRole() {
+
+        // Get Guild Champion guildMember object
+        const guildChampion = await this.guild.members.fetch(this.players[0].user.id);
+    
+        console.info('Guild Champion: ' + guildChampion.nickname);
+        const roleName = "Guild Trivia Champion";
+
+        // Check if role exists
+        let role = await this.guild.roles.cache.find(role => role.name === roleName);
+        console.info('Role: ' + role);
+        // Create role if it doesn't exist
+        if (!role) {
+            console.info('Role ' + roleName + ' Doesn\'t exist');
+            role = await this.guild.roles.create({
+                data: {
+                    name: roleName,
+                    color: '#ffd700'
+                }
+            }).catch(console.error);
+
+        } 
+
+        // Refresh the role cache
+        await this.guild.roles.fetch();
+        // Make sure role is ready to go
+        role = await role.edit({
+            name: roleName,
+            color: '#ffd700' // replace with the hex code of the color you want to set
+        });
+            
+      
+
+        if (role) {
+            // Fetch the role again to verify that the name was updated
+            const updatedRole = await this.guild.roles.fetch(role.id);
+            console.info('Updated Role Name: ' + updatedRole.name);
+            // Remove role from all current champions (There can be only one!)
+            const currentChampions = this.guild.members.cache.filter(member => member.roles.cache.has(updatedRole.id));
+            console.info('Current Num Champions: ' + currentChampions.length);
+            await currentChampions.forEach(member => {
+                console.info('Removing Trivia Champion role from ' + member.user.username);
+                member.roles.remove(updatedRole.id);
+            });
+            console.info('Adding role ' + role.name + ' to ' + guildChampion.nickname);
+            await guildChampion.roles.add(updatedRole.id);
+            console.info('Role added ' + updatedRole.name + ' to ' + guildChampion.user.username);
+        } else {
+            console.info('Role not found');
+        }
+
+    }
+
+    async storeGuildToDb() {
+        
+		const DBguild = await Guilds.findOne({ where: { guild_id: this.guild.id } });
+        if (DBguild) {      
+            // Guild already exists in database
+            console.info('Guild found in database: ' + this.guild.name);
+        } else {
+            // Create Guild in database
+            console.info('Guild not found in database, adding now. ' + this.guild.name);
+            await Guilds.create({ guild_id: this.guild.id, guild_name: this.guild.name, trivia_points_total: 0});
+        } 
+        const gameXP = this.getGuildsGameXP();
+        console.info('Adding XP to guild: ' + this.guild.name + ' ' + gameXP);
+        await Guilds.increment({
+            total_xp: gameXP,
+            trivia_points_total: this.currentScore
+          }, {
+            where: { guild_id: this.guild.id }
+          });
+    }
+
+    getGuildsGameXP() {                   // Returns the XP earned in the last game 
+        // Questions answered correctly * 2
+        // Questions answered incorrectly * 1
+        const correctAnswers = this.answers.filter(answer => answer.isCorrect);
+        const incorrectAnswers = this.answers.filter(answer => !answer.isCorrect);
+        const isGlobalWinner = this.answers.filter(answer => answer.isGlobalWinner);
+        const isGuildWinner = this.answers.filter(answer => answer.isGuildWinner);
+        const xp = (correctAnswers.length * 2) + (incorrectAnswers.length * 1) + (isGlobalWinner.length * 5) + (isGuildWinner.length * 3);
+        return xp;
     }
 }
 

@@ -23,6 +23,11 @@ module.exports = (sequelize, Sequelize) => {
 		category: {
 			type: Sequelize.STRING
 		},
+		dislikes: {
+			type: Sequelize.INTEGER,
+			allowNull: false,
+			defaultValue: 0
+		},
 		difficulty: { 
 			type: Sequelize.STRING
 		},

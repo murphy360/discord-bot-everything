@@ -1,4 +1,6 @@
 const { Users } = require('./../../dbObjects.js');
+const Sequelize = require('sequelize');
+Sequelize.options.logging = console.log;
 class Player {
 
     GAMES_PLAYED=new Array();       // Array of all Games the player has played in
@@ -15,18 +17,38 @@ class Player {
         this.answers = new Array();
         this.currentScore = 0;
         this.addAnswer(answer);
-        this.storePlayerToDb();
     }
 
     async storePlayerToDb() {
         
 		const DBuser = await Users.findOne({ where: { user_id: this.user.id } });
-        if (DBuser) {
+        if (DBuser) {      
+            // Player already exists in database
             console.info('User found in database: ' + this.user.username);
         } else {
+            // Create Player in database
             console.info('User not found in database, adding now. ' + this.user.username);
-            await Users.create({ user_id: this.user.id, user_name: this.user.username });
-        }
+            await Users.create({ user_id: this.user.id, user_name: this.user.username, trivia_points_total: 0});
+        } 
+        const gameXP = this.getGameXP();
+        console.info('Adding XP to user: ' + this.user.username + ' ' + gameXP);
+        await Users.increment({
+            total_xp: gameXP,
+            trivia_points_total: this.currentScore
+          }, {
+            where: { user_id: this.user.id }
+          });
+    }
+
+    getGameXP() {                   // Returns the XP earned in the last game
+        // Questions answered correctly * 2
+        // Questions answered incorrectly * 1
+        const correctAnswers = this.answers.filter(answer => answer.isCorrect);
+        const incorrectAnswers = this.answers.filter(answer => !answer.isCorrect);
+        const isGlobalWinner = this.answers.filter(answer => answer.isGlobalWinner);
+        const isGuildWinner = this.answers.filter(answer => answer.isGuildWinner);
+        const xp = (correctAnswers.length * 2) + (incorrectAnswers.length * 1) + (isGlobalWinner.length * 5) + (isGuildWinner.length * 3);
+        return xp;
     }
     
     getStreak() {                   // Return the player's win streak
