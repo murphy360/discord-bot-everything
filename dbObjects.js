@@ -9,8 +9,9 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 
 const Users = require('./models/Users')(sequelize, Sequelize.DataTypes);
 const Games = require('./models/Games')(sequelize, Sequelize.DataTypes);
-const Questions = require('./models/Questions')(sequelize, Sequelize.DataTypes);
 const GamesPlayed = require('./models/GamesPlayed')(sequelize, Sequelize.DataTypes);
+const Guilds = require('./models/Guilds')(sequelize, Sequelize.DataTypes);
+const Questions = require('./models/Questions')(sequelize, Sequelize.DataTypes);
 
 GamesPlayed.belongsTo(Games, { foreignKey: 'game_id', as: 'game' });
 
@@ -29,4 +30,4 @@ Reflect.defineProperty(Users.prototype, 'addGame', {
 	},
 });
 
-module.exports = { Users, Games, Questions, GamesPlayed};
+module.exports = { Users, Games, Questions, GamesPlayed, Guilds};

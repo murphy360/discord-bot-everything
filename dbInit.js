@@ -8,6 +8,7 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 });
 
 const Games = require('./models/Games')(sequelize, Sequelize.DataTypes);
+const Guilds = require('./models/Guilds')(sequelize, Sequelize.DataTypes);
 const Users = require('./models/Users')(sequelize, Sequelize.DataTypes);
 const Questions = require('./models/Questions')(sequelize, Sequelize.DataTypes);
 //const Responses = require('./models/Responses')(sequelize, Sequelize.DataTypes);

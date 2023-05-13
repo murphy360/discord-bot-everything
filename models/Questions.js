@@ -8,7 +8,13 @@ module.exports = (sequelize, Sequelize) => {
 		source: {
 			type: Sequelize.TEXT
 		},
+		source_url: {
+			type: Sequelize.TEXT
+		},
 		source_id: {
+			type: Sequelize.TEXT
+		},
+		question_url: {
 			type: Sequelize.TEXT
 		},
 		question_type: {
