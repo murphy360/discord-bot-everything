@@ -1,8 +1,8 @@
 const { Question } = require('./question.js');
 const { Timer } = require('./timer.js');
-const { Response } = require('./response.js');
-const { Participant } = requre('./participant.js');     // Need to create
-const Discord = require('Discord');
+//const { Response } = require('./response.js');
+//const { Participant } = requre('./participant.js');     // Need to create
+//const Discord = require('Discord');
 const Reactions = [
     '\u0031\u20E3',     // :one: 
     '\u0032\u20E3',     // :two:
@@ -43,6 +43,7 @@ class Round {
         
         this.timer = new Timer(this.time,5,this.channel,'Time Remaining').start();
     }
+    
     
     collectUserReactions() {
         // use collector and filters
