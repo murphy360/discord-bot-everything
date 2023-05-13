@@ -4,9 +4,8 @@ const { Player } = require('./player.js');
 const { TriviaGuild } = require('./triviaGuild.js');
 const { Sequelize } = require('sequelize');
 const { Games } = require('./../../dbObjects.js');
-//const { Round } = require('./round.js');
+const { ChatGPTClient } = require('../../classes/chatGPT/ChatGPTClient.js');
 const fetch = require('node-fetch');
-//const { like } = require('sequelize/types/lib/operators.js');
 // TODO create triviaGuilds from beginning of game
 class Game {
      
@@ -29,6 +28,8 @@ class Game {
         this.questions = new Array();
         this.winningMember = null;
         this.winningGuild = null;
+        this.chatGPTClient = new ChatGPTClient();
+        
     }
     
     async storeGame(endType) {
@@ -50,6 +51,16 @@ class Game {
         }
     }
 
+    async createQuestions() {
+        console.info("createQuestions");
+        if (this.categoryValue === 'custom') {
+            await this.getOpenAIQuestions();
+        } else {
+            await this.getTDBQuestions();
+        }
+        return;
+    }
+
     async getTDBQuestions() {
         console.info("createQuestions");
         let url = 'https://opentdb.com/api.php?amount='+this.total_rounds;
@@ -67,30 +78,26 @@ class Game {
 
         this.questions = new Array()
         for (let i = 0; i < this.total_rounds; i++) {
-            this.questions[i] = new Question(this.client, json.results[i], (i + 1), 'https://opentdb.com' );
+            this.questions[i] = new Question(this.client, json.results[i], (i + 1), 'The Open Trivia Database', 'https://opentdb.com' );
             console.info("Question: " + this.questions[i].question);
         }
         return;
     }
-    
-    async createQuestions() {
-        console.info("createQuestions");
-        let url = 'https://opentdb.com/api.php?amount='+this.total_rounds;
-        if (this.difficulty !== 'all') {
-            url = url + '&difficulty=' + this.difficulty;
-        }
-        if (this.categoryName !== 'All') {
-            url = url + '&category=' + this.categoryValue;
-        }
-        const file = await fetch(url).then(response => response.text());
-        const json = JSON.parse(file);
 
-        this.questions = new Array()
-        for (let i = 0; i < this.total_rounds; i++) {
-            this.questions[i] = new Question(this.client, json.results[i], (i + 1), 'https://opentdb.com' );
-        }
-        return;
+    async getOpenAIQuestions() {
+        
+        await this.chatGPTClient.getTriviaQuestions(this.total_rounds, this.categoryName, this.difficulty).then((json) => {
+            for (let i = 0; i < this.total_rounds; i++) {
+                console.log(json[i].source + ' ' + json[i].question);
+                this.questions[i] = new Question(this.client, json[i], (i + 1), json[i].source, 'https://openai.com/' );
+                console.info("Created Question: " + this.questions[i].question);
+            }
+            
+        });
+          
     }
+    
+   
 
     async play() {
         
@@ -100,8 +107,29 @@ class Game {
         for (this.current_round = 0; this.current_round < this.total_rounds; this.current_round++) {
             await this.askQuestionToGuilds(this.questions[this.current_round]);
         }
-        await this.gradeGame();
-        this.sendScoreToGuilds(this.winningMember, this.winningGuild);
+        
+        // await this.gradeGame(); and see what the resolve is
+        await this.gradeGame().then(resolve => {
+            // Only send score to guilds if the game ended with a winner
+            switch (resolve) {
+                case 'Grading Complete':
+                    this.sendScoreToGuilds(this.winningMember, this.winningGuild);
+                    break;
+                case 'No Players Answered Any Questions':
+                    // TODO: Send message to guilds that no one answered any questions
+                    break;
+                case 'Game Ended in Tie':
+                    // TODO: Send message to guilds that game ended in a tie
+                    break;
+                default:
+                    console.info('Game ended with no winner');
+                    break;
+            }
+        });
+
+
+        
+        
         return;
     }
 
@@ -161,7 +189,7 @@ class Game {
         });
     }
 
-    gradeGame() {
+    async gradeGame() {
         console.info('Grading Game');
         return new Promise((resolve, reject) => {
             for (let i = 0; i < this.questions.length; i++) {
@@ -199,10 +227,20 @@ class Game {
             // Sort the players by score highest to lowest      
             this.players.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
             this.players.reverse();
-            for (let i = 0; i < this.players.length; i++) {
-                console.info('Player: ' + this.players[i].user.username + ' Score: ' + this.players[i].currentScore);
-                // TODO Address ties
+
+            
+            if (this.players.length === 0) {
+                resolve("No Players Answered Any Questions");
+            } else if (this.players[0].currentScore === 0) {
+                resolve("No Players Answered Any Questions Correctly");
             }
+
+            if (this.players.length > 1) {
+                if (this.players[0].currentScore === this.players[1].currentScore) {
+                    resolve("Game Ended in Tie");
+                }
+            }
+
             this.winningMember = this.players[0].user;
             this.players[0].user.username;
             console.info('Winning Member: ' + this.winningMember.username);
@@ -211,12 +249,23 @@ class Game {
             this.triviaGuilds.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
             this.triviaGuilds.reverse();
             
+
+            this.winningGuild = this.triviaGuilds[0].guild;
+            console.info('Winning Guild: ' + this.winningGuild.name);
+
+            // Store Player stats to database
+            for (let i = 0; i < this.players.length; i++) {
+                console.info('Player: ' + this.players[i].user.username + ' Score: ' + this.players[i].currentScore);
+                this.players[i].storePlayerToDb();
+            }
+
+            // TODO Store Guild stats to database
             for (let i = 0; i < this.triviaGuilds.length; i++) {
                 console.info('Guild: ' + this.triviaGuilds[i].guild.name + ' Score: ' + this.triviaGuilds[i].currentScore);
                 // TODO Address ties
+                this.triviaGuilds[i].storeGuildToDb();
             }
-            this.winningGuild = this.triviaGuilds[0].guild;
-            console.info('Winning Guild: ' + this.winningGuild.name);
+
             resolve("Grading Complete");
         });
     }

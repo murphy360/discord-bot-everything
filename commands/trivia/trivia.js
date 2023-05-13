@@ -58,7 +58,7 @@ module.exports = {
                     .addChoices(
                         { name: 'Easy', value: 'easy' },
                         { name: 'Medium', value: 'medium' },
-                        { name: 'hard', value: 'hard' }
+                        { name: 'Hard', value: 'hard' }
                 ))
                 .addStringOption(option => 
                     option.setName('category')
@@ -89,7 +89,12 @@ module.exports = {
                         { name: 'Celebrities', value: '26' },
                         { name: 'Animals', value: '27' },
                         { name: 'Vehicles', value: '28' }
-                )))              
+                ))
+                .addStringOption(option => 
+                    option.setName('custom-category')
+                    .setDescription('Custom Category?')
+                    .setRequired(false)
+                    ))              
         .addSubcommand(subcommand =>
             subcommand
                 .setName('leaderboard')
@@ -106,7 +111,7 @@ module.exports = {
         if (interaction.options.getSubcommand() === 'about') {
             return interaction.reply('This is a trivia game! Written by Corey Murphy');
         } else if (interaction.options.getSubcommand() === 'play') {
-
+            console.info('Play Subcommand');
             let rounds = 1;
             let difficulty = 'all';
             let categoryName = 'All';
@@ -124,15 +129,26 @@ module.exports = {
 
             // Check if the user provided a category
             if (interaction.options.getString('category')) {
+                console.info('Category Provided');
                 categoryValue = interaction.options.getString('category');
-                const mythologyCategory = triviaCategories.find(category => category.value === categoryValue);
-
-            if (mythologyCategory) {
-                console.log('myth categoryName: ' + mythologyCategory.name);
-                categoryName = mythologyCategory.name;
-            } else {
-                console.log('Mythology category not found');
+                const preDefinedCategory = triviaCategories.find(category => category.value === categoryValue);
+             
+                if (preDefinedCategory) {
+                    console.log('Pre-Defined categoryName: ' + preDefinedCategory.name);
+                    categoryName = preDefinedCategory.name;
+                    
+                } else {
+                    console.log('Custom Category');
+                }; 
+            
+          
             }
+            // Check if the user provided a custom category
+            if (interaction.options.getString('custom-category')) {
+                console.log('Custom Category');
+                categoryName = interaction.options.getString('custom-category');
+                console.info('categoryName: ' + categoryName);
+                categoryValue = 'custom';
             }
 
             // Get the user and guild that started the game (Hosts)

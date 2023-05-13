@@ -8,7 +8,13 @@ module.exports = (sequelize, Sequelize) => {
 		source: {
 			type: Sequelize.TEXT
 		},
+		source_url: {
+			type: Sequelize.TEXT
+		},
 		source_id: {
+			type: Sequelize.TEXT
+		},
+		question_url: {
 			type: Sequelize.TEXT
 		},
 		question_type: {
@@ -16,6 +22,11 @@ module.exports = (sequelize, Sequelize) => {
 		},
 		category: {
 			type: Sequelize.STRING
+		},
+		dislikes: {
+			type: Sequelize.INTEGER,
+			allowNull: false,
+			defaultValue: 0
 		},
 		difficulty: { 
 			type: Sequelize.STRING

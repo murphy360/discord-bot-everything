@@ -4,97 +4,125 @@ const { Sequelize } = require('sequelize');
 const { Questions } = require('./../../dbObjects.js');
 const { Answer } = require('./answer.js');
 const { Timer } = require('../common/timer.js');
+const { ChatGPTClient } = require('../../classes/chatGPT/ChatGPTClient.js');
+
 const Reactions = [
     '\u0031\u20E3',     // :one: 
     '\u0032\u20E3',     // :two:
     '\u0033\u20E3',     // :three:
-    '\u0034\u20E3'];    // :four:
+    '\u0034\u20E3',     // :four:
+    '👎'                // :thumbsdown: 
+];    
 
 class Question {
     
-    constructor(client, questionData, questionNumber, source) {
-        this.timerSec = 10;                                                 // Time to answer the question
-        this.ID = null;                                                     // Question ID
+    constructor(client, questionData, questionNumber, source, sourceUrl) {
+        console.info('Question.constructor()');
+        this.timerSec = 30;                                                     // Time to answer the question
+        this.answers = new Array();                                             // Array of Answers
+        this.chatGPTClient = new ChatGPTClient();
+        this.ID = null;                                                         // Question ID
         this.client = client; 
-        this.source = source;                                              // bot/client
-        this.owner = null;                                                 // User who added the question to the database
-        this.question = this.cleanText(questionData.question);              // Question Text
-        this.answer = this.cleanText(questionData.correct_answer);          // Answer to the Question
-        this.choices = this.createChoices(questionData.incorrect_answers);  // Array of Choices (incorrect and correct answers)
-        this.questionType = this.cleanText(questionData.type);              // Question Type
-        this.difficulty = questionData.difficulty;                          // Question Difficulty
-        this.category = questionData.category;                              // Question Category
-        this.question_num = questionNumber;                                 // Question Number in the Round
-        this.num_choices = this.choices.length;                             // Number of Answer Choices (2 or 4)
-        this.max_points = this.num_choices * 5;                             // Max Point Value
-        this.createQuestionEmbed();                                         // Discord Message Embed for the Question
-        this.last_asked = null;                                           // Date/Time the Question was Displayed in the Channel
-        this.correct_choice = this.findCorrectChoice();                     // Integer value indicating correct answer in Choices Array
-        this.answers = new Array();                                         // Array of Answers
-        this.questionOwnerUserID = null;                                     // Player who answered the question correctly first
-        this.questionOwnerGuildID = null;                                    // Guild where the question was answered correctly first
-        this.sourceID = null;                                               // ID of the question from the source
-        this.times_asked = 0;                                               // Number of times the question has been asked
-        this.storeQuestion();                                     // Question ID
-        this.times_answered = 0;                                            // Number of times the question has been answered
-        this.times_answered_correctly = 0;                                  // Number of times the question has been answered correctly
-    
+        this.source = source;                                                   // bot/client
+        this.sourceUrl = sourceUrl;                                             // URL of the source
+        this.difficulty = questionData.difficulty;                              // Question Difficulty
+        this.category = questionData.category;                                  // Question Category
+        this.question_num = questionNumber;                                     // Question Number in the Round 
+        this.dislikes = 0;                                                      // Number of Dislikes
+        if (this.source == 'opentdb') {
+            this.question = this.cleanText(questionData.question);              // Question Text
+            this.answer = this.cleanText(questionData.correct_answer);          // Answer to the Question
+            this.questionType = this.cleanText(questionData.type);              // Question Type
+        } else {
+            this.question = questionData.question;                              // Question Text
+            this.answer = questionData.correct_answer                           // Answer to the Question
+            this.choices = questionData.incorrect_answers                       // Array of Choices (incorrect and correct answers)
+            this.questionType = questionData.type                               // Question Type
+        }
+        this.choices = this.createChoices(questionData.incorrect_answers);      // Array of Choices (incorrect and correct answers)
+        this.correct_choice = this.findCorrectChoice();                         // Integer value indicating correct answer in Choices Array
+        this.incorrect_choices = questionData.incorrect_answers;                // Array of Incorrect Answers
+        this.num_choices = this.choices.length;                                 // Number of Answer Choices (2 or 4)
+        this.max_points = this.num_choices * 5;                                 // Max Point Value
+        this.last_asked = null;                                                 // Date/Time the Question was Displayed in the Channel
+        this.createQuestionEmbed();                                             // Discord Message Embed for the Question
+        this.owner = null;                                                      // User who added the question to the database
+        this.questionOwnerUserID = null;                                        // Player who answered the question correctly first
+        this.questionOwnerGuildID = null;                                       // Guild where the question was answered correctly first
+        this.sourceID = null;                                                   // ID of the question from the source
+        this.times_asked = 0;                                                   // Number of times the question has been asked
+        this.times_answered = 0;                                                // Number of times the question has been answered
+        this.times_answered_correctly = 0;                                      // Number of times the question has been answered correctly
+        this.syncQuestion();                                                    // Sync the question with the database
+        
     }
-    
-    syncQuestion() {
-        const DBquestion = Questions.findOne({ where: { question_text: this.question } });
-        this.questionOwnerUserID = DBquestion.question_owner_user_id;
-        this.questionOwnerGuildID = DBquestion.question_owner_guild_id;
-        this.last_asked = DBquestion.last_asked;
-        this.times_asked = DBquestion.times_asked;
-        this.times_answered = DBquestion.times_answered;
+
+    async syncQuestion() {
+        const DBquestion = Questions.findOne({ where: { question: this.question } });
+        if (DBquestion.question == this.question) {
+            console.info("Question.syncQuestion() - Question exists in the database, syncing it");
+            this.ID = DBquestion.question_id;
+            this.questionOwnerUserID = DBquestion.question_owner_user_id;
+            this.questionOwnerGuildID = DBquestion.question_owner_guild_id;
+            this.last_asked = DBquestion.last_asked;
+            this.times_asked = DBquestion.times_asked;
+            this.times_answered = DBquestion.times_answered;
+            this.dislikes = DBquestion.dislikes;
+        } 
+        //this.questionUrl = await this.chatGPTClient.getImageUrl(this.question);          // URL of the image for the question
+
+        this.storeQuestion();
+       
     }
 
     async storeQuestion() {
-        let DBquestion = await Questions.findOne({ where: { question_id: this.ID } });
-        if (!DBquestion || this.ID == null) {
+        let DBquestion = await Questions.findOne({ where: { question: this.question } });
+        if (!DBquestion || this.question != DBquestion.question) {      // If the question doesn't exist in the database, create it
+            console.info("Question.storeQuestion() - Question doesn't exist in the database, creating it");
             DBquestion = await Questions.create({ 
                 question_text: this.question,
                 source: this.source,
+                source_url: this.sourceUrl,
                 source_id: this.sourceID,
+                question_url: this.questionUrl,
                 question_type: this.questionType,
                 category: this.category,
+                dislikes: this.dislikes,
                 difficulty: this.difficulty,
                 question: this.question,
                 correct_answer: this.answer,
-                answer2: this.choices[0],
-                answer3: this.choices[1],
-                answer4: this.choices[2],
+                answer2: this.incorrect_choices[0],
+                answer3: this.incorrect_choices[1],
+                answer4: this.incorrect_choices[2],
                 times_asked: this.times_asked,
                 times_answered: this.times_answered,
                 times_answered_correctly: this.times_answered_correctly,
                 last_asked: this.last_asked,
                 owner_guild_id: this.questionOwnerGuildID,
                 owner_user_id: this.questionOwnerUserID,
-                times_answered: this.times_answered,
             });
-            
-            
         } else { 
+            console.info("Question.storeQuestion() - Question exists in the database, updating it");
             DBquestion.update({ 
                 question_text: this.question,
                 source: this.source,
                 source_id: this.sourceID,
+                question_url: this.questionUrl,
                 question_type: this.questionType,
                 category: this.category,
+                dislikes: this.dislikes,
                 difficulty: this.difficulty,
                 question: this.question,
                 correct_answer: this.answer,
-                answer2: this.choices[0],
-                answer3: this.choices[1],
-                answer4: this.choices[2],
+                answer2: this.incorrect_choices[0],
+                answer3: this.incorrect_choices[1],
+                answer4: this.incorrect_choices[2],
                 times_asked: this.times_asked,
                 times_answered: this.times_answered,
                 times_answered_correctly: this.times_answered_correctly,
                 last_asked: this.last_asked,
                 owner_guild_id: this.questionOwnerGuildID,
                 owner_user_id: this.questionOwnerUserID,
-                times_answered: this.times_answered,
             });
         }
         this.ID = DBquestion.question_id;
@@ -103,8 +131,15 @@ class Question {
     // Create choice array
     createChoices(wrongAnswers) {
         let choice_array = new Array();
+        
         for (let i = 0; i < wrongAnswers.length; i++) {
-            choice_array.push(this.cleanText(wrongAnswers[i]));
+            console.info("Wrong Answer: " + wrongAnswers[i] + " " + this.source);
+            if (this.source == 'opentdb') {
+                choice_array.push(this.cleanText(wrongAnswers[i]));
+            } else {
+                choice_array.push(wrongAnswers[i]);
+            }
+            
         }
         choice_array.push(this.answer);
         choice_array.sort();
@@ -146,34 +181,46 @@ class Question {
     checkAnswer(answer) {
         // check if player has already answered this question return early
         if (this.answers.some(a => a.user.id === answer.user.id)) {
-            console.info("Player has already answered this question " + answer.user.id);
+            console.info(answer.user.username + " has already answered this question");
             return true;
         } 
         
         // check if answer is correct and if no one has answered correctly yet set winner
         if (answer.isCorrect) {
+            
+            console.info(answer.user.username + " has answered correctly");
             // set global winner for this question
-            if (!this.answers.some(answer => answer.isCorrect)) {
+            if (!this.answers.some(answer => answer.isGlobalWinner)) {
                 answer.setGlobalWinner();
                 this.questionOwnerUserID = answer.user.id;          
                 this.questionOwnerGuildID = answer.guild.id;  
-                console.info(answer.user.username + " Now owns question #" + this.ID);
+                
             } 
             // set guild winner for this question
-            if (!this.answers.some(previousAnswer => previousAnswer.guild.id === answer.guild.id)) {
+            console.info("Checking if " + answer.user.username + " is the first to answer correctly in this guild");
+            console.info("Previous Answers: " + this.answers.length);
+            console.info("Previous Answers Have guildWinner?: " + this.answers.some(previousAnswer => !previousAnswer.isGuildWinner));
+            console.info("Previous Answers from this guild?: " + this.answers.some(previousAnswer => previousAnswer.guild.id != answer.guild.id));
+            console.info("NAND: " + (this.answers.some(previousAnswer => !previousAnswer.isGuildWinner && previousAnswer.guild.id != answer.guild.id)));
+            const answersWithGuildWinner = this.answers.filter(previousAnswer => previousAnswer.isGuildWinner);
+            const answersFromThisGuild = answersWithGuildWinner.filter(previousAnswer => previousAnswer.guild.id == answer.guild.id);
+            if (answersFromThisGuild.length == 0) {
                 answer.setGuildWinner();
-                console.info(answer.user.username + " Is guild Winner for #" + this.ID + " on " + answer.guild.name);
             }
+        
+        } else {
+            console.info(answer.user.username + " has answered incorrectly");
         }
         
         this.answers.push(answer);
+        console.info("Added an Answer: " + this.answers.length);
         return false;
 
     }
 
     // Grade Results after time is up
     gradeResults(channel) {
-        console.info("Grading Results on " + channel.guild.name + " in " + channel.name);
+        console.info("Grading Results on " + channel.guild.name + " in " + channel.name + ' number of answers: ' + this.answers.length);
 
                                      
         // Check if there is a winner
@@ -210,7 +257,7 @@ class Question {
                 {name: 'Score', value: 'no points were awarded.'}
             )
             .setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png')
-            .setFooter({ text: 'Question provided by The Open Trivia Database (https://opentdb.com)' });
+            .setFooter({ text: 'Question provided by ' + this.source + ' ' + this.sourceURL });
            
             return channel.send({ embeds: [loserEmbed] });
     }
@@ -223,9 +270,10 @@ class Question {
         // Format Score String
         let scoreString = "";
         for (let i = 0; i < this.answers.length; i++) {
-            
+            console.info("Answer: " + this.answers[i].user.username + " " + this.answers[i].points);
             // only grade answers from this guild
             if (this.answers[i].guild.id != channel.guild.id) {  
+                console.info("Answer not from this guild");
                 break;
             }
 
@@ -245,7 +293,7 @@ class Question {
                 {name: 'Scores', value: scoreString, inline: false}
             )
             .setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png')
-            .setFooter({ text: 'Question provided by The Open Trivia Database (https://opentdb.com)' });
+            .setFooter({ text: 'Question provided by ' + this.source + ' ' + this.sourceURL });
            
         return channel.send({ embeds: [winnerEmbed] });
     }
@@ -262,7 +310,7 @@ class Question {
             // Set the color of the embed
             .setColor(TRIVIA_COLOR)
             // Set the main content of the embed
-            
+            .setThumbnail(this.questionUrl)
             .addFields(
                 {name: 'Choices', value: this.formatChoices(), inline: false},
                 {name: 'Category', value: this.category, inline: true},
@@ -272,8 +320,10 @@ class Question {
             //.setThumbnail(this.hostGuild.iconURL())
 
             .setTimestamp()
-            .setFooter({ text: 'Question provided by The Open Trivia Database (https://opentdb.com)' });
+            .setFooter({ text: 'Question provided by ' + this.source + ' ' + this.sourceUrl });
         
+        
+
         return this.embed;
     }
 
@@ -282,7 +332,10 @@ class Question {
     
     // Display Question in the given Discord channel
     async ask(channel) {
-        console.info("Inside question.ask()");
+        console.info("Asking question: " + this.question + " in " + channel.guild.name + " in " + channel.name);
+        // set max listeners to 8 times the number of guilds in the client
+        const numGuilds = this.client.guilds.cache.size;
+        this.client.setMaxListeners(numGuilds * 8); 
         this.last_asked = Sequelize.fn('datetime', 'now');
         this.times_asked++;
         const question_message = await channel.send({ embeds: [this.embed] });
@@ -290,6 +343,7 @@ class Question {
             // add reactions
             question_message.react(Reactions[i]);
         }
+        question_message.react(Reactions[4]); // add the thumbs down reaction
         return new Promise((resolve, reject) => {
 
             const timer = new Timer(this.timerSec, 1, channel, "It's time to answer!");
@@ -307,6 +361,13 @@ class Question {
                 // Store the question in the database
                 this.storeQuestion();
 
+                // Remove the event listener
+                //this.client.removeListener('messageReactionAdd', handleReaction);
+                
+        
+                console.info("client max listeners = " + this.client.getMaxListeners());
+                console.info("client current messageReactionAdd listeners = " + this.client.listenerCount('messageReactionAdd'));
+
                 // Resolve the promise
                 resolve("Resolved");
             });
@@ -314,7 +375,7 @@ class Question {
 
             // Create a reaction collector
             this.client.on('messageReactionAdd', async (reaction, user) => {
-                //console.info("REACTION: " + user.id + " from " + reaction.message.guild.name);
+                //console.info("REACTION: " + user.username + " from " + reaction.message.guild.name);
                 
                 // If timer is inactive, return early
                 if (!timer.isActive) return;
@@ -322,7 +383,7 @@ class Question {
                 // Check if the reaction is on the correct message
                 if (reaction.message.id !== question_message.id) return;
     
-                // Check if the reaction is from the correct user
+                // Check if the reaction is from a player (not the bot)
                 if (user.id === this.client.user.id) return;
     
                 let responseNum = "";
@@ -341,19 +402,26 @@ class Question {
                     case '\u0034\u20E3':    // :four:
                         responseNum = 3;
                         break;
+                    case '👎':              // :ThumbsDown:
+                        responseNum = 4;
+                        break;
                     default:
                         // Handle other reactions
                         break;
                 }
-    
-                // Check if the reaction is a correct choice
-                const isReactionCorrect = responseNum === this.correct_choice; 
-                console.info("isReactionCorrect: " + isReactionCorrect + " responseNum: " + responseNum + " correct_choice: " + this.correct_choice);
-    
-                // A new Answer needs to be checked if this user has already answered
-                const anAnswer = new Answer(this.ID, user, reaction, isReactionCorrect, this.difficulty, channel.guild);
-                // Only one answer allowed
-                if (this.checkAnswer(anAnswer)) return;
+
+                if (responseNum === 4) {
+                    this.dislikes++;
+                } else {
+                    // Check if the reaction is a correct choice
+                    const isReactionCorrect = responseNum === this.correct_choice; 
+                    // A new Answer needs to be checked if this user has already answered
+                    const anAnswer = new Answer(this.ID, user, reaction, isReactionCorrect, this.difficulty, channel.guild);
+                    // Only one answer allowed
+                    if (this.checkAnswer(anAnswer)) {
+                        console.info("Adding Answer: " + anAnswer.user.username + " to Question: " + this.question + " " + anAnswer.isCorrect + " " + responseNum);
+                    }
+                }
             });
         }); 
     }
