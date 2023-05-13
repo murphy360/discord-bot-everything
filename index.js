@@ -1,53 +1,74 @@
-require('dotenv').config({ path: './data/.env' })
+require('dotenv').config();
+require('./colors.js');
+require('./greetings.js');
+const Discord = require('discord.js');
+const bot = new Discord.Client();
+bot.commands = new Discord.Collection();
+const botCommands = require('./commands');
+const TOKEN = process.env.TOKEN;
+bot.login(TOKEN);
 
-const fs = require('node:fs');
-const path = require('node:path');
-const { Client, Collection, GatewayIntentBits } = require('discord.js');
+var version = '0.1';
 
-const token = process.env.TOKEN;
-const client = new Client({ intents: [
-	GatewayIntentBits.Guilds, 
-	GatewayIntentBits.GuildMessageReactions, 
-	GatewayIntentBits.GuildMembers,
-	GatewayIntentBits.GuildMessages] 
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize('database', 'user', 'password', {
+		host: 'localhost',
+		dialect: 'sqlite',
+		logging: false,
+	 	storage: 'database.sqlite',
 });
 
-client.commands = new Collection();
-
-// Load Commands
-const foldersPath = path.join(__dirname, 'commands');
-const commandFolders = fs.readdirSync(foldersPath);
-
-for (const folder of commandFolders) {
-	const commandsPath = path.join(foldersPath, folder);
-	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-	for (const file of commandFiles) {
-		const filePath = path.join(commandsPath, file);
-		const command = require(filePath);
-		if ('data' in command && 'execute' in command) {
-			client.commands.set(command.data.name, command);
-		} else {
-			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
-		}
-	}
-}
-
-// Load Events
-const eventsPath = path.join(__dirname, 'events');
-const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
-
-for (const file of eventFiles) {
-	console.info(`Loading events from ${file}...`)
-	const filePath = path.join(eventsPath, file);
-	const event = require(filePath);
-	if (event.once) {
-		client.once(event.name, (...args) => event.execute(...args));
-	} else {
-		client.on(event.name, (...args) => event.execute(...args));
-	}
-}
-
-// Login to Discord with your client's token
-client.login(token);
+const Games = require('./models/Games')(sequelize, Sequelize.DataTypes);
+const Users = require('./models/Users')(sequelize, Sequelize.DataTypes);
+const Questions = require('./models/Questions')(sequelize, Sequelize.DataTypes);
+const Responses = require('./models/Responses')(sequelize, Sequelize.DataTypes);
+const Servers = require('./models/Servers')(sequelize, Sequelize.DataTypes);
 
 
+//link up commands found in ./commands/
+Object.keys(botCommands).map(key => {
+  bot.commands.set(botCommands[key].name, botCommands[key]);
+});
+
+//Callback when bot joins the server TODO channelID should be automatically discovered
+bot.on('ready', () => {
+  const channelID = "828303498994647134";
+  bot.channels.cache.get(channelID).send(greetings[Math.floor((Math.random()*greetings.length))]);
+  const toSync = false;
+  Games.sync({ force: toSync });
+  Users.sync({ force: toSync });
+  Questions.sync({ force: toSync });
+  Responses.sync({ force: toSync });
+  Servers.sync({ force: toSync });
+	try {
+	//  bot.user.setAvatar('avatar.jpg');
+  } catch (e) {
+    console.info('Error Setting Avatar: ' + e);
+  }
+});
+
+//Callback when bot reads a message
+//Split by whitespace
+//Check that someone mentioned @botName in first postion (Ignore if not)
+//Check that position 2 [1] has command that the bot can recognize
+//Try to execute command catch erros as well as you can. 
+bot.on('message', msg => {
+  const args = msg.content.split(" ");
+  var botName = args[0].toLowerCase().replace(/\D/g,'');
+
+  if(bot.user.id != botName){
+      return;
+  }
+  const command = args[1].toLowerCase();
+  console.info(`index.js - Called command: ${command}`);
+
+  if (!bot.commands.has(command)) return;
+
+  try {
+	  bot.commands.get(command).execute(msg, args, bot);
+  } catch (error) {
+    console.error(error);
+    msg.reply('there was an error trying to execute that command!');
+  }
+  
+});

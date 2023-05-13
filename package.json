@@ -1,27 +1,25 @@
 {
   "name": "discord-bot",
   "version": "1.0.0",
-  "description": "Discord bot for Don't Panic",
+  "description": "Discord bot for SitePoint",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node .",
     "dev": "nodemon ."
   },
-  "author": "Corey Murphy",
+  "author": "Michiel Mulders",
   "license": "ISC",
   "dependencies": {
     "avconv": "^3.1.0",
-    "discord.js": "^14.9.0",
-    "dotenv": "^16.0.3",
+    "discord.js": ">=11.6.4",
+    "dotenv": ">=8.2.0",
     "ffmpeg": "^0.0.4",
     "greetings": "^1.0.0",
     "he": "^1.2.0",
     "node-fetch": "^2.6.1",
-    "openai": "^3.2.1",
     "opusscript": "^0.0.8",
-    "pokedex-promise-v2": "^4.1.1",
-    "sequelize": "^6.31.1",
+    "sequelize": "^6.6.2",
     "sqlite3": "^5.0.2",
     "uws": ">=200.0.0",
     "yt-search": "^2.7.6",
@@ -29,6 +27,6 @@
     "ytdl-core": "^4.5.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.7"
   }
 }

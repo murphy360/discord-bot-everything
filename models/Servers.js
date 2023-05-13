@@ -1,13 +1,12 @@
 module.exports = (sequelize, Sequelize) => {
-	return sequelize.define('users', {
-		user_id: {
+	return sequelize.define('servers', {
+		server_id: {
 			type: Sequelize.STRING,
 			primaryKey: true,
 		},
-		user_name: {
+		server_name: {
 			type: Sequelize.STRING,
-
-		}
+		},
 	}, {
 		timestamps: false,
 	});
