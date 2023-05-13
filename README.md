@@ -17,7 +17,7 @@ This code base was forked from [https://github.com/sitepoint-editors/discord-bot
 - [Node Fetch](https://github.com/node-fetch/node-fetch) `npm install --save node-fetch`
 - [Node Sqlite](https://github.com/kriasoft/node-sqlite) `npm install --save sqlite`
 
-## Installation Steps (Standalone)
+## Installation Steps (if applicable)
 
 1. Clone repo
 2. Add Discord credentials (Bot Token) in a `.env` file
@@ -26,16 +26,6 @@ This code base was forked from [https://github.com/sitepoint-editors/discord-bot
 5. apt install ffmpeg
 6. Run `node index.js` or `npm run dev` (ensure package.json properly configured)
 7. Interact with your Discord bot via your web browser
-
-## Installation Steps (Docker) <--- Needs Tested
-
-1. Clone repo
-3. Build Docker Container
-
-4. Load Container
-
-5. Create Volume Mount point on host
-- Add Discord credentials (Bot Token) in a `.env` file
 
 ## License
 

@@ -1,15 +1,15 @@
 module.exports = (sequelize, Sequelize) => {
 	return sequelize.define('games', {
 		game_id: {
-			type: Sequelize.INTEGER,
+			type: Sequelize.STRING,
 			primaryKey: true,
-			autoIncrement: true
 		},
-		host_player_id: {
+		creator_id: {
 			type: Sequelize.STRING,
 		},
-		host_guild_id: {
+		creator_name: {
 			type: Sequelize.STRING,
+
 		},
 		game_start: {
 			type: Sequelize.DATE,
@@ -17,7 +17,7 @@ module.exports = (sequelize, Sequelize) => {
 		game_end: {
 			type: Sequelize.DATE,
 		},
-		game_end_type: {
+		winner_id: {
 			type: Sequelize.STRING,
 		}
 	}, {
