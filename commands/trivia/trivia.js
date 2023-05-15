@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { Game } = require('./../../classes/trivia/game.js');
+const { LeaderBoard } = require('./../../classes/trivia/leaderBoard.js');
 let game_in_progress = false;
 const triviaCategories = [
     { name: 'General Knowledge', value: '9' },
@@ -165,17 +166,23 @@ module.exports = {
                 game_in_progress = true;
                 await game.play();
                 game_in_progress = false;
-                game.end();
-
+                await game.end();
+                console.info('game ' + game.ID + ' should be over Starting Leaderboard');
+                const leaderboard = new LeaderBoard(interaction.client);            
+                await leaderboard.setWorldTriviaChampionRole()
             } else {
                 // Respond that a game is already in play
                 return interaction.reply(hostMember.displayName + ', Sorry! a game is already in progress.  Check the Trivia Room!');
             }
           
         } else if (interaction.options.getSubcommand() === 'leaderboard') {
-            return interaction.reply('This will be the leaderboard!');
+            console.info('Leaderboard Subcommand client: ' + interaction.client.ID)
+            const leaderBoard = new LeaderBoard(interaction.client);
+            leaderBoard.postManualWorldLeaderBoard(interaction);
+            return;
         } else if (interaction.options.getSubcommand() === 'rules') {
             return interaction.reply('This will be the rules!');
         }    
 	},
 };
+

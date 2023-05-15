@@ -274,12 +274,12 @@ class Question {
             // only grade answers from this guild
             if (this.answers[i].guild.id != channel.guild.id) {  
                 console.info("Answer not from this guild");
-                break;
-            }
-
-            // 12:  username '\n'
-            // 13:  username '\n'
-            scoreString += this.answers[i].points + ":   " + this.answers[i].user.username + "\n";
+                
+            } else {
+                // 12:  username '\n'
+                // 13:  username '\n'
+                scoreString += this.answers[i].points + ":   " + this.answers[i].user.username + "\n";
+            }           
         }
 
         // Get winner but only of this Guild
