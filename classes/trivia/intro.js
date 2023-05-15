@@ -44,9 +44,7 @@ class Intro {
 
             const timer = new Timer(this.timerSec, 1, channel, "A new game is starting!");
             timer.start().then(() => {
-                console.info("Intro Timer finished");
                 resolve("Resolved");
-                console.info("Intro resolved");
             });
         });
     }

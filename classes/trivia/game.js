@@ -125,13 +125,10 @@ class Game {
                     console.info('Game ended with no winner');
                     break;
             }
+           return resolve;
         });
-
-
-        
-        
-        return;
     }
+
 
     /***** INTRO: Display Intro before game *****/
     async sendIntroToGuilds(intro) {
@@ -276,10 +273,14 @@ class Game {
         await this.storeGame('Initialized');
     }
 
-	end() {
+	async end() {
 		// Display final scoreboard
         console.info('Game Over');
-		this.storeGame('Completed');
+        return new Promise((resolve, reject) => {
+            this.storeGame('Completed').then(() => {
+                resolve();
+            });           
+        });
 	}
 	
 	cancel() {

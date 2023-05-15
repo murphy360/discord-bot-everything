@@ -141,7 +141,7 @@ class TriviaGuild {
         // Get Guild Champion guildMember object
         const guildChampion = await this.guild.members.fetch(this.players[0].user.id);
     
-        console.info('Guild Champion: ' + guildChampion.nickname);
+        console.info('Guild Champion: ' + guildChampion.user.username);
         const roleName = "Guild Trivia Champion";
 
         // Check if role exists
@@ -153,7 +153,7 @@ class TriviaGuild {
             role = await this.guild.roles.create({
                 data: {
                     name: roleName,
-                    color: '#ffd700'
+                    color: '#c0c0c0' // Color: Silver
                 }
             }).catch(console.error);
 
@@ -164,27 +164,35 @@ class TriviaGuild {
         // Make sure role is ready to go
         role = await role.edit({
             name: roleName,
-            color: '#ffd700' // replace with the hex code of the color you want to set
+            color: '#c0c0c0' // Color: Silver
         });
             
       
 
-        if (role) {
-            // Fetch the role again to verify that the name was updated
-            const updatedRole = await this.guild.roles.fetch(role.id);
-            console.info('Updated Role Name: ' + updatedRole.name);
+        if (role) {         
             // Remove role from all current champions (There can be only one!)
-            const currentChampions = this.guild.members.cache.filter(member => member.roles.cache.has(updatedRole.id));
-            console.info('Current Num Champions: ' + currentChampions.length);
-            await currentChampions.forEach(member => {
-                console.info('Removing Trivia Champion role from ' + member.user.username);
-                member.roles.remove(updatedRole.id);
-            });
-            console.info('Adding role ' + role.name + ' to ' + guildChampion.nickname);
-            await guildChampion.roles.add(updatedRole.id);
-            console.info('Role added ' + updatedRole.name + ' to ' + guildChampion.user.username);
+            const currentChampions = this.guild.members.cache.filter(member => member.roles.cache.has(role.id));
+            console.info('Current Num Guild Trivia Champions: ' + currentChampions.length);
+            if (!currentChampions.length > 0) {
+                // No current champion so add the role to the guild champion
+                console.info('No Guild Trivia Champions found');
+                console.info('Adding role ' + role.name + ' to ' + guildChampion.user.username);
+                guildChampion.roles.add(role.id);
+                console.info('Role added ' + role.name + ' to ' + guildChampion.user.username);
+            } else if (currentChampions[0].user.id === guildChampion.user.id) {
+                console.info('Guild Champion is already the Guild Trivia Champion');
+            } else {    
+                console.info('Removing Guild Trivia Champion role from ' + currentChampions[0].user.username);
+                await currentChampions.forEach(member => {
+                    console.info('Removing Guild Trivia Champion role from ' + member.user.username);
+                    member.roles.remove(role.id);
+                });
+                console.info('Adding role ' + role.name + ' to ' + guildChampion.user.username);
+                guildChampion.roles.add(role.id);
+                console.info('Role added ' + role.name + ' to ' + guildChampion.user.username);
+            }
         } else {
-            console.info('Role not found');
+            console.info(role.name + ' Role not found');
         }
 
     }
