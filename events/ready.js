@@ -25,6 +25,11 @@ module.exports = {
             chatGPTExists = false;
             parentTextChannelId="";
             generalChannelId="";
+            
+
+           
+            // This updates immediately
+            guild.commands.set([]);
            
             console.info(`Checking setups for + ${guild.name}`);
             console.info('Trivia Channel: ' + TRIVIA_CHANNEL);
