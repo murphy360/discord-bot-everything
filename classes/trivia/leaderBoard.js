@@ -21,7 +21,11 @@ class LeaderBoard {
             limit: 10,
           });
         const highestScore = this.highestScorers[0].trivia_points_total;
-        if (this.highestScorers[0].trivia_points_total === this.highestScorers[1].trivia_points_total) {
+
+        // Check for only one high scorer
+        if (this.highestScorers.length === 1) {
+            this.worldTriviaChampion = this.highestScorers[0];
+        } else if (this.highestScorers[0].trivia_points_total === this.highestScorers[1].trivia_points_total) {
             console.info('Tie for top score - Currently Unhandled'); // TODO Handle ties for top score
             this.worldTriviaChampion = this.highestScorers[0];
             this.tiedChamps = Users.findAll({
