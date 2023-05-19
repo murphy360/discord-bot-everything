@@ -1,6 +1,6 @@
 const { EmbedBuilder, Colors, Message, ChatInputCommandInteraction } = require('discord.js');
 const { get } = require('http');
-require('dotenv').config({ path: './../../data/.env' }) 
+require('dotenv').config({ path: './../../data/.env' });
 const { Configuration, OpenAIApi } = require("openai");
 const { json } = require('sequelize');
 const exampleReponse = "[{category:General Knowledge,difficulty:Easy,type:multiple,question:What is the capital city of Australia?,incorrect_answers:[Canberra,Sydney,Melbourne,Brisbane],correct_answer:Canberra,source:gpt-3.5-turbo},{category:General Knowledge,difficulty:Medium,type:boolean,question:The Great Wall of China is visible from space.,incorrect_answers:[True,False],correct_answer:False,source:gpt-3.5-turbo}]"
