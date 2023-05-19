@@ -6,6 +6,8 @@ const { Sequelize } = require('sequelize');
 const { Games } = require('./../../dbObjects.js');
 const { ChatGPTClient } = require('../../classes/chatGPT/ChatGPTClient.js');
 const fetch = require('node-fetch');
+require('dotenv').config({ path: './../data/.env' });
+const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 // TODO create triviaGuilds from beginning of game
 class Game {
      
@@ -138,7 +140,7 @@ class Game {
             const promises = [];
             guilds.forEach((guild) => {
                 const channel = guild.channels.cache.find(
-                    channel => channel.name.toLowerCase() === "trivia");
+                    channel => channel.name.toLowerCase() === TRIVIA_CHANNEL);
     
                 promises.push(intro.send(channel)); 
             });
@@ -157,7 +159,7 @@ class Game {
             guilds.forEach((guild) => {
                 console.info('Sending Question to Guild: ' + guild.name);
                 const channel = guild.channels.cache.find(
-                    channel => channel.name.toLowerCase() === "trivia");
+                    channel => channel.name.toLowerCase() === TRIVIA_CHANNEL);
                 promises.push(question.ask(channel)); 
             });
             

@@ -1,5 +1,8 @@
 const { EmbedBuilder }  = require('discord.js');
 const { Guilds } = require('./../../dbObjects.js');
+require('dotenv').config({ path: './../data/.env' });
+const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
+
 class TriviaGuild {
 
     GAMES_PLAYED=new Array();       // Array of all Games the player has played in
@@ -86,20 +89,12 @@ class TriviaGuild {
     async sendGameGuildScoreBoard(winningMember, winningGuild) {
         console.info('sendGameGuildScore: ' + this.guild.name);
         const channel = this.guild.channels.cache.find(
-            channel => channel.name.toLowerCase() === "trivia");
-
+            channel => channel.name.toLowerCase() === TRIVIA_CHANNEL);
         const embed = this.createGameScoreboardEmbed(winningMember, winningGuild);
 
-        
-        //console.info('There are ' + promises.length + ' intro promises'); 
-        //console.info('sendGameGuildScore: ' + this.guild.name + ' ' + this.currentScore);
-        //const scoreboard = new ScoreboardGame(this.client, this.hostMember, this.hostGuild, this.total_rounds, this.difficulty, this.category, this.answers, this.players, this.triviaGuilds, this.ID, channel);
-        
         channel.send({ embeds: [embed] });
         this.setGuildChampionRole();
     }
-
-   
 
     // Create question winner embed
     createGameScoreboardEmbed(winningMember, winningGuild) {
@@ -130,8 +125,7 @@ class TriviaGuild {
                 {name: 'Scores', value: scoreString, inline: false}
             )
             .setThumbnail(winningMember.displayAvatarURL())
-            .setFooter({ text: 'Wasn\'t that a fun game?' });
-            
+            .setFooter({ text: 'Wasn\'t that a fun game?' });  
         return embed;
     }
 
@@ -156,7 +150,6 @@ class TriviaGuild {
                     color: '#c0c0c0' // Color: Silver
                 }
             }).catch(console.error);
-
         } 
 
         // Refresh the role cache
@@ -167,8 +160,6 @@ class TriviaGuild {
             color: '#c0c0c0' // Color: Silver
         });
             
-      
-
         if (role) {         
             // Remove role from all current champions (There can be only one!)
             const currentChampions = this.guild.members.cache.filter(member => member.roles.cache.has(role.id));
@@ -194,7 +185,6 @@ class TriviaGuild {
         } else {
             console.info(role.name + ' Role not found');
         }
-
     }
 
     async storeGuildToDb() {
