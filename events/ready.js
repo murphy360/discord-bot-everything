@@ -15,68 +15,53 @@ module.exports = {
         console.log(`Ready! Logged in as ${client.user.tag}`);
         
         try {
-            require('./../deployCommands.js');
+            require('./../deployCommands.js'); // Deploy slash commands
         } catch (error) {
             console.error(error);
         }
 
-        client.guilds.cache.forEach((guild) => {
+        client.guilds.cache.forEach(async (guild) => {
             triviaExists = false;
             chatGPTExists = false;
             parentTextChannelId="";
             generalChannelId="";
             
-
-           
-            // This updates immediately
-            guild.commands.set([]);
-           
             console.info(`Checking setups for + ${guild.name}`);
-            console.info('Trivia Channel: ' + TRIVIA_CHANNEL);
-            console.info('Chat GPT Channel: ' + CHAT_GPT_CHANNEL);
+
+            guild.commands.set([]); // Clear the commands cache for this guild
+
             const defaultChannel = guild.systemChannel;
             parentTextChannelId = defaultChannel.parentId;
 
-            // Iterate through the channels in the guild
-            guild.channels.cache.forEach((channel) => {
-                
-                // See if Trivia Channel Exists - if not create it
-                if (channel.name == TRIVIA_CHANNEL && channel.type == 0) {
-                    triviaExists = true;
-                }
+            const triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
+            if (!triviaChannel) {
+                console.info('Trivia Channel Does Not Exist, creating it now');
+                guild.channels.create({
+                    name: TRIVIA_CHANNEL,
+                        type: 0,
+                        parent: parentTextChannelId,
+                    });
+            } else {
+                console.info('Trivia Channel Exists: ' + triviaChannel.name);
+            }
 
-                // See if Chat GPT Channel Exists - if not create it
-                if (channel.name == CHAT_GPT_CHANNEL && channel.type == 0) {
-                    chatGPTExists = true;
-                }
-            });  
+            const chatChannel = await guild.channels.cache.find(channel => channel.name === CHAT_GPT_CHANNEL);
+            if (!chatChannel) {
+                console.info('Chat GPT Channel Does Not Exist, creating it now');
+                guild.channels.create({
+                    name: CHAT_GPT_CHANNEL,
+                        type: 0,
+                        parent: parentTextChannelId,
+                    });
+            } else {
+                console.info('Chat GPT Channel Exists: ' + chatChannel.name);
+            }
 
             if (DEV == "true"){
                 console.info('DEV MODE - Skipping Greeting');
                 return;
             } else {
                 defaultChannel.send(greetings[Math.floor((Math.random()*greetings.length))]);
-            }
-            
-            
-            // Trivia Channel doesn't exist on this guild - create it
-            if (!triviaExists){
-                console.info(`Creating Trivia Channel + ${parentTextChannelId}`);
-                guild.channels.create({
-                   name: TRIVIA_CHANNEL,
-                    type: 0,
-                    parent: parentTextChannelId,
-                });
-            }
-
-            // Chat GPT Channel doesn't exist on this guild - create it
-            if (!chatGPTExists){
-                console.info(`Creating Chat GPT Channel + ${parentTextChannelId}`);
-                guild.channels.create({
-                   name: CHAT_GPT_CHANNEL,
-                    type: 0,
-                    parent: parentTextChannelId,
-                });
             }
         });        
     },

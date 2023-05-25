@@ -1,6 +1,8 @@
 const { EmbedBuilder }  = require('discord.js');
 const { Users } = require('./../../dbObjects.js');
 const { Sequelize, Op } = require('sequelize');
+require('dotenv').config({ path: './../data/.env' });
+const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 
 //This class sends the game introduction
 class LeaderBoard {
@@ -11,6 +13,7 @@ class LeaderBoard {
         this.highestScorers = null;
         this.worldTriviaChampion = null;    // The user with the highest trivia_points_total (DBObject)
         console.info('LeaderBoard constructor ' + this.client.user.username);
+        
     }
 
     // Find the world champion
@@ -108,6 +111,7 @@ class LeaderBoard {
         console.info('World Trivia Champion: ' + this.worldTriviaChampion.user_name);
         // Create and set the role to the world champion in each guild they exist. If the role doesn't exist, create it
         this.client.guilds.cache.forEach(async guild => {
+            
             console.log(`Guild Name: ${guild.name}`);
             
             // Get the role object if it exists (returns undefined if it doesn't exist)
@@ -117,10 +121,12 @@ class LeaderBoard {
             if (!role) {
                 console.info('Role does not exist, creating it');
                 role = await guild.roles.create({
-                    data: {
-                        name: roleName,
-                        color: '#ffd700' // Color: Gold
-                    }
+                    // Create World Trivia Champion Role
+                    name: roleName,
+                    color: '#ffd700', // Color: Gold
+                    hoist: true,
+                    position: 125,
+                    
                 }).catch(console.error);
             } else {
                 console.info('Role exists!');
@@ -137,22 +143,35 @@ class LeaderBoard {
                 console.info('Current World Trivia Champion is the same as the role holder');
                 return;   
             } else if (this.worldTriviaChampion.user_id !== currentWorldChampions[0].id) {      // The current World Trivia Champion is being unseated. Remove the role from the current World Trivia Champion and add it to the new one
-                console.info('Removing role from: ' + role.members.findAll().user.username);
-                // Remove the role from everyone in the guild (Just in Case)
-                await role.members.findAll().roles.remove(role);
+                for (let i = 0; i < currentWorldChampions.length; i++) {
+                    console.info('Removing role from: ' + currentWorldChampions[i].user.username);
+                    // Remove the role from everyone in the guild (Just in Case)
+                    await currentWorldChampions[i].roles.remove(role);
+                }
                 worldChampionChange = true;
             }
-            // Get World Trivia Champion Guild Member object from client
-            const worldTriviaChampionGuildMember = await guild.members.fetch(this.worldTriviaChampion.user_id);
-            // Add the role to the member
-            await worldTriviaChampionGuildMember.roles.add(role);
+
+            // Verify that worldTriviaChampion is a member of this guild
+            if (!guild.members.cache.has(this.worldTriviaChampion.user_id)) {
+                console.info('World Trivia Champion is not a member of this guild: ' + this.worldTriviaChampion.user_name);
+                return;
+            } else {
+                // Get World Trivia Champion Guild Member object from client
+                const worldTriviaChampionGuildMember = await guild.members.fetch(this.worldTriviaChampion.user_id);
+                // Add the role to the member
+                await worldTriviaChampionGuildMember.roles.add(role);
+
+            }
+            
+           
 
             if (worldChampionChange) {
                 // Send message to the guild that the World Trivia Champion has changed
                 console.info('Sending message to guilds that the World Trivia Champion has changed');
                 let embed = await this.getWorldLeaderBoardEmbed();
                 // Send the embed to the trivia channel of the current guild
-                guild.channels.cache.find(channel => channel.name === 'trivia').send({ embeds: [embed] });
+                const triviaChannel = guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
+                triviaChannel.send({ embeds: [embed] });
             }
             return;
         });

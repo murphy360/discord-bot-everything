@@ -190,7 +190,7 @@ class Game {
 
     async gradeGame() {
         console.info('Grading Game');
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             for (let i = 0; i < this.questions.length; i++) {
                 console.info('Question ' + i + ' grading ' + this.questions[i].question);
                 const answersToQuestion = this.questions[i].answers;
@@ -218,7 +218,7 @@ class Game {
 
                     // Add the player to the guild if they are not already in it
                     if (!answerGuild.players.includes(answerPlayer)) {
-                        answerGuild.addPlayer(answerPlayer);
+                        await answerGuild.addPlayer(answerPlayer);
                     }
                 }  
             }
@@ -230,13 +230,16 @@ class Game {
             
             if (this.players.length === 0) {
                 resolve("No Players Answered Any Questions");
+                return;
             } else if (this.players[0].currentScore === 0) {
                 resolve("No Players Answered Any Questions Correctly");
+                return;
             }
 
             if (this.players.length > 1) {
                 if (this.players[0].currentScore === this.players[1].currentScore) {
                     resolve("Game Ended in Tie");
+                    // TODO Handle Tie
                 }
             }
 
