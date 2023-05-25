@@ -1,7 +1,12 @@
-const { EmbedBuilder }  = require('discord.js');
+const { EmbedBuilder, PermissionsBitField }  = require('discord.js');
 const { Guilds } = require('./../../dbObjects.js');
 require('dotenv').config({ path: './../data/.env' });
+// Names of channels to use
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
+const CHAT_GPT_CHANNEL = process.env.CHAT_GPT_CHANNEL;
+
+// Get the channels from the guild object
+
 
 class TriviaGuild {
 
@@ -14,12 +19,15 @@ class TriviaGuild {
 
     constructor(answer) {
         this.guild = answer.guild;
-        console.info("New TriviaGuild answer.user.guild.name: " + this.guild.name);
+        console.info(this.guild.name + ": New TriviaGuild answer.user.guild.name: " + this.guild.name);
         this.DATE_JOINED = new Date();
         this.answers = new Array();
-        this.players = new Array();
+        this.players = new Array(); // Array of players in the guild
         this.currentScore = 0;
         this.addAnswer(answer);
+        this.triviaChannel = this.guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
+        this.defaultChannel = this.guild.systemChannel;
+        this.chatGPTChannel = this.guild.channels.cache.find(channel => channel.name === CHAT_GPT_CHANNEL);
         
     }
     
@@ -56,9 +64,10 @@ class TriviaGuild {
         console.info('Adding answer to guild: ' + this.guild.name + ' ' + this.currentScore);
     }
 
-    addPlayer(player) {            // Adds a player to the player's array
-        console.info('Adding player to guild: ' + this.guild.name + ' ' + player.username);
+    async addPlayer(player) {            // Adds a player to the player's array
+        //console.info(this.guild.name + ': Adding player to guild: ' + this.guild.name + ' ' + player.user.username);
         this.players.push(player);
+        await this.setPlayerGuildRole(player.user); // Send the user object from the player object to setPlayerGuildRole
     }
     
     getDateJoined() {               // Returns a Date Object of the player join Date
@@ -98,7 +107,7 @@ class TriviaGuild {
 
     // Create question winner embed
     createGameScoreboardEmbed(winningMember, winningGuild) {
-        console.info("Creating Game Scoreboard Embed for " + this.guild.name);
+        console.info(this.guild.name + ": Creating Game Scoreboard Embed for " + this.guild.name);
         // Sort players by points
         this.players.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
         this.players.reverse();
@@ -112,14 +121,14 @@ class TriviaGuild {
             scoreString += this.players[i].currentScore + ":   " + this.players[i].user.username + "\n";
         }
         
-        console.info("Guild Score: " + this.currentScore + " Winner: " + winner.user.username);
+        console.info(this.guild.name + ": Guild Score: " + this.currentScore + " Winner: " + winner.user.username);
         let embed = new EmbedBuilder()
             .setTitle(this.guild.name + ' Final Scoreboard')
             .addFields(
                 {name: 'Game Winner', value: winningMember.username, inline: true},
                 {name: 'Guild Winner', value: winner.user.username, inline: true},
                 {name: 'Winning Guild', value: winningGuild.name, inline: true},
-                { name: '\u200B', value: '\u200B' },
+                {name: '\u200B', value: '\u200B'},
                 {name: this.guild.name + ' Winner', value: winner.user.username, inline: true},
                 {name: 'Guild Score', value: this.currentScore.toString(), inline: true},
                 {name: 'Scores', value: scoreString, inline: false}
@@ -135,55 +144,176 @@ class TriviaGuild {
         // Get Guild Champion guildMember object
         const guildChampion = await this.guild.members.fetch(this.players[0].user.id);
     
-        console.info('Guild Champion: ' + guildChampion.user.username);
+        console.info(this.guild.name + ': Guild Champion: ' + guildChampion.user.username);
         const roleName = "Guild Trivia Champion";
 
+        
         // Check if role exists
-        let role = await this.guild.roles.cache.find(role => role.name === roleName);
-        console.info('Role: ' + role);
+        let guildChampRole = await this.guild.roles.cache.find(role => role.name === roleName);
         // Create role if it doesn't exist
-        if (!role) {
-            console.info('Role ' + roleName + ' Doesn\'t exist');
-            role = await this.guild.roles.create({
-                data: {
-                    name: roleName,
-                    color: '#c0c0c0' // Color: Silver
-                }
+        if (!guildChampRole) {
+            console.info(this.guild.name + ': Role ' + roleName + ' Doesn\'t exist');
+            guildChampRole = await this.guild.roles.create({
+                // Create Guild Champion Role
+                name: roleName,
+                color: '#c0c0c0',       // SILVER hex is #C0C0C0
+                hoist: true,
+                position: 115,
+                
+            }).then(role => {
+                //TODO add some cool permissions
+                console.info(this.guild.name + ': Role ' + role.name + ' created');
             }).catch(console.error);
         } 
 
-        // Refresh the role cache
-        await this.guild.roles.fetch();
-        // Make sure role is ready to go
-        role = await role.edit({
-            name: roleName,
-            color: '#c0c0c0' // Color: Silver
-        });
+        if (guildChampRole) {      
             
-        if (role) {         
-            // Remove role from all current champions (There can be only one!)
-            const currentChampions = this.guild.members.cache.filter(member => member.roles.cache.has(role.id));
-            console.info('Current Num Guild Trivia Champions: ' + currentChampions.length);
+            const currentChampions = await guildChampRole.members.map(member => member);
+            console.info(this.guild.name + ': Current Num Guild Trivia Champions: ' + currentChampions.length);
             if (!currentChampions.length > 0) {
                 // No current champion so add the role to the guild champion
-                console.info('No Guild Trivia Champions found');
-                console.info('Adding role ' + role.name + ' to ' + guildChampion.user.username);
-                guildChampion.roles.add(role.id);
-                console.info('Role added ' + role.name + ' to ' + guildChampion.user.username);
+                console.info(this.guild.name + ': First Champion!');
+                guildChampion.roles.add(guildChampRole.id);
             } else if (currentChampions[0].user.id === guildChampion.user.id) {
-                console.info('Guild Champion is already the Guild Trivia Champion');
+                console.info(this.guild.name + ': Guild Champion is already the Guild Trivia Champion');
             } else {    
-                console.info('Removing Guild Trivia Champion role from ' + currentChampions[0].user.username);
+                console.info(this.guild.name + ': Removing Guild Trivia Champion from all and adding to ' + guildChampion.user.username);
                 await currentChampions.forEach(member => {
-                    console.info('Removing Guild Trivia Champion role from ' + member.user.username);
-                    member.roles.remove(role.id);
+                    member.roles.remove(guildChampRole.id);
                 });
-                console.info('Adding role ' + role.name + ' to ' + guildChampion.user.username);
-                guildChampion.roles.add(role.id);
-                console.info('Role added ' + role.name + ' to ' + guildChampion.user.username);
+                
+                await guildChampion.roles.add(guildChampRole.id);
+                console.info(this.guild.name + ': Guild Trivia Champion is now ' + guildChampion.user.username);
             }
         } else {
-            console.info(role.name + ' Role not found');
+            console.info(this.guild.name + ': ' + roleName + ' Role not found');
+        }
+    }
+
+    async createGuildRole(roleName) {
+
+        return new Promise(async (resolve, reject) => {
+
+            console.info(this.guild.name + ': Role ' + roleName + ' Doesn\'t exist. Creating it.');
+            
+            // Create Player role
+            await this.guild.roles.create({
+                name: roleName,
+                color: '#00ff00', // Green
+                hoist: true,
+                position: 105,
+            }).then(async role => {
+                console.info(this.guild.name + ': Role ' + role.name + ' created');
+                // TODO add some cool permissions
+                /*
+                await this.triviaChannel.permissionOverwrites.set([
+                    {
+                    id: role.id,
+                    allow: [
+                        PermissionsBitField.Flags.SendMessages,
+                        PermissionsBitField.Flags.ViewChannel,
+                        PermissionsBitField.Flags.ReadMessageHistory,
+                        PermissionsBitField.Flags.AddReactions,
+                        PermissionsBitField.Flags.CreatePrivateThreads],
+                    }
+                ]);
+
+                
+                await this.chatGPTChannel.permissionOverwrites.set([
+                    {
+                    id: role.id,
+                    allow: [
+                        PermissionsBitField.Flags.SendMessages,
+                        PermissionsBitField.Flags.ViewChannel,
+                        PermissionsBitField.Flags.ReadMessageHistory,
+                        PermissionsBitField.Flags.AddReactions,
+                        PermissionsBitField.Flags.CreatePrivateThreads],
+                    }
+                ]);
+
+                
+                await this.defaultChannel.permissionOverwrites.set([
+                    {
+                    id: role.id,
+                    allow: [
+                        PermissionsBitField.Flags.SendMessages,
+                        PermissionsBitField.Flags.ViewChannel,
+                        PermissionsBitField.Flags.ReadMessageHistory,
+                        PermissionsBitField.Flags.AddReactions,
+                        PermissionsBitField.Flags.CreatePrivateThreads],
+                    }
+                ]);*/
+                console.info('Returning role: ' + role.name);
+                resolve(role);
+            }).catch(console.error); 
+        });
+    }
+
+    async setPlayerGuildRole(user) {
+        const roleName = "Player";
+        
+
+        // Get Guild Champion guildMember object
+        const guildMember = await this.guild.members.fetch(user.id);
+        console.info('Guild Member: ' + guildMember.user.username);
+
+        // Check if role exists
+        let playerRole = await this.guild.roles.cache.find(role => role.name === roleName);
+        
+
+
+        // Create role if it doesn't exist
+        if (!playerRole) {
+             await this.createGuildRole(roleName).then(role => {
+                console.info('Resolved Role: ' + role.name);
+                playerRole = role;
+             }).catch(console.error);
+             
+            
+        // Role exists && Member has role so do nothing    
+        } else if (guildMember.roles.cache.has(playerRole.id)) {
+            console.info(this.guild.name + ': Member ' + guildMember.user.username + ' already has role ' + playerRole.name);
+            return;
+        } 
+        
+        // Role exists && Member doesn't have role so add it (And remove Noob role)
+        console.info(this.guild.name + ': Role ' + playerRole.name + ' Exists');
+        // Add the role to the the Player
+        console.info(this.guild.name + ': Adding role ' + playerRole.name + ' to ' + guildMember.user.username);
+        await guildMember.roles.add(playerRole.id);
+        console.info(this.guild.name + ': Role added ' + playerRole.name + ' to ' + guildMember.user.username);
+        await this.triviaChannel.send(`Level Up! ${guildMember.user.username}, You are now a Player!`);
+        
+        this.removeRole(guildMember, 'Noob');
+        
+
+ 
+
+		if (playerRole) {  
+            console.info(this.guild.name + ': Role Exists: ' + playerRole.name);
+            // check if member has role
+            
+
+        } else {
+            console.info(this.guild.name + ': Role ' + roleName + ' Doesn\'t exist. Not adding it.');
+        }
+
+
+    }
+
+    // remove the Noob role from the member
+    async removeRole(guildMember, roleName) {
+                    
+        const noobRole = await this.guild.roles.cache.find(role => role.name === roleName);
+        if (noobRole) {
+            console.info(this.guild.name + ': Removing role ' + noobRole.name + ' from ' + guildMember.user.username);
+            if (guildMember.roles.cache.has(noobRole.id)) {
+                console.info(this.guild.name + ': Member ' + guildMember.user.username + ' has role ' + noobRole.name);
+                guildMember.roles.remove(noobRole.id);
+                return;
+            }
+            
+            console.info(this.guild.name + ': Role removed ' + noobRole.name + ' from ' + guildMember.user.username);
         }
     }
 
@@ -192,14 +322,14 @@ class TriviaGuild {
 		const DBguild = await Guilds.findOne({ where: { guild_id: this.guild.id } });
         if (DBguild) {      
             // Guild already exists in database
-            console.info('Guild found in database: ' + this.guild.name);
+            console.info(this.guild.name + ': Guild found in database: ' + this.guild.name);
         } else {
             // Create Guild in database
-            console.info('Guild not found in database, adding now. ' + this.guild.name);
+            console.info(this.guild.name + ': Guild not found in database, adding now. ' + this.guild.name);
             await Guilds.create({ guild_id: this.guild.id, guild_name: this.guild.name, trivia_points_total: 0});
         } 
         const gameXP = this.getGuildsGameXP();
-        console.info('Adding XP to guild: ' + this.guild.name + ' ' + gameXP);
+        console.info(this.guild.name + ': Adding XP to guild: ' + this.guild.name + ' ' + gameXP);
         await Guilds.increment({
             total_xp: gameXP,
             trivia_points_total: this.currentScore
