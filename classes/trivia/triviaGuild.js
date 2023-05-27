@@ -220,8 +220,8 @@ class TriviaGuild {
                 console.info(this.guild.name + ': Guild Champion is already the Guild Trivia Champion');
             } else {   
                 console.info(this.guild.name + ': Guild Champion is not the Guild Trivia Champion, removing role from current champions and adding to new champion'); 
-                await currentChampions.forEach(member => {
-                    member.roles.remove(guildChampRole.id);
+                await this.guild.members.forEach(member => {
+                    removeRole(member, guildChampRole.name)
                 });
                 await guildChampion.roles.add(guildChampRole.id);
             }
@@ -321,10 +321,10 @@ class TriviaGuild {
     // remove the Noob role from the member
     async removeRole(guildMember, roleName) {
                     
-        const noobRole = await this.guild.roles.cache.find(role => role.name === roleName);
-        if (noobRole) {
-            if (guildMember.roles.cache.has(noobRole.id)) {
-                guildMember.roles.remove(noobRole.id);
+        const role = await this.guild.roles.cache.find(role => role.name === roleName);
+        if (role) {
+            if (guildMember.roles.cache.has(role.id)) {
+                guildMember.roles.remove(role.id);
                 return;
             }
         }
