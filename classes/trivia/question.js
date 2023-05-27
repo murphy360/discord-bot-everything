@@ -227,7 +227,8 @@ class Question {
         for (let i = 0; i < this.answers.length; i++) {
             // only grade answers from this guild
             if (this.answers[i].guild.id != channel.guild.id) {  
-                break;
+                console.info("Answer " + this.answers[i].user.username + " is not from this guild, skipping");
+                continue; // skip this answer
             }
             
             // grade answer based on how many people answered

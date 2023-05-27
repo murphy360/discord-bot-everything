@@ -146,7 +146,6 @@ module.exports = {
             }
             // Check if the user provided a custom category
             if (interaction.options.getString('custom-category')) {
-                console.log('Custom Category');
                 categoryName = interaction.options.getString('custom-category');
                 console.info('categoryName: ' + categoryName);
                 categoryValue = 'custom';
@@ -157,12 +156,12 @@ module.exports = {
             const hostGuild = interaction.guild;
 
             if (game_in_progress === false) {
+
                   //Respond to hostMember
                 interaction.reply(hostMember.displayName + ', OK! ' + rounds + ' rounds! Difficulty: ' + difficulty + ' New game coming up!');
 
                 const game = new Game(interaction.client, hostMember, hostGuild, rounds, difficulty, categoryValue, categoryName);
-                await game.init();
-                console.info('game ' + game.ID + ' should exist');                
+                await game.init();           
                 game_in_progress = true;
                 await game.play();
                 game_in_progress = false;
