@@ -17,7 +17,8 @@ class Intro {
 
     async send(channel) {
         return new Promise((resolve, reject) => {
-
+            // Get Player Role
+            const playerRole = this.hostGuild.roles.cache.find(role => role.name === 'Player');
 
 
             const embed = new EmbedBuilder()
@@ -26,7 +27,7 @@ class Intro {
             // Set the color of the embed
             .setColor(0x0066ff)
             // Set the main content of the embed
-            .setDescription('A new game has started!')
+            .setDescription(`<@&${playerRole.id}> A new game has started!`)
             // Add originGuild icon to embedd
             .setThumbnail(this.hostGuild.iconURL())
             .addFields(

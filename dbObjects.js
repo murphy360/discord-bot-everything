@@ -12,8 +12,13 @@ const Games = require('./models/Games')(sequelize, Sequelize.DataTypes);
 const GamesPlayed = require('./models/GamesPlayed')(sequelize, Sequelize.DataTypes);
 const Guilds = require('./models/Guilds')(sequelize, Sequelize.DataTypes);
 const Questions = require('./models/Questions')(sequelize, Sequelize.DataTypes);
+const Answers = require('./models/Answers')(sequelize, Sequelize.DataTypes);
 
-GamesPlayed.belongsTo(Games, { foreignKey: 'game_id', as: 'game' });
+GamesPlayed.belongsTo(Games, { foreignKey: 'game_id', as: 'game' }); // Adds game_id to GamesPlayed
+GamesPlayed.belongsTo(Users, { foreignKey: 'user_id', as: 'user' }); // Adds user_id to GamesPlayed
+
+Answers.belongsTo(Users, { foreignKey: 'user_id', as: 'user' }); // Adds user_id to Answers
+Answers.belongsTo(Questions, { foreignKey: 'question_id', as: 'question' }); // Adds question_id to Answers
 
 Reflect.defineProperty(Users.prototype, 'addGame', {
 	value: async game => {
@@ -30,4 +35,4 @@ Reflect.defineProperty(Users.prototype, 'addGame', {
 	},
 });
 
-module.exports = { Users, Games, Questions, GamesPlayed, Guilds};
+module.exports = { Users, Games, Questions, GamesPlayed, Guilds, Answers};

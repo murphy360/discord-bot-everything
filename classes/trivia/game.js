@@ -28,7 +28,7 @@ class Game {
         this.triviaGuilds = new Array();
         this.current_round = 0;
         this.questions = new Array();
-        this.winningMember = null;
+        this.winningUser = null;
         this.winningGuild = null;
         this.chatGPTClient = new ChatGPTClient();
         
@@ -115,7 +115,7 @@ class Game {
             // Only send score to guilds if the game ended with a winner
             switch (resolve) {
                 case 'Grading Complete':
-                    this.sendScoreToGuilds(this.winningMember, this.winningGuild);
+                    this.sendScoreToGuilds(this.winningUser, this.winningGuild);
                     break;
                 case 'No Players Answered Any Questions':
                     // TODO: Send message to guilds that no one answered any questions
@@ -180,7 +180,7 @@ class Game {
             const promises = [];
             this.triviaGuilds.forEach((triviaGuild) => {
                 console.info('Sending Score to Guild: ' + triviaGuild.guild.name);
-                promises.push(triviaGuild.sendGameGuildScoreBoard(this.winningMember, this.winningGuild)); 
+                promises.push(triviaGuild.sendGameGuildScoreBoard(this.winningUser, this.winningGuild)); 
             });
             Promise.all(promises).then(() => {
                 resolve();
@@ -201,11 +201,13 @@ class Game {
                     // Add the player to the game if they are not already in it
                     let answerPlayer = this.players.find(player => player.user.id === answer.user.id);
                     if (answerPlayer === undefined) {
-                        answerPlayer = new Player(answer);
+                        answerPlayer = new Player(answer.user);
+                        await answerPlayer.storePlayerToDb();
+                        
                         this.players.push(answerPlayer); // TODO I'd like to move this logic to the end of each question
-                    } else {
-                        answerPlayer.addAnswer(answer);
-                    }
+                    } 
+
+                    await answerPlayer.addAnswer(answer);
                     
                     // Add the guild to the game if it is not already in it
                     let answerGuild = this.triviaGuilds.find(triviaGuild => triviaGuild.guild.id === answer.guild.id);
@@ -243,9 +245,9 @@ class Game {
                 }
             }
 
-            this.winningMember = this.players[0].user;
+            this.winningUser = this.players[0].user;
             this.players[0].user.username;
-            console.info('Winning Member: ' + this.winningMember.username);
+            console.info('Winning Member: ' + this.winningUser.username);
 
             // Sort the guilds by score
             this.triviaGuilds.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
