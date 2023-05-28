@@ -5,6 +5,7 @@ require('dotenv').config({ path: './../data/.env' });
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 const CHAT_GPT_CHANNEL = process.env.CHAT_GPT_CHANNEL;
 const DEV = process.env.DEV;
+const playerRoleName = process.env.PLAYER_ROLE;
 
 const { Events } = require ('discord.js');
 
@@ -59,10 +60,31 @@ module.exports = {
 
             if (DEV == "true"){
                 console.info('DEV MODE - Skipping Greeting');
-                return;
+               
             } else {
                 defaultChannel.send(greetings[Math.floor((Math.random()*greetings.length))]);
             }
+            // Check if role exists
+            let playerRole = await guild.roles.cache.find(role => role.name === playerRoleName);
+                    
+
+            
+            // Create role if it doesn't exist
+            if (!playerRole) {
+                console.info(guild.name + ': Role ' + playerRoleName + ' does not exist, creating it now');
+                // Create Player role
+                await guild.roles.create({
+                    name: playerRoleName,
+                    color: '#00ff00', // Green
+                    hoist: true,
+                    position: 105,
+                }).then(async role => {
+                    console.info(guild.name + ': Created role ' + role.name);
+                }).catch(console.error); 
+            }  else {
+                console.info(guild.name + ': Checking if role ' + playerRoleName + ' exists');
+            }
+            
         });        
     },
 };
