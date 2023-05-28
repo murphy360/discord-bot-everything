@@ -3,12 +3,11 @@ const { Answers } = require('./../../dbObjects.js');
 const { Sequelize } = require('sequelize');
 class Answer {
 
-    constructor(questionId, user, reaction, isCorrect, difficulty, guild) {
+    constructor(questionId, user, isCorrect, difficulty, guild) {
         
         this.questionId = questionId;
         this.user = user;
         this.guild = guild;
-        this.reaction = reaction;
         this.isCorrect = isCorrect;
         this.difficulty = difficulty;
         this.answer_date = Sequelize.fn('datetime', 'now');
