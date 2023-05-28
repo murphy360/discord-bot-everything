@@ -1,4 +1,4 @@
-const { EmbedBuilder }  = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle }  = require('discord.js');
 const HE = require('he');
 const { Sequelize } = require('sequelize');
 const { Questions } = require('./../../dbObjects.js');
@@ -17,7 +17,7 @@ const Reactions = [
 class Question {
     
     constructor(client, questionData, questionNumber, source, sourceUrl) {
-        console.info('Question.constructor()');
+        console.info('Question.constructor(): ' + source + ' USL: ' + sourceUrl);
         this.timerSec = 30;                                                     // Time to answer the question
         this.answers = new Array();                                             // Array of Answers
         this.chatGPTClient = new ChatGPTClient();
@@ -29,7 +29,7 @@ class Question {
         this.category = questionData.category;                                  // Question Category
         this.question_num = questionNumber;                                     // Question Number in the Round 
         this.dislikes = 0;                                                      // Number of Dislikes
-        if (this.source == 'opentdb') {
+        if (this.source == 'The Open Trivia Database') {
             this.question = this.cleanText(questionData.question);              // Question Text
             this.answer = this.cleanText(questionData.correct_answer);          // Answer to the Question
             this.questionType = this.cleanText(questionData.type);              // Question Type
@@ -153,7 +153,10 @@ class Question {
 
     // Remove HTML Entities from text
     cleanText(dirtyText) {
-        return HE.decode(dirtyText);
+        console.info("Cleaning Text: " + dirtyText);
+        const cleanText = HE.decode(dirtyText);
+        console.info("Cleaned Text: " + cleanText);
+        return cleanText;
     }
 
     formatChoices() {
@@ -182,7 +185,7 @@ class Question {
         // check if player has already answered this question return early
         if (this.answers.some(a => a.user.id === answer.user.id)) {
             console.info(answer.user.username + " has already answered this question");
-            return true;
+            return false;
         } 
         
         // check if answer is correct and if no one has answered correctly yet set winner
@@ -214,7 +217,7 @@ class Question {
         
         this.answers.push(answer);
         console.info("Added an Answer: " + this.answers.length);
-        return false;
+        return true;
 
     }
 
@@ -301,11 +304,13 @@ class Question {
 
 
     // Create question embed
-    createQuestionEmbed() {
+    async createQuestionEmbed() {
+
+        const questionNumberString = 'Question # ' + this.question_num;
+        
         console.info("Creating Question Embed");
         this.embed = new EmbedBuilder()
-            .setColor(TRIVIA_COLOR)
-            //.setAuthor('Question # ' + this.questionNumber)
+            .setDescription(questionNumberString)
             // Set the title of the field
             .setTitle(this.question)
             // Set the color of the embed
@@ -319,13 +324,41 @@ class Question {
             )
             // Add originGuild icon to embedd
             //.setThumbnail(this.hostGuild.iconURL())
-
             .setTimestamp()
             .setFooter({ text: 'Question provided by ' + this.source + ' ' + this.sourceUrl });
-        
-        
-
         return this.embed;
+    }
+
+    createQuestionActionRow() {
+        this.buttons = [];
+
+        for (let i = 0; i < this.choices.length; i++) {
+            let id = i + 1;
+            id = id.toString();
+
+            if (this.choices[i] === 'True' || this.choices[i] === 'False') {
+                this.buttons.push(
+                    new ButtonBuilder()
+                    .setCustomId(id)
+                    .setLabel(this.choices[i])
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(false)
+                );
+                
+            } else {
+                const label = id;
+                this.buttons.push(
+                    new ButtonBuilder()
+                    .setCustomId(id)
+                    .setLabel(label)
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(false)
+                );
+            }
+        }
+        this.row = new ActionRowBuilder()
+			.addComponents(this.buttons);
+        return this.row;
     }
 
 
@@ -333,24 +366,39 @@ class Question {
     
     // Display Question in the given Discord channel
     async ask(channel) {
-        console.info("Asking question: " + this.question + " in " + channel.guild.name + " in " + channel.name);
+        console.info("Asking question: " + this.question + " Correct Choice: " + this.correct_choice + " in " + channel.guild.name + " in " + channel.name);
         // set max listeners to 8 times the number of guilds in the client
         const numGuilds = this.client.guilds.cache.size;
         this.client.setMaxListeners(numGuilds * 8); 
         this.last_asked = Sequelize.fn('datetime', 'now');
         this.times_asked++;
-        const question_message = await channel.send({ embeds: [this.embed] });
-        for (let i = 0; i < this.num_choices; i++) {
-            // add reactions
-            question_message.react(Reactions[i]);
-        }
+        const actionRow = this.createQuestionActionRow();
+        const question_message = await channel.send({ embeds: [this.embed], components: [actionRow] });
+
         question_message.react(Reactions[4]); // add the thumbs down reaction
         return new Promise((resolve, reject) => {
 
             const timer = new Timer(this.timerSec, 1, channel, "It's time to answer!");
             timer.start().then(() => {
+
+                
+                console.info(question_message.components[0]);
+
+                this.buttons.forEach((button) => {
+                    console.info(button);
+                    console.info(button.type);
+                    button.setDisabled(true);
+                });
+               
+               
+
+                question_message.edit({ components: [question_message.components[0]] });
                 // Timer Complete, Let's grade the results
                 this.gradeResults(channel);
+                
+                //.components[0].setDisabled(1);
+                //question_message.edit({ components: [message.components[0]] });
+            
 
                 // if channel guild has a winner send a winner embed, else send a loser embed
                 if (this.answers.some(answer => answer.isGuildWinner && answer.guild.id === channel.guild.id)) {
@@ -373,6 +421,43 @@ class Question {
                 resolve("Resolved");
             });
 
+            // Create Button Collector
+            const timerSecMilli = this.timerSec * 1000;
+            
+            // should definitely increase the time in your collector.
+            const collector = channel.createMessageComponentCollector({ time: timerSecMilli }); 
+
+            collector.on('collect', async i => {
+                // check if the author triggered the interaction
+                console.info("COLLECT: " + i.user.username + " from " + i.guild.name + " " + i.customId);
+
+                // If timer is inactive, return early
+                if (!timer.isActive) {
+                    i.deferUpdate();
+                    return;
+                }
+                // Check if the reaction is from a player (not the bot)
+                if (i.user.id === this.client.user.id) return;
+
+                // Convert i.customId to a number
+                const responseNum = parseInt(i.customId) - 1;
+
+                console.info("Response Number: " + responseNum + " Correct Choice: " + this.correct_choice);
+
+                // Check if the reaction is a correct choice
+                const isReactionCorrect = responseNum === this.correct_choice; 
+                // A new Answer needs to be checked if this user has already answered
+                const anAnswer = new Answer(this.ID, i.user, isReactionCorrect, this.difficulty, channel.guild);
+                // Only one answer allowed
+                if (this.checkAnswer(anAnswer)) {
+                    console.info("Adding Answer: " + anAnswer.user.username + " to Question: " + this.question + " " + anAnswer.isCorrect + " " + responseNum);
+                } else { 
+                    console.info("Answer already exists for: " + anAnswer.user.username + " to Question: " + this.question + " " + anAnswer.isCorrect + " " + responseNum);
+                }
+                // defer the interaction
+                await i.deferUpdate();
+            });
+
 
             // Create a reaction collector
             this.client.on('messageReactionAdd', async (reaction, user) => {
@@ -384,25 +469,13 @@ class Question {
                 // Check if the reaction is on the correct message
                 if (reaction.message.id !== question_message.id) return;
     
-                // Check if the reaction is from a player (not the bot)
+                // Check if the reaction is from a bot. If so, return early
                 if (user.id === this.client.user.id) return;
     
                 let responseNum = "";
     
                 // Check which reaction was added
                 switch (reaction.emoji.name) {
-                    case '\u0031\u20E3':    // :one: 
-                        responseNum = 0;
-                        break;
-                    case '\u0032\u20E3':    // :two:
-                        responseNum = 1;
-                        break;
-                    case '\u0033\u20E3':    // :three:
-                        responseNum = 2;
-                        break;
-                    case '\u0034\u20E3':    // :four:
-                        responseNum = 3;
-                        break;
                     case '👎':              // :ThumbsDown:
                         responseNum = 4;
                         break;
@@ -410,19 +483,9 @@ class Question {
                         // Handle other reactions
                         break;
                 }
-
                 if (responseNum === 4) {
                     this.dislikes++;
-                } else {
-                    // Check if the reaction is a correct choice
-                    const isReactionCorrect = responseNum === this.correct_choice; 
-                    // A new Answer needs to be checked if this user has already answered
-                    const anAnswer = new Answer(this.ID, user, reaction, isReactionCorrect, this.difficulty, channel.guild);
-                    // Only one answer allowed
-                    if (this.checkAnswer(anAnswer)) {
-                        console.info("Adding Answer: " + anAnswer.user.username + " to Question: " + this.question + " " + anAnswer.isCorrect + " " + responseNum);
-                    }
-                }
+                } 
             });
         }); 
     }
