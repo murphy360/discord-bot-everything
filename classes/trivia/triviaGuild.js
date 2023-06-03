@@ -163,7 +163,12 @@ class TriviaGuild {
 
             // Check for tie
             if (this.allGuildPlayers.length === 1) {
+                console.info(this.guild.name + ': Only one player in guild');
+
             } else if (this.allGuildPlayers[0].trivia_points_total === this.allGuildPlayers[1].trivia_points_total) {
+                console.info(this.guild.name + ': Tie for Guild Champion');
+                // Check for tie
+                // If tie, check for tiebreaker
             } else {
                 console.info(this.guild.name + ': length of allGuildPlayers: ' + this.allGuildPlayers.length);
             }
@@ -174,9 +179,14 @@ class TriviaGuild {
             console.info(this.guild.name + ': Guild Champion ID: ' + guildChampion.user.id);
             
             
-            if (worldChampionUser.id === guildChampion.user_id) {
+            if (worldChampionUser.id === guildChampion.user.id) {
                 console.info(this.guild.name + ': World Champion deconflicts Guild Champion');
-                guildChampion = await this.guild.members.fetch(this.allGuildPlayers[1].id);
+                
+                console.info(this.guild.name + ': length of allGuildPlayers: ' + this.allGuildPlayers.length);
+                guildChampion = await this.guild.members.fetch(this.allGuildPlayers[1]);
+                // Guild Champion can't be World Champion
+                console.info(this.guild.name + ': World Champion ID: ' + worldChampionUser.id);
+                console.info(this.guild.name + ': Guild Champion ID: ' + guildChampion.user.id);
             }
 
            
@@ -220,9 +230,9 @@ class TriviaGuild {
                 console.info(this.guild.name + ': Guild Champion is already the Guild Trivia Champion');
             } else {   
                 console.info(this.guild.name + ': Guild Champion is not the Guild Trivia Champion, removing role from current champions and adding to new champion'); 
-                await this.guild.members.forEach(member => {
-                    removeRole(member, guildChampRole.name)
-                });
+                for (const member of currentChampions) {
+                    await this.removeRole(member, guildChampRole.name);
+                  }
                 await guildChampion.roles.add(guildChampRole.id);
             }
         } else {
