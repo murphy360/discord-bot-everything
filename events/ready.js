@@ -58,12 +58,13 @@ module.exports = {
                 console.info('Chat GPT Channel Exists: ' + chatChannel.name);
             }
 
-            if (DEV == "true"){
-                console.info('DEV MODE - Skipping Greeting');
+            if (true){
+                console.info(guild.name + ': Skipping Greeting');
                
             } else {
                 defaultChannel.send(greetings[Math.floor((Math.random()*greetings.length))]);
             }
+            
             // Check if role exists
             let playerRole = await guild.roles.cache.find(role => role.name === playerRoleName);
                     
