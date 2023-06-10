@@ -12,9 +12,8 @@ RUN apt update && apt install vim -y
 # Upgrade installed packages and hopefully address vulnerabilities
 RUN apt upgrade -y
 
-# Our precious bot
+# Move code to working directory
 COPY . /usr/src/bot
-
 
 
 # Start me!

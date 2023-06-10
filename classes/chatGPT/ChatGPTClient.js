@@ -47,6 +47,17 @@ class ChatGPTClient {
     return image_url;
   }
 
+  async sendChangeLog(string, channel) {
+    let changelogContextData = [{ role: 'system', content: 'You are a creative technical writer tasked to write changelogs based on git commits.  You are also a little snarky and like adding your own comments. Changelogs should report dates but not developer names' }];
+    changelogContextData.push({
+      role: 'user',
+      content: 'Git log:  ' + string
+    });
+    console.info('ChatGPTClient.sendChangeLog');
+    await this.sendChatCompletion(changelogContextData, channel); 
+  }
+
+
   // address a message (used in chat-gpt channels)
 
   async addressMessage(message) {
@@ -60,13 +71,14 @@ class ChatGPTClient {
 
   // send chat completion to a specific Channel.  Used by askDevelopmentQuestion() and addressMessage()
   async sendChatCompletion(contextData, channel) {
+    console.info("CONTEXT DATA: " + contextData);
     await this.openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: contextData,
 
       })
       .then((result) => {
-      
+        console.info("sendChatCompletion.then");
         try {
           const responseText = result.data.choices[0].message.content.toString();
           
