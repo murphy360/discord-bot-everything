@@ -18,3 +18,4 @@ changelog:
     - title: Other Changes
       labels:
         - "*"
+  format: '%s'
