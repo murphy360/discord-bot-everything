@@ -1,3 +1,15 @@
+commit d478969a359e1ae67c2cc4d010c1edb7ecf15c40
+Author: Corey Murphy <c.murphy360@gmail.com>
+Date:   Sat Jun 10 11:28:48 2023 -0700
+
+    Made the bot a bit snarkier
+
+commit 0846c928bb522c5cb2534be3663996f11b3d9dca
+Author: Corey Murphy <c.murphy360@gmail.com>
+Date:   Sat Jun 10 11:19:32 2023 -0700
+
+    Hardcoding change log
+
 commit f3748c0ca36305635296dbbef3e19460a2c1d5f8
 Author: Corey Murphy <c.murphy360@gmail.com>
 Date:   Sat Jun 10 11:10:43 2023 -0700
@@ -15,15 +27,3 @@ Author: Corey Murphy <c.murphy360@gmail.com>
 Date:   Sat Jun 10 09:13:19 2023 -0700
 
     Create release.yml
-
-commit 810bde8b8573c6244666666d50bcc5e6fa3e7489
-Author: Corey Murphy <c.murphy360@gmail.com>
-Date:   Sat Jun 10 08:25:31 2023 -0700
-
-    Writing git log to changelog.txt
-
-commit 6117eb8b93570103a384a649e475976b9e1dbe3c
-Author: Corey Murphy <c.murphy360@gmail.com>
-Date:   Sat Jun 10 07:09:51 2023 -0700
-
-    Added changelog slash command (#92)
