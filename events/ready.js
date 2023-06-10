@@ -1,6 +1,7 @@
 require('../colors.js');
 require('../greetings.js');
 require('dotenv').config({ path: './../data/.env' });
+const { exec } = require('child_process');
 
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 const CHAT_GPT_CHANNEL = process.env.CHAT_GPT_CHANNEL;
@@ -62,6 +63,14 @@ module.exports = {
             if (guild.id == DEV_GUILD_ID){
                 const devChannel = await guild.channels.cache.find(channel => channel.name === "trivia_bot");
                 devChannel.send(greetings[Math.floor((Math.random()*greetings.length))]);
+                exec('git log $(git describe --tags --abbrev=0)..HEAD', (err, stdout, stderr) => {
+                    if (err) {
+                      console.error(err);
+                      return;
+                    }
+                    console.log(stdout);
+                    devChannel.send(`\`\`\`${stdout}\`\`\``);
+                  });
             }
             
             // Check if role exists
