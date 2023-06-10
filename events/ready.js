@@ -82,7 +82,6 @@ module.exports = {
             }  else {
                 console.info(guild.name + ': Checking if role ' + playerRoleName + ' exists');
             }
-            
         });        
     },
 };
