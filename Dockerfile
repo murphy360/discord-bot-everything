@@ -15,5 +15,7 @@ RUN apt upgrade -y
 # Our precious bot
 COPY . /usr/src/bot
 
+
+
 # Start me!
 CMD ["node", "index.js"]
