@@ -64,7 +64,7 @@ module.exports = {
             if (guild.id == DEV_GUILD_ID){
                 const devChannel = await guild.channels.cache.find(channel => channel.name === "trivia_bot");
                 devChannel.send(greetings[Math.floor((Math.random()*greetings.length))]);
-                
+
                 exec('git log $(git describe --tags --abbrev=0)..HEAD', (err, stdout, stderr) => {
                     if (err) {
                       console.error(err);
@@ -73,7 +73,7 @@ module.exports = {
                     console.log(stdout);
                     let chatGPTClient = new ChatGPTClient();
                     chatGPTClient.sendChangeLog(stdout, devChannel);
-                    //devChannel.send(`\`\`\`${stdout}\`\`\``);
+
                   });
             }
             
@@ -95,7 +95,6 @@ module.exports = {
             }  else {
                 console.info(guild.name + ': Checking if role ' + playerRoleName + ' exists');
             }
-            
         });        
     },
 };
