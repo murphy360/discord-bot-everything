@@ -81,7 +81,30 @@ module.exports = {
                 }).catch(console.error); 
             }  else {
                 console.info(guild.name + ': Checking if role ' + playerRoleName + ' exists');
+
             }
+            
+            // Check if role exists
+            let playerRole = await guild.roles.cache.find(role => role.name === playerRoleName);
+                    
+
+            
+            // Create role if it doesn't exist
+            if (!playerRole) {
+                console.info(guild.name + ': Role ' + playerRoleName + ' does not exist, creating it now');
+                // Create Player role
+                await guild.roles.create({
+                    name: playerRoleName,
+                    color: '#00ff00', // Green
+                    hoist: true,
+                    position: 105,
+                }).then(async role => {
+                    console.info(guild.name + ': Created role ' + role.name);
+                }).catch(console.error); 
+            }  else {
+                console.info(guild.name + ': Checking if role ' + playerRoleName + ' exists');
+            }
+            
         });        
     },
 };
