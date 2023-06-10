@@ -48,7 +48,7 @@ class ChatGPTClient {
   }
 
   async sendChangeLog(string, channel) {
-    let changelogContextData = [{ role: 'system', content: 'You are a creative technical writer tasked to write changelogs based on git commits.  You are also a little snarky and like adding your own comments. Changelogs should report dates but not developer names' }];
+    let changelogContextData = [{ role: 'system', content: 'You are a Senior Level Developer tasked to write changelogs based on git commits of junior developers.  You have a little bit of an attitude and tend to get a little snarky when adding comments. Changelogs should report dates, please replace developer names with whatever nicknames you think is appropriate based on the quality of their comments.' }];
     changelogContextData.push({
       role: 'user',
       content: 'Git log:  ' + string
