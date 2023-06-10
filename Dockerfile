@@ -1,12 +1,7 @@
 FROM node:latest
 
-
-
 # Create the directory!
 RUN mkdir -p /usr/src/bot
-
-# Write Changelog
-RUN git log -5 > /usr/src/bot/changelog.txt
 
 WORKDIR /usr/src/bot
 
@@ -20,8 +15,6 @@ RUN apt upgrade -y
 
 # Move code to working directory
 COPY . /usr/src/bot
-
-
 
 # Start me!
 CMD ["node", "index.js"]
