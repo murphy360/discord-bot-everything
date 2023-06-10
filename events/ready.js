@@ -3,6 +3,7 @@ require('../greetings.js');
 require('dotenv').config({ path: './../data/.env' });
 const { exec } = require('child_process');
 const { ChatGPTClient } = require('./../classes/chatGPT/ChatGPTClient.js');
+const fs = require('fs');
 
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 const CHAT_GPT_CHANNEL = process.env.CHAT_GPT_CHANNEL;
@@ -62,18 +63,19 @@ module.exports = {
             }
 
             if (guild.id == DEV_GUILD_ID){
+                let chatGPTClient = new ChatGPTClient();
                 const devChannel = await guild.channels.cache.find(channel => channel.name === "trivia_bot");
                 devChannel.send(greetings[Math.floor((Math.random()*greetings.length))]);
 
-                exec('git log $(git describe --tags --abbrev=0)..HEAD', (err, stdout, stderr) => {
+                fs.readFile('changelog.txt', 'utf8', (err, data) => {
                     if (err) {
                       console.error(err);
+                      chatGPTClient.sendChangeLog(data, devChannel);
                       return;
                     }
-                    console.log(stdout);
-                    let chatGPTClient = new ChatGPTClient();
-                    chatGPTClient.sendChangeLog(stdout, devChannel);
-
+                    console.log(data);
+                    
+                    chatGPTClient.sendChangeLog(data, devChannel);
                   });
             }
             
