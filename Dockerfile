@@ -15,6 +15,7 @@ RUN apt upgrade -y
 
 # Move code to working directory
 COPY . /usr/src/bot
+RUN git log -5 > changelog.txt
 
 # Start me!
 CMD ["node", "index.js"]
