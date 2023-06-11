@@ -65,7 +65,6 @@ module.exports = {
             if (guild.id == DEV_GUILD_ID){
                 let chatGPTClient = new ChatGPTClient();
                 const devChannel = await guild.channels.cache.find(channel => channel.name === "trivia_bot");
-                devChannel.send(greetings[Math.floor((Math.random()*greetings.length))]);
 
                 fs.readFile('changelog.txt', 'utf8', (err, data) => {
                     if (err) {
