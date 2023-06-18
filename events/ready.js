@@ -30,6 +30,12 @@ module.exports = {
             chatGPTExists = false;
             parentTextChannelId="";
             generalChannelId="";
+
+            console.log("EVENTS FOR DEV GUILD");
+            
+            guild.scheduledEvents.fetch()
+            .then(events => console.log(events))
+            .catch(console.error);
             
             console.info(`Checking setups for + ${guild.name}`);
 
