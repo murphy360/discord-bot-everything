@@ -24,6 +24,7 @@ if [ "$(git log $latest_tag..HEAD --oneline)" = "" ]; then
   git log --pretty=format:"%h %s (%ad)" --date=short $last_tag..$latest_tag >> changelog.txt
 else
   # If there are changes, report changes since the last tag
+  echo "You have unversioned changes since $latest_tag_comment" > changelog.txt
   echo "Unversioned changes since $latest_tag_comment:" > changelog.txt
   echo "Previous Version Date: $latest_tag_date" >> changelog.txt
   git log $latest_tag..HEAD --pretty=format:"%h %s (%ad)" >> changelog.txt
