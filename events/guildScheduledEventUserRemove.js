@@ -13,7 +13,7 @@ module.exports = {
 	execute(guildScheduledEvent, user) {
 		
 		console.info(LOG_DATE + ": " + user.username + " was removed from " + guildScheduledEvent.name );
-		const client = guild.client;
+		const client = guildScheduledEvent.guild.client;
 		const devGuild = client.guilds.cache.get(DEV_GUILD_ID);
 		const devChannel = devGuild.channels.cache.find(channel => channel.name === "trivia_bot");
 		devChannel.send(LOG_DATE + ": " + user.username + " was removed from " + guildScheduledEvent.name + " in " + guildScheduledEvent.guild.name );

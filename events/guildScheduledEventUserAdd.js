@@ -13,8 +13,7 @@ module.exports = {
 		
 		console.info(LOG_DATE + ": " + user.username + " was added to " + guildScheduledEvent.name );
 
-	
-		const client = guildScheduledEvent.client;
+		const client = guildScheduledEvent.guild.client;
 		const devGuild = client.guilds.cache.get(DEV_GUILD_ID);
 		const devChannel = devGuild.channels.cache.find(channel => channel.name === "trivia_bot");
 		devChannel.send(LOG_DATE + ": " + user.username + " was added to " + guildScheduledEvent.name );

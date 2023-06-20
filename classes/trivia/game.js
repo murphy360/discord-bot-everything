@@ -11,11 +11,11 @@ const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 // TODO create triviaGuilds from beginning of game
 class Game {
      
-    constructor(client, hostMember, hostGuild, rounds, difficulty, categoryValue, categoryName) {
+    constructor(client, hostUser, hostGuild, rounds, difficulty, categoryValue, categoryName) {
         
         this.ID = 0
         this.client = client;
-		this.hostMember = hostMember;
+		this.hostUser= hostUser;
 		this.hostGuild = hostGuild;
         this.total_rounds = rounds;
         this.current_round = 0;
@@ -43,7 +43,7 @@ class Game {
         } else {
             
             const game = await Games.create({ 
-                host_player_id: this.hostMember.id, 
+                host_player_id: this.hostUser.id, 
                 host_guild_id: this.hostGuild.id, 
                 game_start: Sequelize.fn('datetime', 'now'),
                 game_end_type: endType, 
@@ -66,6 +66,7 @@ class Game {
     async getTDBQuestions() {
         console.info("createQuestions");
         let url = 'https://opentdb.com/api.php?amount='+this.total_rounds;
+        console.info('getTDBQuestions(): difficulty: ' + this.difficulty);
         if (this.difficulty !== 'all') {
             url = url + '&difficulty=' + this.difficulty;
         }
@@ -76,7 +77,8 @@ class Game {
         console.info('URL: ' + url);
         const file = await fetch(url).then(response => response.text());
         const json = JSON.parse(file);
-	    console.info('JSON: ' + json);
+	    console.info('JSON: ');
+        console.info(json);
 
         this.questions = new Array()
         for (let i = 0; i < this.total_rounds; i++) {
@@ -104,7 +106,7 @@ class Game {
     async play() {
         
         await this.createQuestions();
-        const intro = new Intro(this.client, this.hostMember, this.hostGuild, this.total_rounds, this.difficulty, this.categoryName, this.ID.toString());
+        const intro = new Intro(this.client, this.hostUser, this.hostGuild, this.total_rounds, this.difficulty, this.categoryName, this.ID.toString());
         await this.sendIntroToGuilds(intro);
         for (this.current_round = 0; this.current_round < this.total_rounds; this.current_round++) {
             await this.askQuestionToGuilds(this.questions[this.current_round]);

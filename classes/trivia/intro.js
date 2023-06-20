@@ -4,10 +4,10 @@ const { EmbedBuilder }  = require('discord.js');
 //This class sends the game introduction
 class Intro {
    
-    constructor(client, hostMember, hostGuild, rounds, difficulty, categoryName, gameId) {
+    constructor(client, hostUser, hostGuild, rounds, difficulty, categoryName, gameId) {
         this.timerSec = 10;
         this.client = client;
-        this.hostMember = hostMember;
+        this.hostUser = hostUser;
         this.hostGuild = hostGuild;
         this.rounds = rounds;
         this.difficulty = difficulty;
@@ -31,7 +31,7 @@ class Intro {
             // Add originGuild icon to embedd
             .setThumbnail(this.hostGuild.iconURL())
             .addFields(
-                { name: 'Host', value: this.hostMember.displayName, inline: true  },
+                { name: 'Host', value: this.hostUser.username, inline: true  },
                 { name: 'Host Guild', value: this.hostGuild.name, inline: true },
                 { name: '\u200B', value: '\u200B' },
                 { name: 'Rounds', value: this.rounds.toString(), inline: true },

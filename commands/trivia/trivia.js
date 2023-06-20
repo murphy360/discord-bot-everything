@@ -158,9 +158,9 @@ module.exports = {
             if (game_in_progress === false) {
 
                   //Respond to hostMember
-                interaction.reply(hostMember.displayName + ', OK! ' + rounds + ' rounds! Difficulty: ' + difficulty + ' New game coming up!');
+                interaction.reply(hostMember.user.username + ', OK! ' + rounds + ' rounds! Difficulty: ' + difficulty + ' New game coming up!');
 
-                const game = new Game(interaction.client, hostMember, hostGuild, rounds, difficulty, categoryValue, categoryName);
+                const game = new Game(interaction.client, hostMember.user, hostGuild, rounds, difficulty, categoryValue, categoryName);
                 await game.init();           
                 game_in_progress = true;
                 await game.play();
@@ -171,7 +171,7 @@ module.exports = {
                 await leaderboard.setWorldTriviaChampionRole()
             } else {
                 // Respond that a game is already in play
-                return interaction.reply(hostMember.displayName + ', Sorry! a game is already in progress.  Check the Trivia Room!');
+                return interaction.reply(hostMember.user.username + ', Sorry! a game is already in progress.  Check the Trivia Room!');
             }
           
         } else if (interaction.options.getSubcommand() === 'leaderboard') {
