@@ -1,4 +1,6 @@
 const { Events } = require('discord.js');
+const { Game } = require('./../classes/trivia/game.js');
+const { LeaderBoard } = require('./../classes/trivia/leaderBoard.js');
 
 require('dotenv').config({ path: './../data/.env' });
 
@@ -9,7 +11,7 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 
   module.exports = {
 	name: Events.GuildScheduledEventUpdate,
-	execute(guildOldScheduledEvent, guildNewScheduledEvent) {
+	async execute(guildOldScheduledEvent, guildNewScheduledEvent) {
 		
 		console.info(LOG_DATE + ": Old Event");
 		console.info(guildOldScheduledEvent);
@@ -18,7 +20,7 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 		console.info(guildNewScheduledEvent);
 
 		// guild where the event is happening
-		const eventGuild = client.guilds.cache.get(guildNewScheduledEvent.guild.id);
+		const eventGuild = guildNewScheduledEvent.guild;
 
 		// check what in the event changed
 		// if the date changed, log it
@@ -65,6 +67,26 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 			if (guildNewScheduledEvent.status == 2) {
 				console.info(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " was started");
 				devChannel.send(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " in " + eventGuild.name + " was started");
+			
+				// get number of minutes event lasts
+				const eventDuration = (guildNewScheduledEvent.scheduledEndTimestamp - guildNewScheduledEvent.scheduledStartTimestamp) / 60000;	
+				console.info(LOG_DATE + ": Event Duration: " + eventDuration + " minutes");
+				//let rounds = 3;
+				const rounds = Math.floor(eventDuration / 2);
+				let difficulty = 'all';
+            	let categoryName = 'All';
+            	let categoryValue = '0';
+
+                const game = new Game(guildNewScheduledEvent.client, guildNewScheduledEvent.creator, eventGuild, rounds, difficulty, categoryValue, categoryName);
+                await game.init();           
+                game_in_progress = true;
+                await game.play();
+                game_in_progress = false;
+                await game.end();
+                console.info('game ' + game.ID + ' should be over Starting Leaderboard');
+                const leaderboard = new LeaderBoard(client);            
+                await leaderboard.setWorldTriviaChampionRole()
+			
 			}
 			// if the status changed to COMPLETED, log it
 			if (guildNewScheduledEvent.status == 3) {
