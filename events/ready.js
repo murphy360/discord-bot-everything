@@ -1,6 +1,7 @@
 require('../colors.js');
 require('../greetings.js');
 require('dotenv').config({ path: './../data/.env' });
+const { CronJob } = require('cron');
 const { exec } = require('child_process');
 const { ChatGPTClient } = require('./../classes/chatGPT/ChatGPTClient.js');
 const fs = require('fs');
@@ -34,7 +35,8 @@ module.exports = {
             console.log("EVENTS FOR DEV GUILD");
             
             guild.scheduledEvents.fetch()
-            .then(events => console.log(events))
+            // then log each event creator
+            .then(events => events.forEach(event => console.log(event)))
             .catch(console.error);
             
             console.info(`Checking setups for + ${guild.name}`);
@@ -82,6 +84,11 @@ module.exports = {
                     
                     chatGPTClient.sendChangeLog(data, devChannel);
                   });
+
+                scheduleNightlyTriviaGame(guild);
+                // Create a cron job to run every morning at 0600 to schedule tonight's game
+                const job = new CronJob('0 0 6 * * *', () => scheduleNightlyTriviaGame(guild), null, true, 'UTC');
+                job.start();              
             }
             
             // Check if role exists
@@ -101,7 +108,49 @@ module.exports = {
                 }).catch(console.error); 
             }  else {
                 console.info(guild.name + ': Checking if role ' + playerRoleName + ' exists');
+            }  
+        });       
+
+        // Schedule a Trivia Night Event at 8pm tonight if it doesn't exist
+        function scheduleNightlyTriviaGame(guild) {
+            // Code to execute on the schedule
+            console.log('Scheduled task executed!');
+            // Create Trivia Night Event next thursday at 8pm if it doesn't exist
+            guild.scheduledEvents.fetch()
+            .then(async events => {
+                const tonight = new Date();
+
+                // set tonight to tonight at 8pm
+                tonight.setHours(20, 0, 0, 0);
+
+                // scheduled start time ISO8601 timestamp
+                const scheduledStartTime = tonight;
+                const scheduledEndTime = new Date(tonight.getTime() + 3600000);
+                const tonightsEvent = events.find(event => event.name === 'Trivia Night');
+                
+                if (!tonightsEvent) {
+                    console.info(guild.name + ': Creating Trivia Night Event');
+                    console.log(scheduledStartTime);
+                    console.log(scheduledEndTime);
+
+                    guild.scheduledEvents.create({
+                        name: 'Trivia Night',
+                        description: 'Trivia Night',
+                        scheduledStartTime: scheduledStartTime,
+                        scheduledEndTime: scheduledEndTime,
+                        privacyLevel: 2,
+                        entityType: 3,
+                        entityMetadata: {
+                            location: '#trivia'
+                        }
+                    })                        
+                    .then(event => console.info(event.creator.username + ': Created Trivia Night Event in ' + guild.name + ' at ' + event.scheduledStartTime))
+                    .catch(console.error);
+                } else {
+                    console.info(guild.name + ': Trivia Night Event Exists');
+                }
             }
-        });        
+            ).catch(console.error);
+          } 
     },
 };
