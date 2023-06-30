@@ -118,7 +118,9 @@ module.exports = {
             // Create Trivia Night Event next thursday at 8pm if it doesn't exist
             guild.scheduledEvents.fetch()
             .then(async events => {
-                const tonight = new Date();
+                
+                // get current date
+                const tonight = new Date(); 
 
                 // set tonight to tonight at 8pm
                 tonight.setHours(20, 0, 0, 0);
@@ -144,7 +146,7 @@ module.exports = {
                             location: '#trivia'
                         }
                     })                        
-                    .then(event => console.info(event.creator.username + ': Created Trivia Night Event in ' + guild.name + ' at ' + event.scheduledStartTime))
+                    .then(event => console.info(event.creator.username + ': Created ' + event.name + ' in ' + guild.name + ' at ' + event.scheduledStartTimestamp))
                     .catch(console.error);
                 } else {
                     console.info(guild.name + ': Trivia Night Event Exists');
