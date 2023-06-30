@@ -103,10 +103,10 @@ class Game {
     
    
 
-    async play() {
+    async play(introTimerSec) {
         
         await this.createQuestions();
-        const intro = new Intro(this.client, this.hostUser, this.hostGuild, this.total_rounds, this.difficulty, this.categoryName, this.ID.toString());
+        const intro = new Intro(this.client, this.hostUser, this.hostGuild, this.total_rounds, this.difficulty, this.categoryName, this.ID.toString(), introTimerSec);
         await this.sendIntroToGuilds(intro);
         for (this.current_round = 0; this.current_round < this.total_rounds; this.current_round++) {
             await this.askQuestionToGuilds(this.questions[this.current_round]);

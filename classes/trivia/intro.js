@@ -4,8 +4,8 @@ const { EmbedBuilder }  = require('discord.js');
 //This class sends the game introduction
 class Intro {
    
-    constructor(client, hostUser, hostGuild, rounds, difficulty, categoryName, gameId) {
-        this.timerSec = 10;
+    constructor(client, hostUser, hostGuild, rounds, difficulty, categoryName, gameId, timerSec) {
+        this.timerSec = timerSec;
         this.client = client;
         this.hostUser = hostUser;
         this.hostGuild = hostGuild;

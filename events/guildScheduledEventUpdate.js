@@ -80,7 +80,7 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
                 const game = new Game(guildNewScheduledEvent.client, guildNewScheduledEvent.creator, eventGuild, rounds, difficulty, categoryValue, categoryName);
                 await game.init();           
                 game_in_progress = true;
-                await game.play();
+                await game.play(120);
                 game_in_progress = false;
                 await game.end();
                 console.info('game ' + game.ID + ' should be over Starting Leaderboard');
