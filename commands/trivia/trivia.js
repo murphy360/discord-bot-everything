@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { Game } = require('./../../classes/trivia/game.js');
 const { LeaderBoard } = require('./../../classes/trivia/leaderBoard.js');
+const { LeaderBoardGuild } = require('./../../classes/trivia/leaderBoardGuild.js');
 let game_in_progress = false;
 const triviaCategories = [
     { name: 'General Knowledge', value: '9' },
@@ -102,6 +103,10 @@ module.exports = {
                 .setDescription('Will show the leaderboard... Someday'))
         .addSubcommand(subcommand =>
             subcommand
+                .setName('leaderboard-guild')
+                .setDescription('Will show the guild leaderboard... Someday'))                  
+        .addSubcommand(subcommand =>
+            subcommand
                 .setName('rules')
                 .setDescription('Rules of the game')),
 
@@ -175,10 +180,15 @@ module.exports = {
             }
           
         } else if (interaction.options.getSubcommand() === 'leaderboard') {
-            console.info('Leaderboard Subcommand client: ' + interaction.client.ID)
-            const leaderBoard = new LeaderBoard(interaction.client);
+            console.info('World Leaderboard Subcommand client: ' + interaction.client.ID);
+            let leaderBoard = new LeaderBoard(interaction.client);
             leaderBoard.postManualWorldLeaderBoard(interaction);
             return;
+        } else if (interaction.options.getSubcommand() === 'leaderboard-guild') {
+            console.info('Guild Leaderboard Subcommand client: ' + interaction.client.ID);
+            let leaderBoard = new LeaderBoardGuild(interaction.client);
+            leaderBoard.postManualGuildLeaderBoard(interaction);
+            return;        
         } else if (interaction.options.getSubcommand() === 'rules') {
             return interaction.reply('This will be the rules!');
         }    
