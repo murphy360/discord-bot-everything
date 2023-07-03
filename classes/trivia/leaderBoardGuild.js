@@ -112,8 +112,15 @@ class LeaderBoardGuild {
                 // Build the strings for the embed
                 for (let i = 1; i < this.highestScorers.length; i++) {
                     const user = await this.client.users.cache.get(this.highestScorers[i].dataValues.user_id);
-                    leaderNameString += user.username + '\n';
-                    leaderScoreString += this.highestScorers[i].dataValues.total_points + '\n';
+                    
+                    if (user) {
+                        leaderNameString += user.username + '\n';
+                        leaderScoreString += this.highestScorers[i].dataValues.total_points + '\n';
+                    } else {
+                        leaderNameString += this.highestScorers[i].dataValues.user_id + '\n';
+                        leaderScoreString += this.highestScorers[i].dataValues.total_points + '\n';
+                    }
+                    
                     
                 }
 
