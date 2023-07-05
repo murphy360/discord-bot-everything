@@ -3,6 +3,7 @@ require('../greetings.js');
 require('dotenv').config({ path: './../data/.env' });
 const { CronJob } = require('cron');
 const { exec } = require('child_process');
+const { QuestionManager } = require('./../classes/trivia/questionManager.js');
 const { ChatGPTClient } = require('./../classes/chatGPT/ChatGPTClient.js');
 const fs = require('fs');
 
@@ -36,7 +37,7 @@ module.exports = {
             
             guild.scheduledEvents.fetch()
             // then log each event creator
-            .then(events => events.forEach(event => console.log(event)))
+            //.then(events => events.forEach(event => console.log(event)))
             .catch(console.error);
             
             console.info(`Checking setups for + ${guild.name}`);
@@ -80,7 +81,7 @@ module.exports = {
                       chatGPTClient.sendChangeLog(data, devChannel);
                       return;
                     }
-                    console.log(data);
+                    //console.log(data);
                     
                     chatGPTClient.sendChangeLog(data, devChannel);
                   });
@@ -88,7 +89,13 @@ module.exports = {
                 scheduleNightlyTriviaGame(guild);
                 // Create a cron job to run every morning at 0600 to schedule tonight's game
                 const job = new CronJob('0 0 6 * * *', () => scheduleNightlyTriviaGame(guild), null, true, 'UTC');
-                job.start();              
+                job.start();     
+                
+                
+                addQuestions();
+                // Create a cron job to run every morning at 0700 to add new questions to the database
+                const job2 = new CronJob('0 0 7 * * *', () => addQuestions(), null, true, 'UTC');
+                job2.start();
             }
             
             // Check if role exists
@@ -96,7 +103,7 @@ module.exports = {
                     
             // Create role if it doesn't exist
             if (!playerRole) {
-                console.info(guild.name + ': Role ' + playerRoleName + ' does not exist, creating it now');
+                
                 // Create Player role
                 await guild.roles.create({
                     name: playerRoleName,
@@ -104,12 +111,31 @@ module.exports = {
                     hoist: true,
                     position: 105,
                 }).then(async role => {
-                    console.info(guild.name + ': Created role ' + role.name);
+                    console.info(guild.name + ': Role ' + playerRoleName + ' does not exist, creating it now');
                 }).catch(console.error); 
-            }  else {
-                console.info(guild.name + ': Checking if role ' + playerRoleName + ' exists');
-            }  
+            }
         });       
+
+        // Add New Questions to Database
+        async function addQuestions() {
+            const manager = new QuestionManager(client);
+            // Get a random category
+            let category = await manager.getRandomCategoryFromDataBase();
+
+            let questions = await manager.addQuestions(30, category, 'all', null);
+            const devGuild = client.guilds.cache.get(DEV_GUILD_ID);
+			const devChannel = devGuild.channels.cache.find(channel => channel.name === "trivia_bot");
+            const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+            if (questions.length > 0){
+                console.info(LOG_DATE + ': Added ' + questions.length + ' new questions to database for category: ' + category + ' difficulty: all');
+                devChannel.send(LOG_DATE + ': Added ' + questions.length + ' new questions to database for category: ' + category + ' difficulty: all');
+            } else {
+                console.info(LOG_DATE + ': Failed to add new questions category: ' + category + ' difficulty: all');
+                devChannel.send(LOG_DATE + ': Failed to add new questions category: ' + category + ' difficulty: all');
+            }
+
+        }
+
 
         // Schedule a Trivia Night Event at 8pm tonight if it doesn't exist
         function scheduleNightlyTriviaGame(guild) {
@@ -131,10 +157,6 @@ module.exports = {
                 const tonightsEvent = events.find(event => event.name === 'Trivia Night');
                 
                 if (!tonightsEvent) {
-                    console.info(guild.name + ': Creating Trivia Night Event');
-                    console.log(scheduledStartTime);
-                    console.log(scheduledEndTime);
-
                     guild.scheduledEvents.create({
                         name: 'Trivia Night',
                         description: 'Trivia Night',
