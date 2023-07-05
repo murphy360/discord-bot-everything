@@ -3,7 +3,8 @@ const { Intro } = require('./intro.js');
 const { Player } = require('./player.js');
 const { TriviaGuild } = require('./triviaGuild.js');
 const { Sequelize } = require('sequelize');
-const { Games } = require('./../../dbObjects.js');
+const { Games, Questions } = require('./../../dbObjects.js');
+const { QuestionManager } = require('./questionManager.js');
 const { ChatGPTClient } = require('../../classes/chatGPT/ChatGPTClient.js');
 const fetch = require('node-fetch');
 require('dotenv').config({ path: './../data/.env' });
@@ -53,59 +54,15 @@ class Game {
         }
     }
 
-    async createQuestions() {
+    async getQuestions(numQuestions, category, difficulty) {
         console.info("createQuestions");
-        if (this.categoryValue === 'custom') {
-            await this.getOpenAIQuestions();
-        } else {
-            await this.getTDBQuestions();
-        }
-        return;
-    }
-
-    async getTDBQuestions() {
-        console.info("createQuestions");
-        let url = 'https://opentdb.com/api.php?amount='+this.total_rounds;
-        console.info('getTDBQuestions(): difficulty: ' + this.difficulty);
-        if (this.difficulty !== 'all') {
-            url = url + '&difficulty=' + this.difficulty;
-        }
-        console.info('categoryName: ' + this.categoryName);
-        if (this.categoryName !== 'All') {
-            url = url + '&category=' + this.categoryValue;
-        }
-        console.info('URL: ' + url);
-        const file = await fetch(url).then(response => response.text());
-        const json = JSON.parse(file);
-	    console.info('JSON: ');
-        console.info(json);
-
-        this.questions = new Array()
-        for (let i = 0; i < this.total_rounds; i++) {
-            this.questions[i] = new Question(this.client, json.results[i], (i + 1), 'The Open Trivia Database', 'https://opentdb.com' );
-            console.info("Question: " + this.questions[i].question);
-        }
-        return;
-    }
-
-    async getOpenAIQuestions() {
-        
-        await this.chatGPTClient.getTriviaQuestions(this.total_rounds, this.categoryName, this.difficulty).then((json) => {
-            for (let i = 0; i < this.total_rounds; i++) {
-                console.log(json[i].source + ' ' + json[i].question);
-                this.questions[i] = new Question(this.client, json[i], (i + 1), json[i].source, 'https://openai.com/' );
-                console.info("Created Question: " + this.questions[i].question);
-            }
-            
-        });
-          
+        const manager = new QuestionManager(this.client);
+        let newQuestions = await manager.getDBQuestions(numQuestions, category, difficulty);
+        return newQuestions;
     }
     
-   
-
     async play(introTimerSec) {
-        
-        await this.createQuestions();
+        this.questions = await this.getQuestions(this.total_rounds, this.categoryName, this.difficulty);
         const intro = new Intro(this.client, this.hostUser, this.hostGuild, this.total_rounds, this.difficulty, this.categoryName, this.ID.toString(), introTimerSec);
         await this.sendIntroToGuilds(intro);
         for (this.current_round = 0; this.current_round < this.total_rounds; this.current_round++) {
