@@ -1,12 +1,9 @@
-const { EmbedBuilder, Colors, Message, ChatInputCommandInteraction } = require('discord.js');
-const { get } = require('http');
 require('dotenv').config({ path: './../../data/.env' });
 const { Configuration, OpenAIApi } = require("openai");
 const { json } = require('sequelize');
-const exampleReponse = "[{category:General Knowledge,difficulty:Easy,type:multiple,question:What is the capital city of Australia?,incorrect_answers:[Canberra,Sydney,Melbourne,Brisbane],correct_answer:Canberra,source:gpt-3.5-turbo},{category:General Knowledge,difficulty:Medium,type:boolean,question:The Great Wall of China is visible from space.,incorrect_answers:[True,False],correct_answer:False,source:gpt-3.5-turbo}]"
-const exampleBadResponse = "[{category:Literature,difficulty:Easy,type:multiple,question:Who is the author of the Percy Jackson series?,incorrect_answers:[J.K. Rowling,Rick Riordan,Suzanne Collins],correct_answer:Rick Riordan,source:gpt-3.5-turbo},{category:Mythology,difficulty:Easy,type:multiple,question:Who is Percy Jackson's father in the series?,incorrect_answers:[Hades,Zeus,Poseidon],correct_answer:Poseidon,source:gpt-3.5-turbo},{category:Literature,difficulty:Easy,type:multiple,question:What is the name of the first book in the Percy Jackson series?,incorrect_answers:[The Lightning Thief,The Sea of Monsters,The Titan's Curse],correct_answer:The Lightning Thief,source:gpt-3.5-turbo},{category:Mythology,difficulty:Easy,type:multiple,question:What is the name of the camp where Percy Jackson trains?,incorrect_answers:[Camp Crystal Lake,Camp Half-Blood,Camp Jupiter],correct_answer:Camp Half-Blood,source:gpt-3.5-turbo},{category:Literature,difficulty:Easy,type:multiple,question:Who is Percy Jackson's best friend in the series?,incorrect_answers:[Annabeth Chase,Clarisse La Rue,Grover Underwood],correct_answer:Grover Underwood,source:gpt-3.5-turbo}]"
-
-
+const exampleResponse = "[{category:Science,difficulty:Easy,question:What is the chemical symbol for the element oxygen?,incorrect_answers:[Ox,Oxg,On],correct_answer:O,source:gpt-3.5-turbo},{category:Geography,difficulty:Medium,question:Which country is home to the tallest mountain in the world, Mount Everest?,incorrect_answers:[India,Pakistan,China],correct_answer:Nepal,source:gpt-3.5-turbo},{category:Sports,difficulty:Hard,question:In which year did Brazil win their first FIFA World Cup?,incorrect_answers:[1950,1955,1962],correct_answer:1958,source:gpt-3.5-turbo},{category:History,difficulty:Easy,question:Who was the first President of the United States?,incorrect_answers:[James Maddison,Thomas Jefferson,John Adams],correct_answer:George Washington,source:gpt-3.5-turbo},{category:Entertainment: Film,difficulty:Medium,question:Who played the character Tony Stark in the Marvel Cinematic Universe?,incorrect_answers:[Chris Hemsworth,Chris Evans,Mark Ruffalo],correct_answer:Robert Downey Jr.,source:gpt-3.5-turbo},{category:Science,difficulty:Hard,question:What is the chemical formula for table salt?,incorrect_answers:[NaCl2,Na2Cl,NaCl3],correct_answer:NaCl,source:gpt-3.5-turbo},{category:Biology,difficulty:Medium,question:What is the largest organ in the human body?,incorrect_answers:[Liver,Heart,Lung],correct_answer:Skin,source:gpt-3.5-turbo}]";
+const examplePrompt = "Generate 7 trivia questions related to All category and all difficulty. For each question (if not defined, difficulty should be Easy, Medium or Hard), include the following information in JSON format: category, difficulty, question, incorrect_answers, correct_answer, and source (gpt-3.5-turbo )). Return the questions as a single-line, minified JSON string: ";
+   
 /**
  * Class for creating a Discord.JS ChatGPTClient.
  */
@@ -24,7 +21,7 @@ class ChatGPTClient {
    */
   constructor() {
 
-    console.info('ChatGPTClient.constructor()');
+    
   }
 
   // Response to /develop command
@@ -82,18 +79,13 @@ class ChatGPTClient {
 
   // send chat completion to a specific Channel.  Used by askDevelopmentQuestion() and addressMessage()
   async sendChatCompletion(contextData, channel) {
-    console.info("CONTEXT DATA: " + contextData);
     await this.openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: contextData,
-
       })
       .then((result) => {
-        console.info("sendChatCompletion.then");
         try {
           const responseText = result.data.choices[0].message.content.toString();
-          
-    
           channel.send(responseText);
         } catch (error) {
           console.error(error);
@@ -104,29 +96,32 @@ class ChatGPTClient {
     });
   }
 
-  async getTriviaQuestions(numberQuestions, category, difficulty,) {
+  async getTriviaQuestions(numberQuestions, category, difficulty, oldQuestionContextData) {
     const model = 'gpt-3.5-turbo';
-    console.info('ChatGPTClient.getTriviaQuestions() - numberQuestions: ' + numberQuestions + ' category: ' + category + ' difficulty: ' + difficulty);
-    //const exampleReponse = "[{\"category\":\"General Knowledge\",\"difficulty\":\"Easy\",\"type\":\"multiple\",\"question\":\"What is the capital city of Australia?\",\"choices\":[\"Canberra\",\"Sydney\",\"Melbourne\",\"Brisbane\"],\"correct_answer\":\"Canberra\",\"source\":\"gpt-3.5-turbo\"},{\"category\":\"General Knowledge\",\"difficulty\":\"Medium\",\"type\":\"boolean\",\"question\":\"The Great Wall of China is visible from space.\",\"choices:\"[\"True\",\"False\"],\"correct_answer\":\"False\",\"source\":\"gpt-3.5-turbo\"}]"
-
     let triviaContextData = [];
+
+
     triviaContextData.push({
          role: 'system', 
-         content: 'You are a trivia Host, it is your job to choose awesome trivia questions for your audience. Do your best to ensure a wide variety of questions.  ',
+         content: 'You are a trivia Host, it is your job to curate new and interesting trivia questions.  It is critical to avoid returning questions that have already been asked. Ensure you are adding a significant amount of randomness when selecting new questions.',
     });
     triviaContextData.push({
       role: 'user',
-      content: 'Generate ' + numberQuestions + ' trivia questions related to ' + category + ' and a difficulty of ' + difficulty + ' For each question (if not defined, difficulty should be Easy, Medium or Hard), include the following information in JSON format: category, difficulty, question, incorrect_answers, correct_answer, and source (' + model + ' )"). Return the questions as a single-line, minified JSON string: ' + exampleReponse,
+      content: 'Example Prompt: ' + examplePrompt + ' Example Response: ' + exampleResponse,
     });
-    
-    
+    triviaContextData.push({
+      role: 'user',
+      content: 'Generate ' + numberQuestions + ' trivia questions related to ' + category + ' category and ' + difficulty + ' difficulty.  For each question (if not defined, difficulty should be Easy, Medium or Hard), include the following information in JSON format: category, difficulty, question, incorrect_answers (These should be different than the correct answer), correct_answer, and source (' + model + ' )"). Return the questions as a single-line, minified JSON string: ',
+    });
+    if (oldQuestionContextData.length > 0) {
+      triviaContextData.push(oldQuestionContextData[0]);
+    }
     return await this.getMinifiedJsonFromAi(model, triviaContextData);
 
     
   }
 
   async getMinifiedJsonFromAi(model, triviaContextData) {
-    console.info('ChatGPTClient.getMinifiedJsonFromAi()');
     let jsonString = null;
     let json = null;
     await this.openai.createChatCompletion({
@@ -139,10 +134,7 @@ class ChatGPTClient {
         
         try {
           const responseText = result.data.choices[0].message.content.toString();
-          console.log('Response Text: ' + responseText);
           jsonString = responseText;
-          //jsonString = JSON.stringify(responseText);
-          //console.log('JSON String: ' + jsonString);
           
         } catch (error) {
           console.error('RESPONSE TEXT ERROR: ' + error);
@@ -155,46 +147,45 @@ class ChatGPTClient {
     try {
       // remove everything before the first '['
       jsonString = jsonString.substring(jsonString.indexOf('['));
-      console.info('JSON String ' + jsonString);
+      //console.info('JSON String ' + jsonString);
       json = JSON.parse(jsonString); 
-      console.info('JSON Question Length: ' + json.length)
-      console.log(json);
-      console.info('JSON Question: ' + json[0].question); // output: "JSON Question: What is the oldest continuous seagoing service in the United States?"
-      
-      
+     
       // remove "'" from the string
       jsonString = jsonString.replace(/\\/g, "");
-      console.info('JSON Clean String ' + jsonString);
+      //console.info('JSON Clean String ' + jsonString);
 
       json = JSON.parse(jsonString); 
-      console.info('JSON Question Length: ' + json.length)
-      console.log(json);
-      console.info('JSON Question: ' + json[1].question); // output: "JSON Question: What is the oldest continuous seagoing service in the United States?"
-      
+
+
       for (let i = 0; i < json.length; i++) {
-        // check if correct_answer is in incorrect_answers
+        // check if correct_answer is in incorrect_answers and remove it
         if (json[i].incorrect_answers.includes(json[i].correct_answer)) {
-          console.info('removing correct_answer from incorrect_answers ' + json[i].incorrect_answers.length);
           json[i].incorrect_answers.splice(json[i].incorrect_answers.indexOf(json[i].correct_answer), 1); // remove correct_answer from incorrect_answers
-          console.info('incorrect_answers ' + json[i].incorrect_answers.length);
-        }
-        // if json[i].incorrect_answers is 4 items long, remove the last item
+          console.info('ChatGPTClient: correct_answer was in incorrect_answers - removing it: Answer: ' + json[i].correct_answer + ', Incorrect Answers ' + json[i].incorrect_answers);
+        } 
+
+        //console.info('ChatGPTClient: incorrect_answers.length: ' + json[i].incorrect_answers.filter(answer => answer !== correctAnswer));
         if (json[i].incorrect_answers.length == 4) {
-          console.info('removing last item from incorrect_answers ' + json[i].incorrect_answers.length);
           json[i].incorrect_answers.splice(3, 1); // remove last item from incorrect_answers
-          console.info('incorrect_answers ' + json[i].incorrect_answers.length);
-        }
+        } 
+
         // ensure json includes type
         if (!json[i].type && json[i].incorrect_answers.length > 1) { // if type is not defined and incorrect_answers is more than 1 item
-          console.info('adding type to json');
           json[i].type = 'multiple';
         } else if (!json[i].type && json[i].incorrect_answers.length == 1) { // if type is not defined and incorrect_answers is 1 item
-          console.info('adding type to json');
           json[i].type = 'boolean';
         }
+
+        // if incorrect_answers is less than 3 and type is multiple, add more incorrect_answers
+        if (json[i].incorrect_answers.length < 3 && json[i].type == 'multiple') {
+          // TODO - get openai to add more incorrect answers
+          console.info('ChatGPTClient: incorrect_answers.length: ' + json[i].incorrect_answers.length + ' and type is multiple - adding more incorrect_answers');
+          json[i].incorrect_answers.push('Incorrect Answer 1');
+        }
       }
-      console.info('JSON is valid on first pass');
+
       return json;
+
     } catch (error) {
       console.error("ERROR: " + error);
       
@@ -202,13 +193,11 @@ class ChatGPTClient {
         role: 'user',
         content: 'I got this error while using JSON.parse() on the last response: ' + error + ': can you try again?',
       });
-
       return await this.getMinifiedJsonFromAi(model, triviaContextData);
     }
   }
 
   // strip all text not in json format from a string
-  
   getJSONFromString(str) {
     console.info("getJSONFromString()");
     let jsonStringArray = str.split('```');
@@ -219,8 +208,6 @@ class ChatGPTClient {
     console.info(jsonString);
     return JSON.parse(jsonString);
   }
-
-
 
   // gather contextData from a specific Channel.  Used by askDevelopmentQuestion() and addressMessage()
   async gatherContextData(contextData, channel) {
