@@ -12,9 +12,7 @@ module.exports = {
 	name: Events.GuildScheduledEventCreate,
 	execute(guildScheduledEvent) {
 		console.info("Event Created");
-		console.info(guildScheduledEvent);
-		console.info(guildScheduledEvent.creator.username);
-
+		
 		const client = guildScheduledEvent.client;
 		const eventGuild = client.guilds.cache.get(guildScheduledEvent.guild.id);
 		const devGuild = client.guilds.cache.get(DEV_GUILD_ID);
