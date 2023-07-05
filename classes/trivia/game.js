@@ -8,6 +8,7 @@ const { QuestionManager } = require('./questionManager.js');
 const { ChatGPTClient } = require('../../classes/chatGPT/ChatGPTClient.js');
 const fetch = require('node-fetch');
 require('dotenv').config({ path: './../data/.env' });
+const { ActivityType } = require('discord.js');
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 // TODO create triviaGuilds from beginning of game
 class Game {
@@ -32,6 +33,7 @@ class Game {
         this.winningUser = null;
         this.winningGuild = null;
         this.chatGPTClient = new ChatGPTClient();
+        this.manager = new QuestionManager(this.client);
         
     }
     
@@ -56,8 +58,8 @@ class Game {
 
     async getQuestions(numQuestions, category, difficulty) {
         console.info("createQuestions");
-        const manager = new QuestionManager(this.client);
-        let newQuestions = await manager.getDBQuestions(numQuestions, category, difficulty);
+        
+        let newQuestions = await this.manager.getDBQuestions(numQuestions, category, difficulty);
         return newQuestions;
     }
     
@@ -65,6 +67,8 @@ class Game {
         this.questions = await this.getQuestions(this.total_rounds, this.categoryName, this.difficulty);
         const intro = new Intro(this.client, this.hostUser, this.hostGuild, this.total_rounds, this.difficulty, this.categoryName, this.ID.toString(), introTimerSec);
         await this.sendIntroToGuilds(intro);
+        const status = 'Trivia Game #' + this.ID;
+        this.client.user.setActivity(status, { type: ActivityType.Playing });
         for (this.current_round = 0; this.current_round < this.total_rounds; this.current_round++) {
             await this.askQuestionToGuilds(this.questions[this.current_round]);
         }
@@ -95,6 +99,7 @@ class Game {
     async sendIntroToGuilds(intro) {
         
         return new Promise((resolve, reject) => {
+            
             const guilds = this.client.guilds.cache;
             const promises = [];
             guilds.forEach((guild) => {
@@ -243,7 +248,12 @@ class Game {
 		// Display final scoreboard
         console.info('Game Over');
         return new Promise((resolve, reject) => {
-            this.storeGame('Completed').then(() => {
+            this.storeGame('Completed').then(async () => {
+                const numPlayers = await this.manager.getNumberOfPlayersInDatabase();
+                const gamesPlayed = await this.manager.getNumberOfGamesPlayed();
+                
+                const status = 'Trivia with ' + numPlayers + ' players. ' + gamesPlayed + ' games played.';
+                this.client.user.setActivity(status, { type: ActivityType.Watching });
                 resolve();
             });           
         });

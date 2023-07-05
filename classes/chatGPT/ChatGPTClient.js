@@ -161,8 +161,7 @@ class ChatGPTClient {
         // check if correct_answer is in incorrect_answers and remove it
         if (json[i].incorrect_answers.includes(json[i].correct_answer)) {
           json[i].incorrect_answers.splice(json[i].incorrect_answers.indexOf(json[i].correct_answer), 1); // remove correct_answer from incorrect_answers
-          console.info('ChatGPTClient: correct_answer was in incorrect_answers - removing it: Answer: ' + json[i].correct_answer + ', Incorrect Answers ' + json[i].incorrect_answers);
-        } 
+         } 
 
         //console.info('ChatGPTClient: incorrect_answers.length: ' + json[i].incorrect_answers.filter(answer => answer !== correctAnswer));
         if (json[i].incorrect_answers.length == 4) {
@@ -179,7 +178,6 @@ class ChatGPTClient {
         // if incorrect_answers is less than 3 and type is multiple, add more incorrect_answers
         if (json[i].incorrect_answers.length < 3 && json[i].type == 'multiple') {
           // TODO - get openai to add more incorrect answers
-          console.info('ChatGPTClient: incorrect_answers.length: ' + json[i].incorrect_answers.length + ' and type is multiple - adding more incorrect_answers');
           json[i].incorrect_answers.push('Incorrect Answer 1');
         }
       }
@@ -187,7 +185,7 @@ class ChatGPTClient {
       return json;
 
     } catch (error) {
-      console.error("ERROR: " + error);
+      console.error("ChatGPTClient: ERROR: " + error);
       
       triviaContextData.push({
         role: 'user',

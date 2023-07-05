@@ -121,19 +121,8 @@ module.exports = {
             const manager = new QuestionManager(client);
             // Get a random category
             let category = await manager.getRandomCategoryFromDataBase();
-
             let questions = await manager.addQuestions(30, category, 'all', null);
-            const devGuild = client.guilds.cache.get(DEV_GUILD_ID);
-			const devChannel = devGuild.channels.cache.find(channel => channel.name === "trivia_bot");
-            const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
-            if (questions.length > 0){
-                console.info(LOG_DATE + ': Added ' + questions.length + ' new questions to database for category: ' + category + ' difficulty: all');
-                devChannel.send(LOG_DATE + ': Added ' + questions.length + ' new questions to database for category: ' + category + ' difficulty: all');
-            } else {
-                console.info(LOG_DATE + ': Failed to add new questions category: ' + category + ' difficulty: all');
-                devChannel.send(LOG_DATE + ': Failed to add new questions category: ' + category + ' difficulty: all');
-            }
-
+            manager.reportNewQuestionsToDeveloperChannel(questions, category, 'all');          
         }
 
 

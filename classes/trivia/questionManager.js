@@ -1,7 +1,8 @@
 
 const { Question } = require('./question.js');
-const { Questions } = require('../../dbObjects.js');
+const { Questions, Users, Games } = require('../../dbObjects.js');
 const { ChatGPTClient } = require('../chatGPT/ChatGPTClient.js');
+const { ActivityType } = require('discord.js');
 const fetch = require('node-fetch');
 require('dotenv').config({ path: './../data/.env' });
 const DEV_GUILD_ID = process.env.DEV_GUILD_ID;
@@ -43,13 +44,64 @@ class QuestionManager {
 		this.devChannel = this.devGuild.channels.cache.find(channel => channel.name === "trivia_bot");
     }
 
-    reportNewQuestionsToDeveloperChannel(questions, category, difficulty) {
+    async getNumberOfQuestionsInDatabase() {
+        return await Questions.count();
+    }
+
+    async getNumberOfCategoriesInDatabase() {
+        return await Questions.count({
+            attributes: ['category'],
+            group: ['category'],
+        });
+    }
+
+    async getNumberOfQuestionsAsked() {
+        return await Questions.sum('times_asked');
+    }
+
+    async getNumberOfQuestionsAskedInCategory(category) {
+        return await Questions.sum('times_asked', {
+            where: {
+                category: category,
+            },
+        });
+    }
+
+    async getNumberOfPlayersInDatabase() {
+        return await Users.count();
+    }
+
+    async getNumberOfGamesPlayed() {
+        return await Games.count();
+    }
+
+
+    async reportNewQuestionsToDeveloperChannel(questions, category, difficulty) {
+
+        const categories = await Questions.findAll({
+            attributes: ['category'],
+            group: ['category'],
+        });
+
+        // Count number of unique categories in database
+        const numCategories = categories.length;
+
+        // Count number of questions in database
+        const numQuestions = await Questions.count();
+        
         const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
         if (questions.length > 0){
             this.devChannel.send(LOG_DATE + ': Added ' + questions.length + ' new questions to database for category: ' + category + ' difficulty: ' + difficulty);
         } else {
             this.devChannel.send(LOG_DATE + ': Failed to add new questions category: ' + category + ' difficulty: ' + difficulty);
         }
+        const numPlayers = await this.getNumberOfPlayersInDatabase();
+        const numGames = await this.getNumberOfGamesPlayed();
+
+        const status = 'Trivia with ' + numPlayers + ' players in ' + numGames + ' games' + ' with ' + numQuestions + ' questions in ' + numCategories + ' categories';
+        this.devChannel.send(LOG_DATE + + numPlayers + ' players in ' + numGames + ' games' + ' with ' + numQuestions + ' questions in ' + numCategories + ' categories');
+        
+        this.client.user.setActivity(status, { type: ActivityType.Watching });
     }
 
     async getRandomCategoryFromDataBase() {
@@ -58,10 +110,8 @@ class QuestionManager {
             group: ['category'],
         });
         const randomCategory = Math.floor(Math.random() * categories.length);
-        this.devChannel.send('Database has: ' + categories.length + ' categories');
         return categories[randomCategory].category;
     }
-
 
      // Get questions from internal database.  
      // Should select based on category and difficulty and return least-asked questions
