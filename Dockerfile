@@ -14,9 +14,8 @@ RUN apt update && apt install vim -y
 RUN apt upgrade -y
 
 # Move code to working directory
-RUN bash ./scripts/changelog.sh
 COPY . /usr/src/bot
-
+RUN bash ./scripts/changelog.sh
 
 # Start me!
 CMD ["node", "index.js"]
