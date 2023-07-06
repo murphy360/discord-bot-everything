@@ -26,8 +26,10 @@ class Question {
         this.chatGPTClient = new ChatGPTClient();
         this.ID = null;                                                         // Question ID
         this.dislikes = 0;                                                      // Number of dislikes
-
-        this.difficulty = questionData.difficulty.toLowerCase();                              // Question Difficulty
+        this.times_asked = 0;                                                   // Number of times the question has been asked
+        this.times_answered = 0;                                                // Number of times the question has been answered
+        this.times_answered_correctly = 0;                                      // Number of times the question has been answered correctly
+        this.difficulty = questionData.difficulty.toLowerCase();                // Question Difficulty
         this.category = questionData.category;                                  // Question Category
         
         
@@ -72,9 +74,6 @@ class Question {
             this.questionOwnerUserID = null;                                        // Player who answered the question correctly first
             this.questionOwnerGuildID = null;                                       // Guild where the question was answered correctly first
             this.sourceID = null;                                                   // ID of the question from the source
-            this.times_asked = 0;                                                   // Number of times the question has been asked
-            this.times_answered = 0;                                                // Number of times the question has been answered
-            this.times_answered_correctly = 0;                                      // Number of times the question has been answered correctly
             this.incorrect_choices = questionData.incorrect_answers;                // Array of Incorrect Answers
         }
 
