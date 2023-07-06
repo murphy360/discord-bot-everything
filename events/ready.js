@@ -59,6 +59,8 @@ module.exports = {
                 console.info('Trivia Channel Exists: ' + triviaChannel.name);
             }
 
+            /**
+        
             const chatChannel = await guild.channels.cache.find(channel => channel.name === CHAT_GPT_CHANNEL);
             if (!chatChannel) {
                 console.info('Chat GPT Channel Does Not Exist, creating it now');
@@ -70,6 +72,8 @@ module.exports = {
             } else {
                 console.info('Chat GPT Channel Exists: ' + chatChannel.name);
             }
+            
+            */
 
             if (guild.id == DEV_GUILD_ID){
                 let chatGPTClient = new ChatGPTClient();
