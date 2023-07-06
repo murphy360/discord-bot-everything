@@ -25,7 +25,7 @@ class Question {
         this.answers = new Array();                                             // Array of Answers
         this.chatGPTClient = new ChatGPTClient();
         this.ID = null;                                                         // Question ID
-        
+        this.dislikes = 0;                                                      // Number of dislikes
 
         this.difficulty = questionData.difficulty.toLowerCase();                              // Question Difficulty
         this.category = questionData.category;                                  // Question Category
@@ -42,6 +42,7 @@ class Question {
             this.questionOwnerUserID = questionData.owner_user_id;                  // Player who answered the question correctly first
             this.questionOwnerGuildID = questionData.owner_guild_id;                // Guild where the question was answered correctly first
             this.sourceID = null;                               // ID of the question from the source
+            this.dislikes = questionData.dislikes;                                    // Number of dislikes
             this.times_asked = questionData.times_asked;                            // Number of times the question has been asked
             this.times_answered = questionData.times_answered;                      // Number of times the question has been answered
             this.times_answered_correctly = questionData.times_answered_correctly;  // Number of times the question has been answered correctly 
