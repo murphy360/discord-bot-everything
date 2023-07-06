@@ -147,7 +147,6 @@ class QuestionManager {
         const unaskedDBQuestions = await Questions.findAll({
             where: whereClause,
             order: [['times_asked', 'ASC']],
-            limit: numQuestions,
         });
         console.info('Found ' + unaskedDBQuestions.length + ' unasked questions in database but needed ' + numQuestions + ' questions');
 
