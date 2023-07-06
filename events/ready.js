@@ -85,7 +85,7 @@ module.exports = {
                       chatGPTClient.sendChangeLog(data, devChannel);
                       return;
                     }
-                    //console.log(data);
+                    console.log(data);
                     
                     chatGPTClient.sendChangeLog(data, devChannel);
                   });

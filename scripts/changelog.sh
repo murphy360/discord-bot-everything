@@ -32,5 +32,4 @@ fi
 
 echo "\n" >> changelog.txt
 echo "Version History:" >> changelog.txt
-git for-each-ref --sort=-committerdate refs/tags --format '%(refname) %(subject) %(committerdate)' | sed -e 's-refs/tags/--' >> changelog.txt
-
+git for-each-ref --sort=-taggerdate --format '%(refname:short) %(subject) %(taggerdate)' refs/tags | grep v >> changelog.txt

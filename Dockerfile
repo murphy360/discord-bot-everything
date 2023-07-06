@@ -14,8 +14,9 @@ RUN apt update && apt install vim -y
 RUN apt upgrade -y
 
 # Move code to working directory
+RUN bash ./scripts/changelog.sh
 COPY . /usr/src/bot
-RUN echo "Changes since $(git describe --tags --abbrev=0)" > changelog.txt && git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"%h %s (%ad)" >> changelog.txt
+
 
 # Start me!
 CMD ["node", "index.js"]
