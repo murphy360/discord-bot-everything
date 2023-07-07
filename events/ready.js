@@ -59,22 +59,6 @@ module.exports = {
                 console.info('Trivia Channel Exists: ' + triviaChannel.name);
             }
 
-            /**
-        
-            const chatChannel = await guild.channels.cache.find(channel => channel.name === CHAT_GPT_CHANNEL);
-            if (!chatChannel) {
-                console.info('Chat GPT Channel Does Not Exist, creating it now');
-                guild.channels.create({
-                    name: CHAT_GPT_CHANNEL,
-                        type: 0,
-                        parent: parentTextChannelId,
-                    });
-            } else {
-                console.info('Chat GPT Channel Exists: ' + chatChannel.name);
-            }
-            
-            */
-
             if (guild.id == DEV_GUILD_ID){
                 let chatGPTClient = new ChatGPTClient();
                 const devChannel = await guild.channels.cache.find(channel => channel.name === "trivia_bot");
@@ -92,14 +76,14 @@ module.exports = {
 
                 scheduleNightlyTriviaGame(guild);
                 // Create a cron job to run every morning at 0600 to schedule tonight's game
-                const job = new CronJob('0 0 6 * * *', () => scheduleNightlyTriviaGame(guild), null, true, 'UTC');
+                const job = new CronJob('0 0 6 * * *', () => scheduleNightlyTriviaGame(guild), null, true, 'Pacific/Auckland');
                 job.start();     
                 
-                
                 addQuestions();
-                // Create a cron job to run every morning at 0700 to add new questions to the database
-                const job2 = new CronJob('0 0 7 * * *', () => addQuestions(), null, true, 'UTC');
+                // Create a cron job to run every 6 hours to add new questions to the database
+                const job2 = new CronJob('0 0 0,6,16 * * *', () => addQuestions(), null, true, 'UTC');
                 job2.start();
+
             }
             
             // Check if role exists
@@ -125,7 +109,8 @@ module.exports = {
             const manager = new QuestionManager(client);
             // Get a random category
             let category = await manager.getRandomCategoryFromDataBase();
-            let questions = await manager.addQuestions(30, category, 'all', null);
+            let questions = await manager.addQuestions(10, category, 'all', null, 'gpt-4');
+            console.info('ready.js: Added ' + questions.length + ' questions to the database');
             manager.reportNewQuestionsToDeveloperChannel(questions, category, 'all');          
         }
 
