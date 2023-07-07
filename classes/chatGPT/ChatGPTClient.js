@@ -1,9 +1,11 @@
 require('dotenv').config({ path: './../../data/.env' });
 const { Configuration, OpenAIApi } = require("openai");
 const { json } = require('sequelize');
-const exampleResponse = "[{category:Science,difficulty:Easy,question:What is the chemical symbol for the element oxygen?,incorrect_answers:[Ox,Oxg,On],correct_answer:O,source:gpt-3.5-turbo},{category:Geography,difficulty:Medium,question:Which country is home to the tallest mountain in the world, Mount Everest?,incorrect_answers:[India,Pakistan,China],correct_answer:Nepal,source:gpt-3.5-turbo},{category:Sports,difficulty:Hard,question:In which year did Brazil win their first FIFA World Cup?,incorrect_answers:[1950,1955,1962],correct_answer:1958,source:gpt-3.5-turbo},{category:History,difficulty:Easy,question:Who was the first President of the United States?,incorrect_answers:[James Maddison,Thomas Jefferson,John Adams],correct_answer:George Washington,source:gpt-3.5-turbo},{category:Entertainment: Film,difficulty:Medium,question:Who played the character Tony Stark in the Marvel Cinematic Universe?,incorrect_answers:[Chris Hemsworth,Chris Evans,Mark Ruffalo],correct_answer:Robert Downey Jr.,source:gpt-3.5-turbo},{category:Science,difficulty:Hard,question:What is the chemical formula for table salt?,incorrect_answers:[NaCl2,Na2Cl,NaCl3],correct_answer:NaCl,source:gpt-3.5-turbo},{category:Biology,difficulty:Medium,question:What is the largest organ in the human body?,incorrect_answers:[Liver,Heart,Lung],correct_answer:Skin,source:gpt-3.5-turbo}]";
-const examplePrompt = "Generate 7 trivia questions related to All category and all difficulty. For each question (if not defined, difficulty should be Easy, Medium or Hard), include the following information in JSON format: category, difficulty, question, incorrect_answers, correct_answer, and source (gpt-3.5-turbo )). Return the questions as a single-line, minified JSON string: ";
-   
+const exampleResponse = "[{category:Science,type:boolean,difficulty:Easy,question:O is the chemical symbol for the element oxygen.,incorrect_answers:[False],correct_answer:True,source:gpt-3.5-turbo},{category:Geography,type:multiple,difficulty:Medium,question:Which country is home to the tallest mountain in the world, Mount Everest?,incorrect_answers:[India,Pakistan,China],correct_answer:Nepal,source:gpt-3.5-turbo},{category:Sports,type:multiple,difficulty:Hard,question:In which year did Brazil win their first FIFA World Cup?,incorrect_answers:[1950,1955,1962],correct_answer:1958,source:gpt-3.5-turbo},{category:History,type:multiple,difficulty:Easy,question:Who was the first President of the United States?,incorrect_answers:[James Maddison,Thomas Jefferson,John Adams],correct_answer:George Washington,source:gpt-3.5-turbo},{category:Entertainment: Film,type:multiple,difficulty:Medium,question:Who played the character Tony Stark in the Marvel Cinematic Universe?,incorrect_answers:[Chris Hemsworth,Chris Evans,Mark Ruffalo],correct_answer:Robert Downey Jr.,source:gpt-3.5-turbo},{category:Science,type:boolean,difficulty:Easy,question:An atom contains a nucleus.,incorrect_answers:[False],correct_answer:True,source:gpt-3.5-turbo},{category:Biology,type:multiple,difficulty:Medium,question:What is the largest organ in the human body?,incorrect_answers:[Liver,Heart,Lung],correct_answer:Skin,source:gpt-3.5-turbo}]";
+const examplePrompt = "Generate 7 trivia questions related to All category and all difficulty";
+const exampleResponse2 = "[{category:Science,type:boolean,difficulty:Easy,question:O is the chemical symbol for the element oxygen.,incorrect_answers:[False],correct_answer:True,source:gpt-3.5-turbo}]";
+const examplePrompt2 = "Generate 1 trivia questions related to All category and all difficulty";
+      
 /**
  * Class for creating a Discord.JS ChatGPTClient.
  */
@@ -62,7 +64,7 @@ class ChatGPTClient {
       content: 'Git log:  ' + string
     });
     console.info('ChatGPTClient.sendChangeLog');
-    await this.sendChatCompletion(changelogContextData, channel); 
+    await this.sendChatCompletion(changelogContextData, channel, 'gpt-4'); 
   }
 
 
@@ -74,16 +76,17 @@ class ChatGPTClient {
     console.info(message.content);
 
     let genericContextData = await this.gatherContextData(this.contextData, channel);
-    await this.sendChatCompletion(genericContextData, channel);  
+    await this.sendChatCompletion(genericContextData, channel, 'gpt-3.5-turbo');  
   }
 
   // send chat completion to a specific Channel.  Used by askDevelopmentQuestion() and addressMessage()
-  async sendChatCompletion(contextData, channel) {
+  async sendChatCompletion(contextData, channel, model) {
     await this.openai.createChatCompletion({
-      model: 'gpt-3.5-turbo',
+      model: model,
       messages: contextData,
       })
       .then((result) => {
+        //console.log(result);
         try {
           const responseText = result.data.choices[0].message.content.toString();
           channel.send(responseText);
@@ -96,8 +99,8 @@ class ChatGPTClient {
     });
   }
 
-  async getTriviaQuestions(numberQuestions, category, difficulty, oldQuestionContextData) {
-    const model = 'gpt-3.5-turbo';
+  async getTriviaQuestions(numberQuestions, category, difficulty, oldQuestionContextData, model) {
+    
     let triviaContextData = [];
 
 
@@ -105,25 +108,31 @@ class ChatGPTClient {
          role: 'system', 
          content: 'You are a trivia Host, it is your job to curate new and interesting trivia questions.  It is critical to avoid returning questions that have already been asked. Ensure you are adding a significant amount of randomness when selecting new questions.',
     });
+    if (oldQuestionContextData.length > 0) {
+      triviaContextData.push(oldQuestionContextData[0]);
+    }    
     triviaContextData.push({
       role: 'user',
       content: 'Example Prompt: ' + examplePrompt + ' Example Response: ' + exampleResponse,
+    });   
+    triviaContextData.push({
+      role: 'user',
+      content: 'Example Prompt: ' + examplePrompt2 + ' Example Response: ' + exampleResponse2,
     });
     triviaContextData.push({
       role: 'user',
-      content: 'Generate ' + numberQuestions + ' trivia questions related to ' + category + ' category and ' + difficulty + ' difficulty.  For each question (if not defined, difficulty should be Easy, Medium or Hard), include the following information in JSON format: category, difficulty, question, incorrect_answers (These should be different than the correct answer), correct_answer, and source (' + model + ' )"). Return the questions as a single-line, minified JSON string: ',
+      content: 'Generate ' + numberQuestions + ' trivia questions related to ' + category + ' category and ' + difficulty + ' difficulty.  For each question (if not defined, difficulty should be Easy, Medium or Hard), include the following information in JSON format: category, difficulty, question, incorrect_answers (These should be different than the correct answer), correct_answer, and source (' + model + ' )"). Return the questions as a JSON string: ',
     });
-    if (oldQuestionContextData.length > 0) {
-      triviaContextData.push(oldQuestionContextData[0]);
-    }
-    return await this.getMinifiedJsonFromAi(model, triviaContextData);
+ 
+    return await this.getJsonFromAi(model, triviaContextData);
 
     
   }
 
-  async getMinifiedJsonFromAi(model, triviaContextData) {
+  async getJsonFromAi(model, triviaContextData) {
     let jsonString = null;
     let json = null;
+    console.log('ChatGPTClient: triviaContextData: ');
     await this.openai.createChatCompletion({
       model: model,
       messages: triviaContextData,
@@ -132,79 +141,83 @@ class ChatGPTClient {
       })
       .then((result) => {
         
-        try {
-          const responseText = result.data.choices[0].message.content.toString();
-          jsonString = responseText;
-          
-        } catch (error) {
-          console.error('RESPONSE TEXT ERROR: ' + error);
-        }
+        //console.info('ChatGPTClient: result: ');
+        //console.log(result);
 
-        })
+        //log number of choices
+        console.info('Model: ' + result.data.model);
+        jsonString = result.data.choices[0].message.content; 
+        console.log(jsonString);
+        const startIndex = jsonString.indexOf('[');
+        const endIndex = jsonString.lastIndexOf(']');
+        jsonString = jsonString.substring(startIndex, endIndex + 1); 
+        jsonString = jsonString.replace(/\\/g, '');      
+        
+      })
         .catch((error) => {
-        console.log(`OPENAI ERR: ${error}`);
+        console.log(`ChatGPTClient: ERROR: ${error}`);
+        if (error = 'Request failed with status code 503') {
+          //TODO REPORT TO DEVELOPER CHANNEL
+          return 'FAILED';
+        }
     });
     try {
-      // remove everything before the first '['
-      jsonString = jsonString.substring(jsonString.indexOf('['));
-      //console.info('JSON String ' + jsonString);
-      json = JSON.parse(jsonString); 
-     
-      // remove "'" from the string
-      jsonString = jsonString.replace(/\\/g, "");
-      //console.info('JSON Clean String ' + jsonString);
 
-      json = JSON.parse(jsonString); 
-
-
-      for (let i = 0; i < json.length; i++) {
-        // check if correct_answer is in incorrect_answers and remove it
-        if (json[i].incorrect_answers.includes(json[i].correct_answer)) {
-          json[i].incorrect_answers.splice(json[i].incorrect_answers.indexOf(json[i].correct_answer), 1); // remove correct_answer from incorrect_answers
-         } 
-
-        //console.info('ChatGPTClient: incorrect_answers.length: ' + json[i].incorrect_answers.filter(answer => answer !== correctAnswer));
-        if (json[i].incorrect_answers.length == 4) {
-          json[i].incorrect_answers.splice(3, 1); // remove last item from incorrect_answers
-        } 
-
-        // ensure json includes type
-        if (!json[i].type && json[i].incorrect_answers.length > 1) { // if type is not defined and incorrect_answers is more than 1 item
-          json[i].type = 'multiple';
-        } else if (!json[i].type && json[i].incorrect_answers.length == 1) { // if type is not defined and incorrect_answers is 1 item
-          json[i].type = 'boolean';
-        }
-
-        // if incorrect_answers is less than 3 and type is multiple, add more incorrect_answers
-        if (json[i].incorrect_answers.length < 3 && json[i].type == 'multiple') {
-          // TODO - get openai to add more incorrect answers
-          json[i].incorrect_answers.push('Incorrect Answer 1');
-        }
-      }
+      json = JSON.parse(jsonString);  
+      json = this.cleanTriviaJSON(json);
 
       return json;
 
     } catch (error) {
       console.error("ChatGPTClient: ERROR: " + error);
-      
-      triviaContextData.push({
-        role: 'user',
-        content: 'I got this error while using JSON.parse() on the last response: ' + error + ': can you try again?',
-      });
-      return await this.getMinifiedJsonFromAi(model, triviaContextData);
+
+      // Count number of brackets [ and ] in the string
+      let openBrackets = jsonString.split('[');
+      let closeBrackets = jsonString.split(']');
+      let totalBrackets = openBrackets.length + closeBrackets.length - 2;
+
+      if (totalBrackets < 4) {
+        triviaContextData.push({
+          role: 'user',
+          content: 'I got this error on the last response: ' + error + ': Please try adding [ and ] to the beginning and end of the JSON response and try again.',
+        });
+      } else {
+        triviaContextData.push({
+          role: 'user',
+          content: 'I got this error while using JSON.parse() on the last response: ' + error + ': can you try again?',
+        });
+      }
+      return await this.getJsonFromAi(model, triviaContextData);
     }
   }
 
   // strip all text not in json format from a string
-  getJSONFromString(str) {
-    console.info("getJSONFromString()");
-    let jsonStringArray = str.split('```');
-    console.info(jsonStringArray.length());
-    jsonString = jsonStringArray[1];
-    //jsonString = jsonString.replace(/(\r\n|\n|\r)/gm, "");
-    console.info("jsonString");
-    console.info(jsonString);
-    return JSON.parse(jsonString);
+  cleanTriviaJSON(json) {
+    for (let i = 0; i < json.length; i++) {
+      // check if correct_answer is in incorrect_answers and remove it
+      if (json[i].incorrect_answers.includes(json[i].correct_answer)) {
+        json[i].incorrect_answers.splice(json[i].incorrect_answers.indexOf(json[i].correct_answer), 1); // remove correct_answer from incorrect_answers
+       } 
+
+
+      if (json[i].incorrect_answers.length == 4) {
+        json[i].incorrect_answers.splice(3, 1); // remove last item from incorrect_answers
+      } 
+
+      // ensure json includes type
+      if (!json[i].type && json[i].incorrect_answers.length > 1) { // if type is not defined and incorrect_answers is more than 1 item
+        json[i].type = 'multiple';
+      } else if (!json[i].type && json[i].incorrect_answers.length == 1) { // if type is not defined and incorrect_answers is 1 item
+        json[i].type = 'boolean';
+      }
+
+      // if incorrect_answers is less than 3 and type is multiple, add more incorrect_answers
+      if (json[i].incorrect_answers.length < 3 && json[i].type == 'multiple') {
+        // TODO - get openai to add more incorrect answers
+        json[i].incorrect_answers.push('Incorrect Answer 1');
+      }
+    }
+    return json;
   }
 
   // gather contextData from a specific Channel.  Used by askDevelopmentQuestion() and addressMessage()
