@@ -155,11 +155,26 @@ class ChatGPTClient {
         
       })
         .catch((error) => {
-        console.log(`ChatGPTClient: ERROR: ${error}`);
+        console.log(`ChatGPTClient: Request ERROR : ${error}`);
         if (error = 'Request failed with status code 503') {
+          console.info('ChatGPTClient: Request failed with status code 503 - likely due to rate limiting');
+          console.log(result);
           //TODO REPORT TO DEVELOPER CHANNEL
-          return 'FAILED';
+          
+        } else if (error = 'Request failed with status code 400') {
+          //TODO REPORT TO DEVELOPER CHANNEL
+          console.info('ChatGPTClient: Request failed with status code 400 - likely due to OpenAI Request');
+          console.log(result);
+          
+        } else {
+          //TODO REPORT TO DEVELOPER CHANNEL
+          console.info('ChatGPTClient: Request failed with status code ' + error);
+          console.log(result);
+          
         }
+        return 'FAILED';
+
+        
     });
     try {
 
@@ -169,24 +184,33 @@ class ChatGPTClient {
       return json;
 
     } catch (error) {
-      console.error("ChatGPTClient: ERROR: " + error);
+      console.error("ChatGPTClient: Parse or Clean Error: " + error);
+      console.log('JSON String: ');
+      console.log(jsonString);
 
-      // Count number of brackets [ and ] in the string
-      let openBrackets = jsonString.split('[');
-      let closeBrackets = jsonString.split(']');
-      let totalBrackets = openBrackets.length + closeBrackets.length - 2;
-
-      if (totalBrackets < 4) {
-        triviaContextData.push({
-          role: 'user',
-          content: 'I got this error on the last response: ' + error + ': Please try adding [ and ] to the beginning and end of the JSON response and try again.',
-        });
+      if (jsonString != null) {
+        // Count number of brackets [ and ] in the string
+        let openBrackets = jsonString.split('[');
+        let closeBrackets = jsonString.split(']');
+        let totalBrackets = openBrackets.length + closeBrackets.length - 2;
+        if (totalBrackets < 4) {
+          triviaContextData.push({
+            role: 'user',
+            content: 'I got this error on the last response: ' + error + ': Please try adding [ and ] to the beginning and end of the JSON response and try again.',
+          });
+        } else {
+          triviaContextData.push({
+            role: 'user',
+            content: 'I got this error while using JSON.parse() on the last response: ' + error + ': can you try again?',
+          });
+        }
       } else {
         triviaContextData.push({
           role: 'user',
           content: 'I got this error while using JSON.parse() on the last response: ' + error + ': can you try again?',
         });
       }
+      
       return await this.getJsonFromAi(model, triviaContextData);
     }
   }
