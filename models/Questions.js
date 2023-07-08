@@ -1,5 +1,36 @@
 module.exports = (sequelize, Sequelize) => {
 	return sequelize.define('questions', {
+		question_id: {
+			type: Sequelize.INTEGER,
+			primaryKey: true,
+			autoIncrement: true
+		},
+		source: {
+			type: Sequelize.TEXT
+		},
+		source_url: {
+			type: Sequelize.TEXT
+		},
+		source_id: {
+			type: Sequelize.TEXT
+		},
+		question_url: {
+			type: Sequelize.TEXT
+		},
+		question_type: {
+			type: Sequelize.TEXT
+		},
+		category: {
+			type: Sequelize.STRING
+		},
+		dislikes: {
+			type: Sequelize.INTEGER,
+			allowNull: false,
+			defaultValue: 0
+		},
+		difficulty: { 
+			type: Sequelize.STRING
+		},
 		question: {
 			type: Sequelize.TEXT
 		},
@@ -15,11 +46,23 @@ module.exports = (sequelize, Sequelize) => {
 		answer4: {
 			type: Sequelize.TEXT
 		},
-		category: {
-			type: Sequelize.STRING
+		times_asked: { 
+			type: Sequelize.INTEGER
 		},
-		difficulty: { 
-			type: Sequelize.STRING
+		times_answered: { 
+			type: Sequelize.INTEGER
+		},
+		times_answered_correctly: { 
+			type: Sequelize.INTEGER
+		},
+		last_asked: {
+			type: Sequelize.DATE,
+		},
+		owner_user_id: {
+			type: Sequelize.TEXT
+		},
+		owner_guild_id: {
+			type: Sequelize.TEXT
 		},
 	});
 };

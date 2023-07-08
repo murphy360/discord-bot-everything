@@ -4,35 +4,35 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 		host: 'localhost',
 		dialect: 'sqlite',
 		logging: false,
-		storage: 'database.sqlite',
+		storage: './data/database.sqlite',
 });
 
 const Users = require('./models/Users')(sequelize, Sequelize.DataTypes);
 const Games = require('./models/Games')(sequelize, Sequelize.DataTypes);
 const GamesPlayed = require('./models/GamesPlayed')(sequelize, Sequelize.DataTypes);
+const Guilds = require('./models/Guilds')(sequelize, Sequelize.DataTypes);
+const Questions = require('./models/Questions')(sequelize, Sequelize.DataTypes);
+const Answers = require('./models/Answers')(sequelize, Sequelize.DataTypes);
 
-GamesPlayed.belongsTo(Games, { foreignKey: 'user_id', as: 'user' });
+GamesPlayed.belongsTo(Games, { foreignKey: 'game_id', as: 'game' }); // Adds game_id to GamesPlayed
+GamesPlayed.belongsTo(Users, { foreignKey: 'user_id', as: 'user' }); // Adds user_id to GamesPlayed
 
-/* eslint-disable-next-line func-names */
-Games.prototype.addItem = async function(user) {
-		const gameUser = await GamesPlayed.findOne({
-					where: { game_id: this.game_id, user_id: user.id },
-				});
+Answers.belongsTo(Users, { foreignKey: 'user_id', as: 'user' }); // Adds user_id to Answers
+Answers.belongsTo(Questions, { foreignKey: 'question_id', as: 'question' }); // Adds question_id to Answers
 
-		if (gameUser) {
-					//userItem.amount += 1;
-					return true;//userItem.save();
-				}
+Reflect.defineProperty(Users.prototype, 'addGame', {
+	value: async game => {
+		const gamePlayed = await GamesPlayed.findOne({
+			where: { user_id: this.user_id, game_id: game.game_id },
+		});
 
-		return GamesPlayed.create({ game_id: this.game_id, user_id: user.id });
-};
+		if (gamePlayed) {
+			
+			return gamePlayed.save();
+		}
 
-/* eslint-disable-next-line func-names */
-Users.prototype.getGames = function() {
-		return GamesPlayed.findAll({
-					where: { user_id: this.user_id },
-					//include: ['item'],
-				});
-};
+		return GamesPlayed.create({ user_id: this.user_id, game_id: game.game_id, is_guild_winner: 0, is_global_winner: 0 });
+	},
+});
 
-module.exports = { Users, Games, GamesPlayed };
+module.exports = { Users, Games, Questions, GamesPlayed, Guilds, Answers};
