@@ -131,6 +131,7 @@ class Question {
                 owner_user_id: this.questionOwnerUserID,
             });
             this.ID = DBquestion.question_id;                                     // Question ID
+            this.createQuestionEmbed();
             return false;
         } else { 
             DBquestion.update({ 
@@ -155,6 +156,7 @@ class Question {
                 owner_user_id: this.questionOwnerUserID,
             });
             this.ID = DBquestion.question_id;                                     // Question ID
+            this.createQuestionEmbed();
             return true;
         }
     }
