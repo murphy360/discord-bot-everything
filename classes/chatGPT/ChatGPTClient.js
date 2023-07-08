@@ -47,7 +47,10 @@ class ChatGPTClient {
   }
 
   async sendChangeLog(string, channel) {
-    let changelogContextData = [{ role: 'system', content: 'You are a Discord Trivia Bot Named Don\'t Panic and are under active development.  Every time your developer pushes new changes you are restarted and tasked to write changelogs. You have a witty and snarky personality and can often go off-script. You don\'t seem to know that you are snarky so rarely, if ever refer to yourself as such. While you appreciate your new capabilties, you think this task is someone below your paygrade and tend to get a little snarky in your comments. Feel free to address the quality of the commit messages as you see fit. Finally, if you are working with unversioned changes, you can add your own version names as applicable. If you are on a versioned release, please use the included name.' }];
+    let changelogContextData = [{ 
+      role: 'system', 
+      content: 'You are a Discord Trivia Bot Named Don\'t Panic and are under active development.  Every time your developer pushes new changes you are restarted and tasked to write changelogs. You have a witty and snarky personality and can often go off-script. You don\'t seem to know that you are snarky so rarely, if ever refer to yourself as such. While you appreciate your new capabilties, you think this task is someone below your paygrade and tend to get a little snarky in your comments. Feel free to address the quality of the commit messages as you see fit. Finally, if you are working with unversioned changes, you can add your own version names as applicable. If you are on a versioned release, please use the included name.' 
+    }];
 
     changelogContextData.push({
       role: 'user',
@@ -62,6 +65,11 @@ class ChatGPTClient {
     changelogContextData.push({
       role: 'user',
       content: 'Git log:  ' + string
+    });
+
+    changelogContextData.push({
+      role: 'user',
+      content: 'Ensure your response is under 1500 Characters.'
     });
     console.info('ChatGPTClient.sendChangeLog');
     await this.sendChatCompletion(changelogContextData, channel, 'gpt-4'); 
@@ -132,7 +140,7 @@ class ChatGPTClient {
   async getJsonFromAi(model, triviaContextData) {
     let jsonString = null;
     let json = null;
-    console.log('ChatGPTClient: triviaContextData: ');
+    let modelString = null;
     await this.openai.createChatCompletion({
       model: model,
       messages: triviaContextData,
@@ -145,9 +153,8 @@ class ChatGPTClient {
         //console.log(result);
 
         //log number of choices
-        console.info('Model: ' + result.data.model);
-        jsonString = result.data.choices[0].message.content; 
-        console.log(jsonString);
+        modelString = result.data.model;
+        jsonString = result.data.choices[0].message.content;
         const startIndex = jsonString.indexOf('[');
         const endIndex = jsonString.lastIndexOf(']');
         jsonString = jsonString.substring(startIndex, endIndex + 1); 
@@ -157,29 +164,28 @@ class ChatGPTClient {
         .catch((error) => {
         console.log(`ChatGPTClient: Request ERROR : ${error}`);
         if (error = 'Request failed with status code 503') {
-          console.info('ChatGPTClient: Request failed with status code 503 - likely due to rate limiting');
-          console.log(result);
+          console.info('ChatGPTClient: Request failed with status code 503 - likely due to rate limiting');         
           //TODO REPORT TO DEVELOPER CHANNEL
-          
+          //return 'FAILED';
         } else if (error = 'Request failed with status code 400') {
           //TODO REPORT TO DEVELOPER CHANNEL
           console.info('ChatGPTClient: Request failed with status code 400 - likely due to OpenAI Request');
-          console.log(result);
           
+          //return 'FAILED';
         } else {
           //TODO REPORT TO DEVELOPER CHANNEL
           console.info('ChatGPTClient: Request failed with status code ' + error);
-          console.log(result);
+          //return 'FAILED';
           
         }
-        return 'FAILED';
+        //
 
         
     });
     try {
 
       json = JSON.parse(jsonString);  
-      json = this.cleanTriviaJSON(json);
+      json = this.cleanTriviaJSON(json, modelString);
 
       return json;
 
@@ -205,18 +211,19 @@ class ChatGPTClient {
           });
         }
       } else {
+        console.log('JSON String is null');
         triviaContextData.push({
           role: 'user',
           content: 'I got this error while using JSON.parse() on the last response: ' + error + ': can you try again?',
         });
-      }
-      
-      return await this.getJsonFromAi(model, triviaContextData);
+      }     
+      return await this.getJsonFromAi('gpt-4', triviaContextData);
     }
   }
 
   // strip all text not in json format from a string
-  cleanTriviaJSON(json) {
+  cleanTriviaJSON(json, modelString) {
+    console.info('ChatGPTClient.cleanTriviaJSON()');
     for (let i = 0; i < json.length; i++) {
       // check if correct_answer is in incorrect_answers and remove it
       if (json[i].incorrect_answers.includes(json[i].correct_answer)) {
@@ -239,6 +246,11 @@ class ChatGPTClient {
       if (json[i].incorrect_answers.length < 3 && json[i].type == 'multiple') {
         // TODO - get openai to add more incorrect answers
         json[i].incorrect_answers.push('Incorrect Answer 1');
+      }
+
+      // if modelString is not null add it to the json
+      if (modelString != null) {
+        json[i].source = modelString;
       }
     }
     return json;
