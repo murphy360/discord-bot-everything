@@ -173,22 +173,6 @@ class QuestionManager {
             questions = await this.addQuestions(numQuestions, category, difficulty, null);
             this.reportNewQuestionsToDeveloperChannel(questions, category, difficulty);
         }
-
-        // check and see if the db has any questions that haven't been asked with previous query
-        whereClause.times_asked = 0;
-        const unaskedDBQuestions = await Questions.findAll({
-            where: whereClause,
-            order: [['times_asked', 'ASC']],
-        });
-       
-        if (unaskedDBQuestions.length <= 2*numQuestions) {
-            console.info('Found ' + unaskedDBQuestions.length + ' unasked questions in database but needed ' + (2*numQuestions) + ' questions');
-
-            this.addQuestions(30, category, difficulty, 'gpt-4'); //Double down building question backlog
-            this.reportNewQuestionsToDeveloperChannel(questions, category, difficulty);
-        } else {
-            console.info('Found ' + unaskedDBQuestions.length + ' unasked questions in database, that is enough to keep going');
-        }
         return questions;
     }
 
