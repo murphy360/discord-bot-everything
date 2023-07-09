@@ -2,6 +2,9 @@ const { SlashCommandBuilder } = require('discord.js');
 const { Game } = require('./../../classes/trivia/game.js');
 const { LeaderBoard } = require('./../../classes/trivia/leaderBoard.js');
 const { LeaderBoardGuild } = require('./../../classes/trivia/leaderBoardGuild.js');
+
+require('dotenv').config({ path: './../data/.env' });
+
 let game_in_progress = false;
 const triviaCategories = [
     { name: 'General Knowledge', value: '9' },
@@ -163,7 +166,13 @@ module.exports = {
             if (game_in_progress === false) {
 
                   //Respond to hostMember
-                interaction.reply(hostMember.user.username + ', OK! ' + rounds + ' rounds! Difficulty: ' + difficulty + ' New game coming up!');
+                interaction.reply(hostMember.user.username + ', OK! ' + rounds + ' rounds! Difficulty: ' + difficulty + ' New game coming up!').catch(error => {
+                    console.log(console.error);
+                    defaultChannel.send(' Error replying to hostMember: ' + error + ' Have you given me the message permissions?');
+                });
+
+                // find the trivia channel
+                const triviaChannel = await hostGuild.channels.cache.find(channel => channel.name === 'trivia');
 
                 const game = new Game(interaction.client, hostMember.user, hostGuild, rounds, difficulty, categoryValue, categoryName);
                 await game.init();           
