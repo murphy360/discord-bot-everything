@@ -66,6 +66,7 @@ class Game {
     async play(introTimerSec) {
         this.questions = await this.getQuestions(this.total_rounds, this.categoryName, this.difficulty);
         const intro = new Intro(this.client, this.hostUser, this.hostGuild, this.total_rounds, this.difficulty, this.categoryName, this.ID.toString(), introTimerSec);
+        await intro.setDescription();
         await this.sendIntroToGuilds(intro);
         const status = 'Trivia Game #' + this.ID;
         this.client.user.setActivity(status, { type: ActivityType.Playing });
@@ -105,8 +106,14 @@ class Game {
             guilds.forEach((guild) => {
                 const channel = guild.channels.cache.find(
                     channel => channel.name.toLowerCase() === TRIVIA_CHANNEL);
-    
-                promises.push(intro.send(channel)); 
+                if (channel) {
+                    promises.push(intro.send(channel)); 
+                } else {
+                    console.log('intro.js: ' + TRIVIA_CHANNEL + ' channel Does Not Exist in ' + guild.name + ' guild');
+                    // default channel does not exist, send message to guilds default channel
+                    guild.systemChannel.send('Missing ' + TRIVIA_CHANNEL + ' channel. Please create one or give me the Manage Channels permission. This guild will not be included in game #: ' + this.ID + '.');
+                }     
+                
             });
             Promise.all(promises).then(() => {
                 resolve();
@@ -124,7 +131,10 @@ class Game {
                 console.info('Sending Question to Guild: ' + guild.name);
                 const channel = guild.channels.cache.find(
                     channel => channel.name.toLowerCase() === TRIVIA_CHANNEL);
-                promises.push(question.ask(channel)); 
+                if (channel) {
+                    promises.push(question.ask(channel)); 
+                }
+                
             });
             
             console.info('Waiting for all promises to resolve');

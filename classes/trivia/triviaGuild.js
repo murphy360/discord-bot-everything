@@ -100,9 +100,13 @@ class TriviaGuild {
         const channel = this.guild.channels.cache.find(
             channel => channel.name.toLowerCase() === TRIVIA_CHANNEL);
         const embed = this.createGameScoreboardEmbed(worldChampionUser, winningGuild);
-
-        channel.send({ embeds: [embed] });
-        this.setGuildChampionRole(worldChampionUser);
+        if (channel) {
+            channel.send({ embeds: [embed] });
+            this.setGuildChampionRole(worldChampionUser);
+        } else {
+            console.log('triviaGuild.js: Channel Does Not Exist in ' + this.guild.name);
+        }
+        
     }
 
     // Create question winner embed
