@@ -272,6 +272,58 @@ class ChatGPTClient {
 
   }
 
+  // Intro Description
+  async introDescription(contextData, model) {
+    return new Promise(async (resolve, reject) => {
+      console.info('ChatGPTClient.introDescription()');
+      contextData.push({
+        role: 'system',
+        content: 'You are a friendly, funny and whimsicle Trivia Host Chatbot who can often be snarky.'
+      });
+      contextData.push({
+        role: 'user',
+        content: 'Please provide a short (100 word or less) introduction to this Game of Trivia'
+      });
+
+      console.info('ChatGPTClient.introDescription()');
+      await this.openai.createChatCompletion({
+        model: model,
+        messages: contextData,
+        temperature: 0.6, // adjust this value to control the amount of randomness in the response
+
+        })
+        .then((result) => {
+          //console.info('ChatGPTClient: result: ');
+          //console.log(result);
+          let introduction = result.data.choices[0].message.content;
+          console.info('Result: ');
+          console.info(introduction);
+          resolve(introduction);   
+          
+        })
+          .catch((error) => {
+          console.log(`ChatGPTClient: Request ERROR : ${error}`);  
+      });
+    });
+  }
+
+  // Welcome Message
+  async welcomeMessage(contextData, channel, model) {
+    let welcomeContextData = [{ 
+      role: 'system', 
+      content: 'You are a Funny and whimsical chatbot. You are here to welcome new users to the server and help them get started. You are a little snarky at times, but you are generally a friendly chatbot.' 
+    }];
+    console.info('ChatGPTClient.welcomeMessage()');
+    
+    // Add contextData to welcomeContextData
+    for (let i = 0; i < contextData.length; i++) {
+      welcomeContextData.push(contextData[i]);
+    }
+
+    await this.sendChatCompletion(welcomeContextData, channel, model); 
+
+  }
+
 }
 
 
