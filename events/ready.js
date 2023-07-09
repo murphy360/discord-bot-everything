@@ -1,18 +1,14 @@
 require('../colors.js');
 require('../greetings.js');
 require('dotenv').config({ path: './../data/.env' });
-const { PermissionsBitField } = require('discord.js');
 const { CronJob } = require('cron');
 const { exec } = require('child_process');
 const { QuestionManager } = require('./../classes/trivia/questionManager.js');
 const { ChatGPTClient } = require('./../classes/chatGPT/ChatGPTClient.js');
 const fs = require('fs');
+const { SystemCommands } = require('./../classes/Helpers/systemCommands.js');
 
-const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
-const CHAT_GPT_CHANNEL = process.env.CHAT_GPT_CHANNEL;
-const DEV = process.env.DEV;
 const DEV_GUILD_ID = process.env.DEV_GUILD_ID;
-const playerRoleName = process.env.PLAYER_ROLE;
 
 const { Events } = require ('discord.js');
 
@@ -34,10 +30,6 @@ module.exports = {
             parentTextChannelId="";
             generalChannelId="";
 
-
-
-
-            
             console.info(`Checking setups for + ${guild.name}`);
             
 
@@ -45,98 +37,25 @@ module.exports = {
 
             const defaultChannel = guild.systemChannel;
             parentTextChannelId = defaultChannel.parentId;
-            let sufficientPermissions = true;
 
-            // Check if the bot has the required permissions
-            if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
-                console.log('I do not have the ManageMessages permission. Please assign this permission to the bot and try again.');
-                defaultChannel.send('I do not have the ManageMessages permission. Please assign this permission to the bot and try again.');
-                sufficientPermissions = false;
-            } 
+            let helper = new SystemCommands();
+            let contextData = await helper.checkPermissions(guild);
 
-            if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
-                console.log('I do not have the ManageChannels permission. Please assign this permission to the bot and try again.');
-                defaultChannel.send('I do not have the ManageChannels permission. Please assign this permission to the bot and try again.');
-                sufficientPermissions = false;
-            } else {
-                const triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
-                if (!triviaChannel) {
-                    console.info('Trivia Channel Does Not Exist, creating it now');
-                    // Create Trivia Channel
-                    await guild.channels.create({
-                        name: TRIVIA_CHANNEL,
-                        type: 0,
-                        parent: parentTextChannelId,
-                    }).then(channel => {
-                        console.info('Trivia Channel Created: ' + channel.name);
-                    }).catch(error => {
-                        console.error(error);
-                        defaultChannel.send('Error creating Trivia Channel: I need to have a text channel called ' + TRIVIA_CHANNEL + ' to work properly. Please create one and try again. Or assign me the ManageChannels permission and I will create it for you.');
-                    });
-                }
-            }
-
-            if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
-                console.log('I do not have the ManageRoles permission. Please assign this permission to the bot and try again.');
-                defaultChannel.send('I do not have the ManageRoles permission. Please assign this permission to the bot and try again.');
-                sufficientPermissions = false;
-            } else {
-                 // Check if role exists
-                let playerRole = await guild.roles.cache.find(role => role.name === playerRoleName);
-                    
-                // Create role if it doesn't exist
-                if (!playerRole) {
-                    
-                    // Create Player role
-                    await guild.roles.create({
-                        name: playerRoleName,
-                        color: '#00ff00', // Green
-                        hoist: true,
-                        position: 105,
-                    }).then(async role => {
-                        console.info(guild.name + ': Role ' + playerRoleName + ' does not exist, creating it now');
-                    }).catch(error => {
-                        defaultChannel.send('Error creating Player Role: I need to have a role called ' + playerRoleName + ' to work properly. Please create one and try again. Or assign me the ManageRoles permission and I will create it for you.');
-                    }); 
-                }
-            }
-
-            // Add Reaction Permissions
-            if (!guild.members.me.permissions.has(PermissionsBitField.Flags.AddReactions)) {
-                console.log('I do not have the AddReactions permission. Please assign this permission to the bot and try again.');
-                defaultChannel.send('I do not have the AddReactions permission. Please assign this permission to the bot and try again.');
-                sufficientPermissions = false;
-            }
-
-            // Manage Events Permissions
-            if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageEvents)) {
-                console.log('I do not have the ManageEvents permission. Please assign this permission to the bot and try again.');
-                defaultChannel.send('I do not have the ManageEvents permission. Please assign this permission to the bot and try again.');
-                sufficientPermissions = false;
-            } else {
-                console.log("EVENTS FOR DEV GUILD");
             
-                guild.scheduledEvents.fetch()
-                // then log each event creator
-                //.then(events => events.forEach(event => console.log(event)))
-                .catch(console.error);
+            if (contextData.length == 0) {
+                helper.checkChannel(guild);
+                helper.checkRole(guild);
+                
+            } else {
+                helper.exitGuild(guild, contextData, true);
             }
 
-            // Mention Everyone Permissions
-            if (!guild.members.me.permissions.has(PermissionsBitField.Flags.MentionEveryone)) {
-                console.log('I do not have the MentionEveryone permission. Please assign this permission to the bot and try again.');
-                defaultChannel.send('I do not have the MentionEveryone permission. Please assign this permission to the bot and try again.');
-                sufficientPermissions = false;
-            }
-            
-            if (sufficientPermissions) {
-                console.log('The bot has the required permissions in ' + guild.name);
-            } else {
-                console.log('The bot does not have the required permissions in ' + guild.name);
-                defaultChannel.send('I do not have the required permissions to work properly. Please assign the required permissions to the bot and invite me again!  https://discord.com/oauth2/authorize?client_id=828100639866486795&permissions=8&scope=bot');
-                // leave guild
-                guild.leave();
-            }
+            console.log("EVENTS FOR DEV GUILD");
+    
+            guild.scheduledEvents.fetch()
+            // then log each event creator
+            //.then(events => events.forEach(event => console.log(event)))
+            .catch(console.error);
 
             
 
