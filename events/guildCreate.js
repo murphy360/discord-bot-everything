@@ -1,8 +1,10 @@
-const { Events, EmbedBuilder } = require('discord.js');
+const { Events, EmbedBuilder, PermissionsBitField } = require('discord.js');
 require('dotenv').config({ path: './../data/.env' });
+const { SystemCommands } = require('./../classes/Helpers/systemCommands.js');
 
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 const DEV_GUILD_ID = process.env.DEV_GUILD_ID;
+const playerRoleName = process.env.PLAYER_ROLE;
 
 module.exports = {
 	name: Events.GuildCreate,
@@ -10,33 +12,35 @@ module.exports = {
 
 		let devGuild = guild.client.guilds.cache.get(DEV_GUILD_ID);
 		let devChannel = devGuild.channels.cache.find(channel => channel.name === "trivia_bot");
+		
+        
 
 		// Create embed for logging
         let embed = new EmbedBuilder()
-            .setDescription('New Guild Joined')
+            .setDescription(guild.name)
             // Set the title of the field
-            .setTitle(guild.name)
-            // Set the color of the embed
-            .setColor(0xff0000)
+            .setTitle('New Guild Joined')
+            // Set the color of the embed (green)
+            .setColor(0x00ff00) // Green
             // Set the main content of the embed
             .setThumbnail(guild.iconURL())
             .setTimestamp()
 		
 		devChannel.send({ embeds: [embed] });    
 
-		const triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
-		if (!triviaChannel) {
-			console.info('Joining Guild: ' + guild.name);
-			console.info('Trivia Channel Does Not Exist, creating it now');
-			const defaultChannel = guild.systemChannel;
-            const parentTextChannelId = defaultChannel.parentId;
-			guild.channels.create({
-				name: TRIVIA_CHANNEL,
-					type: 0,
-					parent: parentTextChannelId,
-				});
+		console.info(`Entering new guild: + ${guild.name} + checking setups`);
+
+		const helper = new SystemCommands();
+		let contextData = await helper.checkPermissions(guild);
+		
+		if (contextData.length == 0) {
+			await helper.checkChannel(guild);
+			await helper.checkRole(guild);
+			helper.introduceBotToGuild(guild, contextData);
 		} else {
-			console.info('Trivia Channel Exists: ' + triviaChannel.name);
+			console.log('Exiting guild ' + guild.name + ' due to missing permissions');
+			console.info(contextData.length);
+			helper.exitGuild(guild, contextData, true);
 		}
 	},
   };

@@ -6,12 +6,9 @@ const { exec } = require('child_process');
 const { QuestionManager } = require('./../classes/trivia/questionManager.js');
 const { ChatGPTClient } = require('./../classes/chatGPT/ChatGPTClient.js');
 const fs = require('fs');
+const { SystemCommands } = require('./../classes/Helpers/systemCommands.js');
 
-const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
-const CHAT_GPT_CHANNEL = process.env.CHAT_GPT_CHANNEL;
-const DEV = process.env.DEV;
 const DEV_GUILD_ID = process.env.DEV_GUILD_ID;
-const playerRoleName = process.env.PLAYER_ROLE;
 
 const { Events } = require ('discord.js');
 
@@ -33,31 +30,34 @@ module.exports = {
             parentTextChannelId="";
             generalChannelId="";
 
-            console.log("EVENTS FOR DEV GUILD");
-            
-            guild.scheduledEvents.fetch()
-            // then log each event creator
-            //.then(events => events.forEach(event => console.log(event)))
-            .catch(console.error);
-            
             console.info(`Checking setups for + ${guild.name}`);
+            
 
             guild.commands.set([]); // Clear the commands cache for this guild
 
             const defaultChannel = guild.systemChannel;
             parentTextChannelId = defaultChannel.parentId;
 
-            const triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
-            if (!triviaChannel) {
-                console.info('Trivia Channel Does Not Exist, creating it now');
-                guild.channels.create({
-                    name: TRIVIA_CHANNEL,
-                        type: 0,
-                        parent: parentTextChannelId,
-                    });
+            let helper = new SystemCommands();
+            let contextData = await helper.checkPermissions(guild);
+
+            
+            if (contextData.length == 0) {
+                helper.checkChannel(guild);
+                helper.checkRole(guild);
+                
             } else {
-                console.info('Trivia Channel Exists: ' + triviaChannel.name);
+                helper.exitGuild(guild, contextData, true);
             }
+
+            console.log("EVENTS FOR DEV GUILD");
+    
+            guild.scheduledEvents.fetch()
+            // then log each event creator
+            //.then(events => events.forEach(event => console.log(event)))
+            .catch(console.error);
+
+            
 
             if (guild.id == DEV_GUILD_ID){
                 let chatGPTClient = new ChatGPTClient();
@@ -79,29 +79,14 @@ module.exports = {
                 const job = new CronJob('0 0 6 * * *', () => scheduleNightlyTriviaGame(guild), null, true, 'Pacific/Auckland');
                 job.start();     
                 
-                addQuestions();
+                //addQuestions();
                 // Create a cron job to run every 6 hours to add new questions to the database
                 const job2 = new CronJob('0 0 0,6,16 * * *', () => addQuestions(), null, true, 'UTC');
                 job2.start();
 
             }
             
-            // Check if role exists
-            let playerRole = await guild.roles.cache.find(role => role.name === playerRoleName);
-                    
-            // Create role if it doesn't exist
-            if (!playerRole) {
-                
-                // Create Player role
-                await guild.roles.create({
-                    name: playerRoleName,
-                    color: '#00ff00', // Green
-                    hoist: true,
-                    position: 105,
-                }).then(async role => {
-                    console.info(guild.name + ': Role ' + playerRoleName + ' does not exist, creating it now');
-                }).catch(console.error); 
-            }
+           
         });       
 
         // Add New Questions to Database
