@@ -306,24 +306,6 @@ class ChatGPTClient {
       });
     });
   }
-
-  // Welcome Message
-  async welcomeMessage(contextData, channel, model) {
-    let welcomeContextData = [{ 
-      role: 'system', 
-      content: 'You are a Funny and whimsical chatbot. You are here to welcome new users to the server and help them get started. You are a little snarky at times, but you are generally a friendly chatbot.' 
-    }];
-    console.info('ChatGPTClient.welcomeMessage()');
-    
-    // Add contextData to welcomeContextData
-    for (let i = 0; i < contextData.length; i++) {
-      welcomeContextData.push(contextData[i]);
-    }
-
-    await this.sendChatCompletion(welcomeContextData, channel, model); 
-
-  }
-
 }
 
 
