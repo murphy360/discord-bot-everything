@@ -75,8 +75,11 @@ class SystemCommands {
     async checkChannel(guild) {
       console.log('The bot has the required permissions in ' + guild.name);
         const triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
+        const defaultChannel = guild.systemChannel;
+        const parentTextChannelId = defaultChannel.parentId;
+        
         if (!triviaChannel) {
-          console.info('Trivia Channel Does Not Exist, creating it now');
+          console.info('Trivia Channel Does Not Exist in ' + guild.name + ', creating it now');
           // Create Trivia Channel
           await guild.channels.create({
             name: TRIVIA_CHANNEL,
