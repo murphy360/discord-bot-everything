@@ -62,8 +62,8 @@ class LeaderBoardGuild {
             console.log(this.highestScorers[0].dataValues.user_id);
             this.highestScore = this.highestScorers[0].total_points;
             console.log('Guild Trivia Champion: ' + this.guildTriviaChampion.username + ' with ' + this.highestScorers[0].dataValues.total_points + ' points');
-        
         }
+        return this.highestScorers;
     }
 
     async getWorldTopScoresString() {
