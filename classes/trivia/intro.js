@@ -60,7 +60,7 @@ class Intro {
     async send(channel) {
         return new Promise(async (resolve, reject) => {
             // Get Player Role
-            const playerRole = this.hostGuild.roles.cache.find(role => role.name === 'Player');
+            const playerRole = channel.guild.roles.cache.find(role => role.name === 'Player');
             
 
             const embed = new EmbedBuilder()
