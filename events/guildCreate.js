@@ -10,37 +10,41 @@ module.exports = {
 	name: Events.GuildCreate,
 	async execute(guild) {
 
-		let devGuild = guild.client.guilds.cache.get(DEV_GUILD_ID);
-		let devChannel = devGuild.channels.cache.find(channel => channel.name === "trivia_bot");
-		
-        
-
-		// Create embed for logging
-        let embed = new EmbedBuilder()
-            .setDescription(guild.name)
-            // Set the title of the field
-            .setTitle('New Guild Joined')
-            // Set the color of the embed (green)
-            .setColor(0x00ff00) // Green
-            // Set the main content of the embed
-            .setThumbnail(guild.iconURL())
-            .setTimestamp()
-		
-		devChannel.send({ embeds: [embed] });    
-
 		console.info(`Entering new guild: + ${guild.name} + checking setups`);
 
 		const helper = new SystemCommands();
-		let contextData = await helper.checkPermissions(guild);
+		let contextData = await helper.checkGuildSetup(guild);
 		
 		if (contextData.length == 0) {
-			await helper.checkChannel(guild);
-			await helper.checkRole(guild);
+			devChannelReport(true);
 			helper.introduceBotToGuild(guild, contextData);
+			
 		} else {
-			console.log('Exiting guild ' + guild.name + ' due to missing permissions');
-			console.info(contextData.length);
-			helper.exitGuild(guild, contextData, true);
+			devChannelReport(false);
+			helper.reportErrorToGuild(guild, contextData, true);
+		}
+
+		async function devChannelReport(isHealthy){
+			let devGuild = guild.client.guilds.cache.get(DEV_GUILD_ID);
+			let devChannel = devGuild.channels.cache.find(channel => channel.name === "trivia_bot"); 
+			let description = '';
+			let color = '';
+			if (isHealthy) {
+				description = 'New server joined with necessary permissions.';
+				color = 0x00ff00; // Green
+			} else {
+				description = 'New server joined but is having issues with permissions.';
+				color = 0xffa500; // Orange
+			}
+
+			let embed = new EmbedBuilder()
+				.setDescription(description)
+				.setTitle('New Guild Joined: ' + guild.name)
+				.setColor(color)
+				// Set the main content of the embed
+				.setThumbnail(guild.iconURL())
+				.setTimestamp()
+			devChannel.send({ embeds: [embed] });    
 		}
 	},
   };

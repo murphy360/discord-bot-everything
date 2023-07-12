@@ -1,9 +1,11 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionsBitField  } = require('discord.js');
 const { Game } = require('./../../classes/trivia/game.js');
 const { LeaderBoard } = require('./../../classes/trivia/leaderBoard.js');
 const { LeaderBoardGuild } = require('./../../classes/trivia/leaderBoardGuild.js');
+const { SystemCommands } = require('./../../classes/Helpers/systemCommands.js');
 
 require('dotenv').config({ path: './../data/.env' });
+const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 
 let game_in_progress = false;
 const triviaCategories = [
@@ -39,10 +41,6 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('trivia')
 		.setDescription('A Trivia Game!')
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('about')
-                .setDescription('About our game'))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('play')
@@ -115,11 +113,24 @@ module.exports = {
 
     // This is the function that will be called when the command is executed
 	async execute(interaction) {
+
+        const helper = new SystemCommands();
+        // Check if the bot has the permissions it needs to work properly
+        let contextData = await helper.checkGuildSetup(interaction.guild);
+        if (contextData.length > 0) {
+            const embed = await helper.getHelpEmbedErrors(contextData, interaction.client);
+            return interaction.reply({ embeds: [embed] });
+        } else {
+            console.info('I have the permissions I need to post in the ' + interaction.guild.name + ' guild!');
+        }
         
         // Check which subcommand was called
         if (interaction.options.getSubcommand() === 'about') {
             return interaction.reply('This is a trivia game! Written by Corey Murphy');
         } else if (interaction.options.getSubcommand() === 'play') {
+            
+  
+
             console.info('Play Subcommand');
             let rounds = 1;
             let difficulty = 'all';

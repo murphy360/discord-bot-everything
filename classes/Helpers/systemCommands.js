@@ -4,21 +4,36 @@ Sequelize.options.logging = console.log;
 require('dotenv').config({ path: './../data/.env' });
 const { ChatGPTClient } = require('./../chatGPT/ChatGPTClient.js');
 
-const { PermissionsBitField } = require('discord.js');
+const { PermissionsBitField, EmbedBuilder } = require('discord.js');
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
-const playerRoleName = process.env.PLAYER_ROLE;
+const DEV_GUILD_ID = process.env.DEV_GUILD_ID;
+
+
 class SystemCommands {
 
 
     constructor() {
-                
+          this.sendMessages = true;
+          this.guildRoles = [];
+          this.guildRoles.push(process.env.PLAYER_ROLE);
+          this.guildRoles.push(process.env.NOOB_ROLE);
+          this.guildRoles.push(process.env.WORLD_CHAMPION_ROLE);
+          this.guildRoles.push(process.env.GUILD_CHAMPION_ROLE);
     }
 
-    async checkPermissions(guild) {
+    /**
+     * 
+     * @param {*} guild 
+     * @returns contextData - an array of objects containing any setup issues with the guild
+     * if contextData.length == 0 then the guild is setup correctly
+     */
+    async checkGuildSetup(guild) {
       console.info('Checking permissions for ' + guild.name);
       let contextData = [];
       // Check if the bot has the required permissions
+      console.info(guild.members.me.permissions.toArray());
       if (!guild.members.me.permissions.has(PermissionsBitField.Flags.SendMessages)) {
+        this.sendMessages = false;
         console.log('I do not have the SendMessages permission. Please assign this permission to the bot and try again.');
         contextData.push({
           role: 'user',
@@ -32,7 +47,61 @@ class SystemCommands {
           role: 'user',
           content: 'Missing ManageChannels Permission'
           });
-      } 
+      } else {
+        let triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
+        if (!triviaChannel){
+          await this.createTriviaChannel(guild);
+        }
+        triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
+        if (!triviaChannel) {
+          console.log('I do not have the ' + TRIVIA_CHANNEL + ' channel. Please create the channel and try again.');
+          contextData.push({
+            role: 'user',
+            content: 'Missing ' + TRIVIA_CHANNEL + ' channel. Please create the channel and try again. '
+          });
+        } else {
+          console.info('Checking permissions for ' + TRIVIA_CHANNEL + ' channel');
+          const triviaChannelViewChannelPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.ViewChannel);
+          if (!triviaChannelViewChannelPermission) {
+             console.log('I do not have the View Channel Permission in the ' + TRIVIA_CHANNEL + ' channel. Please assign the View Channel permission to the bot and try again.');
+              contextData.push({
+                role: 'user',
+                content: 'Missing View Channel Permission in ' + TRIVIA_CHANNEL + ' channel'
+              });
+          } else {
+            console.info('I have the View Channel Permission in the ' + TRIVIA_CHANNEL + ' channel');
+          }
+    
+          const triviaChannelSendMessagesPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.SendMessages);
+          if (!triviaChannelSendMessagesPermission) {
+            console.log('I do not have the Send Messages Permission in the ' + TRIVIA_CHANNEL + ' channel. Please assign the Send Messages permission to the bot and try again.');
+            contextData.push({
+              role: 'user',
+              content: 'Missing Send Messages Permission in ' + TRIVIA_CHANNEL + ' channel'
+            });
+          } else {
+            console.info('I have the Send Messages Permission in the ' + TRIVIA_CHANNEL + ' channel');
+          }
+
+          const triviaChannelEmbedLinksPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.EmbedLinks);
+          if (!triviaChannelEmbedLinksPermission) {
+            console.log('I do not have the Embed Links Permission in the ' + TRIVIA_CHANNEL + ' channel. Please assign the Embed Links permission to the bot and try again.');
+            contextData.push({
+              role: 'user',
+              content: 'Missing Embed Links Permission in ' + TRIVIA_CHANNEL + ' channel'
+            });
+          }
+
+          const triviaChannelReadMessageHistoryPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.ReadMessageHistory);
+          if (!triviaChannelReadMessageHistoryPermission) {
+            console.log('I do not have the Read Message History Permission in the ' + TRIVIA_CHANNEL + ' channel. Please assign the Read Message History permission to the bot and try again.');
+            contextData.push({
+              role: 'user',
+              content: 'Missing Read Message History Permission in ' + TRIVIA_CHANNEL + ' channel'
+            });
+          }
+        }
+      }
 
       if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
         console.log('I do not have the ManageRoles permission. Please assign this permission to the bot and try again.');
@@ -40,6 +109,16 @@ class SystemCommands {
           role: 'user',
           content: 'Missing ManageRoles Permission'
           });
+      } else {
+        await this.createGuildRoles(guild);
+              // Check Role Positions
+        if (!await this.checkRolePositions(guild)) {
+          console.log('Role positions are incorrect. Please assign the correct role positions to the bot and try again.');
+          contextData.push({
+            role: 'user',
+            content: 'Incorrect Role Positions - Please make sure I have a higher position than the roles I am supposed to assign. (World Champion, Guild Champion, Player, Noob)'
+        });
+      }
       }
 
       // Add Reaction Permissions
@@ -66,55 +145,127 @@ class SystemCommands {
         contextData.push({
           role: 'user',
           content: 'Missing MentionEveryone Permission'
-          });
+        });
       }
-
       return contextData;
     }
+// Create Trivia Channel
+    async createTriviaChannel(guild) {
+      let defaultChannel = guild.systemChannel;
+      let parentTextChannelId = defaultChannel.parentId;
+      await guild.channels.create({
+        name: TRIVIA_CHANNEL,
+        type: 0,
+        parent: parentTextChannelId
+      }).then(async channel => {
+        console.info('Trivia Channel Created: ' + channel.name);
+        channel.permissionOverwrites.set([
+          {
+            id: guild.id,
+            allow: [PermissionsBitField.Flags.SendMessages],
+          }, {
+            id: guild.id,
+            allow: [PermissionsBitField.Flags.ViewChannel],
+          }, {
+            id: guild.id,
+            allow: [PermissionsBitField.Flags.ReadMessageHistory]
+          }
+        ]);
+        return true;
+      }).catch(async error => {
+        console.info('Error creating Trivia Channel: ');
+        console.error(error);
+        return false;
+      });
+      
+    }
 
-    async checkChannel(guild) {
-      console.log('The bot has the required permissions in ' + guild.name);
-        const triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
-        const defaultChannel = guild.systemChannel;
-        const parentTextChannelId = defaultChannel.parentId;
-        
-        if (!triviaChannel) {
-          console.info('Trivia Channel Does Not Exist in ' + guild.name + ', creating it now');
-          // Create Trivia Channel
-          await guild.channels.create({
-            name: TRIVIA_CHANNEL,
-            type: 0,
-            parent: parentTextChannelId,
-          }).then(channel => {
-            console.info('Trivia Channel Created: ' + channel.name);
-          }).catch(async error => {
-            console.error(error);
-            await defaultChannel.send('Error creating Trivia Channel: I need to have a text channel called ' + TRIVIA_CHANNEL + ' to work properly. Please create one and try again. Or assign me the ManageChannels permission and I will create it for you.');
-          });
+    async checkTriviaChannel(guild) {
+      const triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
+      if (triviaChannel){
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    // Check if role exists in guild
+    async checkRole(guild, roleName) {
+      console.info('Checking if ' + roleName + ' exists in ' + guild.name);
+      let role = await guild.roles.cache.find(role => role.name === roleName);
+      if (role) {
+        return true;
+      } 
+      return false;
+    }
+
+     // Create Guild Roles if they don't exist
+    async createGuildRoles(guild) {
+      const botMember = guild.members.cache.get(guild.client.user.id);
+      const botRole = botMember.roles.highest;
+      const botRolePosition = botRole.position;
+      console.info('Creating Guild Roles for ' + guild.name);
+
+      
+      if (guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
+        if (!await this.checkRole(guild, process.env.WORLD_CHAMPION_ROLE)){
+          await this.createRole(guild, process.env.WORLD_CHAMPION_ROLE, '#FFD700', true, botRolePosition-1 ); // World Champion Role - Gold - Hoisted - 103
         }
+  
+        if (!await this.checkRole(guild, process.env.GUILD_CHAMPION_ROLE)){
+          await this.createRole(guild, process.env.GUILD_CHAMPION_ROLE, '#C0C0C0', true, botRolePosition-2); // Guild Champion Role - Silver - Hoisted - 102
+        }
+  
+        if (!await this.checkRole(guild, process.env.PLAYER_ROLE)){
+          await this.createRole(guild, process.env.PLAYER_ROLE, '#00ff00', true, botRolePosition-3); // Player Role - Green - Hoisted - 105
+        }
+  
+        if (!await this.checkRole(guild, process.env.NOOB_ROLE)){
+          await this.createRole(guild, process.env.NOOB_ROLE, '#964B00', true, botRolePosition-4); // Noob Role - Brown - Hoisted - 104
+        }
+
+        return true;
+      } else {
+        return false;
+      }
+     
     }
 
-    async checkRole(guild) {
-       // Check if role exists
-       let playerRole = await guild.roles.cache.find(role => role.name === playerRoleName);
-          
-       // Create role if it doesn't exist
-       if (!playerRole) {
-         
-         // Create Player role
-         await guild.roles.create({
-           name: playerRoleName,
-           color: '#00ff00', // Green
-           hoist: true,
-           position: 105,
-         }).then(async role => {
-           console.info(guild.name + ': Role ' + playerRoleName + ' does not exist, creating it now');
-         }).catch(async error => {
-           await defaultChannel.send('Error creating Player Role: I need to have a role called ' + playerRoleName + ' to work properly. Please create one and try again. Or assign me the ManageRoles permission and I will create it for you.');
-         }); 
-       }
+    // Check if role positions are correct
+    async checkRolePositions(guild) {
+      console.info('Checking role positions for ' + guild.name);
+      const botMember = guild.members.cache.get(guild.client.user.id);
+      const botRole = await botMember.roles.highest;
+      const worldChampionRole = await guild.roles.cache.find(role => role.name === process.env.WORLD_CHAMPION_ROLE);
+      const guildChampionRole = await guild.roles.cache.find(role => role.name === process.env.GUILD_CHAMPION_ROLE);
+      const playerRole = await guild.roles.cache.find(role => role.name === process.env.PLAYER_ROLE);
+      const noobRole = await guild.roles.cache.find(role => role.name === process.env.NOOB_ROLE);
+      const roles = [worldChampionRole, guildChampionRole, playerRole, noobRole];
+      
+      for (let i = 0; i < roles.length; i++) {
+        if (roles[i].position >= botRole.position) {
+          return false;
+        }
+      }
+      return true;
     }
 
+    async createRole(guild, roleName, color, hoist, position) {
+      // Create Player role
+      console.info('Creating ' + roleName + ' role in ' + guild.name);
+      await guild.roles.create({
+        name: roleName,
+        color: color,
+        hoist: hoist,
+        position: position,
+      }).then(async role => {
+        console.info(guild.name + ': Role ' + role.name + ' has been created in ' + guild.name);
+      }).catch(async error => {
+        console.info('Error creating ' + roleName + ' role in ' + guild.name + ': ');
+        console.error(error);
+      }); 
+    }
+    
     async introduceBotToGuild(guild, contextData) {
 
       contextData.push({
@@ -129,58 +280,119 @@ class SystemCommands {
 
       const chatGPTClient = new ChatGPTClient();
       let defaultChannel = guild.systemChannel;
-      await chatGPTClient.sendChatCompletion(contextData, defaultChannel, 'gpt-4');
+      const devGuild = guild.client.guilds.cache.get(DEV_GUILD_ID);
+      const devChannel = devGuild.channels.cache.find(channel => channel.name === "trivia_bot"); 
+      // If the bot has permissions to send messages in the default channel, introduce itself
+      const defaultChannelSendMessagesPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.SendMessages);
+      const defaultChannelViewChannelPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.ViewChannel);
+      
+      console.info('I have SendMessages Permission in ' + guild.name + ' default channel: ' + defaultChannelSendMessagesPermission);
+      console.info('I have ViewChannel Permission in ' + guild.name + ' default channel: ' + defaultChannelViewChannelPermission);
+
+      if (defaultChannelSendMessagesPermission && defaultChannelViewChannelPermission) {
+        console.info('Introducing myself to ' + guild.name + ' in ' + defaultChannel.name);
+        await chatGPTClient.sendChatCompletion(contextData, defaultChannel, 'gpt-4');
+       } else if (!defaultChannelViewChannelPermission) {
+        console.info('I do not have permissions in ' + guild.name + ' to view channel: ' + defaultChannel.name + '. I can\'t introduce myself');
+        devChannel.send('I do not have permissions in ' + guild.name + ' to view channel: ' + defaultChannel.name + '. I can\'t introduce myself');
+      } else if (!defaultChannelSendMessagesPermission) {
+        console.info('I do not have permissions in ' + guild.name + ' to send messages in channel: ' + defaultChannel.name + '. I can\'t introduce myself');
+        devChannel.send('I do not have permissions in ' + guild.name + ' to send messages in channel: ' + defaultChannel.name + '. I can\'t introduce myself' );
+      }
     }
 
-    async exitGuild(guild, contextData, isNewGuild) {
+    // We're not really exiting the guild anymore
+    async reportErrorToGuild(guild, contextData, isNewGuild) {
       // This is run when the bot first joins a guild
-      console.info('SystemCommands: Exiting guild ' + guild.name + ' due to missing permissions');
+      console.info('SystemCommands: reportErrorToGuild ' + guild.name);
 			console.info(contextData);
+
+      const devGuild = guild.client.guilds.cache.get(DEV_GUILD_ID);
+      const devChannel = devGuild.channels.cache.find(channel => channel.name === "trivia_bot");  
+      const botname = guild.client.user.username;
+      
       contextData.push({
         role: 'system',
-        content: 'You are a Funny, whimsicle and sometimes snarky Trivia Host Discord Bot. You need to exit this discord server due to permission issues.'
+        content: 'You are a Funny, whimsicle and sometimes snarky Trivia Host Discord Bot called ' + botname + ' but you don\'t have all the permissions you need to run correctly.'
         });
+
       if (isNewGuild) {
         contextData.push({
           role: 'user',
-          content: 'Please Introduce yourself to the ' + guild.name + ' discord server as if you were talking in their public introductions channel, explain that you need permissions, and then let the guild know you are going to leave, but are happy to get invited back with correct permissions.'
+          content: 'Please Introduce yourself to the ' + guild.name + ' discord server as if you were talking in their public introductions channel, explain that you are missing some permissions you need in order to work correctly and then list the missing permissions in bullet form.'
           });
       // This is run when a bot's permissions change later on
       } else {
         contextData.push({
           role: 'user',
-          content: 'Please apologize to the  ' + guild.name + ' discord server for leaving, you have enjoyed being part of their community, but you do not have the required permissions to work properly. Please remind them to give you the required permissions and to invite you back! '
+          content: 'Please apologize to the  ' + guild.name + ' for bothering them, but you need to remind them that you do not have the required permissions to work properly and list the missing permissions in bullet form.'
           });
       }
       
       contextData.push({
         role: 'user',
-        content: 'Your Invite link: https://discord.com/oauth2/authorize?client_id=828100639866486795&permissions=17601044621392&scope=bot'
+        content: 'Invite link with correct permissions: https://discord.com/oauth2/authorize?client_id=828100639866486795&permissions=17601044621392&scope=bot'
         });
 
-      const chatGPTClient = new ChatGPTClient();
-      let defaultChannel = guild.systemChannel;
-      await chatGPTClient.sendChatCompletion(contextData, defaultChannel, 'gpt-4');
-      // leave guild
-      guild.leave();
+      contextData.push({
+        role: 'user',
+        content: 'An invite to your support Server is: https://discord.gg/cCyAkNwcR3'
+      });
+  
+
+      const defaultChannel = guild.systemChannel;
+      const defaultChannelSendMessagesPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.SendMessages);
+      const defaultChannelViewChannelPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.ViewChannel);
+      const defaultChannelSendEmbedLinksPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.EmbedLinks);
+      
+      if (defaultChannelSendMessagesPermission && defaultChannelViewChannelPermission && defaultChannelSendEmbedLinksPermission) {
+        devChannel.send('Reporting Error to guild' + guild.name + ' due to missing permissions ' + contextData.toString());
+        console.log('Reporting Error to guild ' + guild.name + ' due to missing permissions. At least I can tell them I\'m leaving');
+        const chatGPTClient = new ChatGPTClient();
+        await chatGPTClient.sendChatCompletion(contextData, defaultChannel, 'gpt-4');
+        // leave guild
+        //guild.leave();
+      } else {
+        devChannel.send('I do not have permissions in ' + guild.name + ' to send messages in default channel: ' + defaultChannel.name + '. I can\'t even tell them I have a problem');
+        console.log('I do not have permissions in ' + guild.name + ' to send messages in default channel: ' + defaultChannel.name + '. I can\'t even tell them I have a problem');
+      }
     }
+
+    		// Function to create an about embed
+		async getHelpEmbedErrors(contextData, client) {
+      console.info('SystemCommands: getHelpEmbedErrors');
+      let botname = client.user.username;
+			let helpEmbed = new EmbedBuilder()
+				.setColor('#ff0000') // Red
+				.setTitle('Help for ' + botname)
+				.setDescription('This is a Trivia Bot. I have some setup issues I need you to fix before I can work properly. Please check the following things and try again:')
+				.setThumbnail(client.user.displayAvatarURL())
+				.setTimestamp();
+
+			for (let i = 0; i < contextData.length; i++) {
+				helpEmbed.addFields( { name: "Problem ", value: contextData[i].content } );
+			}
+			helpEmbed.addFields(
+				{ name: "Invite link with correct permissions", value: 'https://discord.com/oauth2/authorize?client_id=828100639866486795&permissions=17601044621392&scope=bot' },
+				{ name: "An invite to my support Server", value: 'https://discord.gg/8QZQ6XZ8' }
+      );
+			return helpEmbed;
+		}
 
     async getChangeLog() {
         exec(git)
         async function sh(cmd) {
-            return new Promise(function (resolve, reject) {
-              exec(cmd, (err, stdout, stderr) => {
-                if (err) {
-                  reject(err);
-                } else {
-                  resolve({ stdout, stderr });
-                }
-              });
+          return new Promise(function (resolve, reject) {
+            exec(cmd, (err, stdout, stderr) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve({ stdout, stderr });
+              }
             });
-          }
+          });
+        }
     }
-
-    
 }
 
 module.exports.SystemCommands = SystemCommands;

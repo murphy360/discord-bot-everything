@@ -10,6 +10,7 @@ const { SystemCommands } = require('./../classes/Helpers/systemCommands.js');
 
 const DEV_GUILD_ID = process.env.DEV_GUILD_ID;
 
+
 const { Events } = require ('discord.js');
 
 module.exports = {
@@ -25,40 +26,20 @@ module.exports = {
         }
 
         client.guilds.cache.forEach(async (guild) => {
-            triviaExists = false;
-            chatGPTExists = false;
-            parentTextChannelId="";
-            generalChannelId="";
 
             console.info(`Checking setups for + ${guild.name}`);
             
 
             guild.commands.set([]); // Clear the commands cache for this guild
 
-            const defaultChannel = guild.systemChannel;
-            parentTextChannelId = defaultChannel.parentId;
-
             let helper = new SystemCommands();
-            let contextData = await helper.checkPermissions(guild);
+            let contextData = await helper.checkGuildSetup(guild);
 
-            
-            if (contextData.length == 0) {
-                helper.checkChannel(guild);
-                helper.checkRole(guild);
-                
-            } else {
-                helper.exitGuild(guild, contextData, true);
-            }
-
-            console.log("EVENTS FOR DEV GUILD");
-    
-            guild.scheduledEvents.fetch()
-            // then log each event creator
-            //.then(events => events.forEach(event => console.log(event)))
-            .catch(console.error);
-
-            
-
+            if (contextData.length > 0) {
+                helper.reportErrorToGuild(guild, contextData, true);
+            } 
+          
+            // Setup only for Discord Bot Development Server
             if (guild.id == DEV_GUILD_ID){
                 let chatGPTClient = new ChatGPTClient();
                 const devChannel = await guild.channels.cache.find(channel => channel.name === "trivia_bot");
@@ -83,10 +64,7 @@ module.exports = {
                 // Create a cron job to run every 6 hours to add new questions to the database
                 const job2 = new CronJob('0 0 0,6,16 * * *', () => addQuestions(), null, true, 'UTC');
                 job2.start();
-
             }
-            
-           
         });       
 
         // Add New Questions to Database
