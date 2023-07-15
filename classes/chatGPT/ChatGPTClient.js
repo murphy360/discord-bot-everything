@@ -97,6 +97,7 @@ class ChatGPTClient {
         //console.log(result);
         try {
           const responseText = result.data.choices[0].message.content.toString();
+          console.log('ChatGPTClient: Response in ' + channel.name + ': ' + responseText);
           channel.send(responseText);
         } catch (error) {
           console.error("ChatGPTClient: Send Error in " + channel.name);
