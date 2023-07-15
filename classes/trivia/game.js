@@ -105,7 +105,7 @@ class Game {
             const promises = [];
             guilds.forEach((guild) => {
                 const channel = guild.channels.cache.find(
-                    channel => channel.name.toLowerCase() === TRIVIA_CHANNEL);
+                    channel => channel.name === TRIVIA_CHANNEL);
                 if (channel) {
                     promises.push(intro.send(channel)); 
                 } else {
@@ -129,8 +129,11 @@ class Game {
             const promises = [];
             guilds.forEach((guild) => {
                 console.info('Sending Question to Guild: ' + guild.name);
+                // Find TRIVIA_CHANNEL
                 const channel = guild.channels.cache.find(
-                    channel => channel.name.toLowerCase() === TRIVIA_CHANNEL);
+                    channel => channel.name === TRIVIA_CHANNEL);
+
+
                 if (channel) {
                     promises.push(question.ask(channel)); 
                 }
