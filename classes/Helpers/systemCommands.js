@@ -345,6 +345,11 @@ class SystemCommands {
       if (defaultChannel && defaultChannelSendMessagesPermission && defaultChannelViewChannelPermission && defaultChannelSendEmbedLinksPermission) {
         devChannel.send('Reporting Error to guild' + guild.name + 'in ' + defaultChannel.name + ' due to missing permissions ' + contextData.toString());
         console.log('Reporting Error to guild ' + guild.name + ' due to missing permissions in ' + defaultChannel.name + '. At least I can tell them I have a problem');
+        if(defaultChannel.name == wilkommen && guild.name == "Testserver") {
+          console.log('I am in the Testserver and wilkommen is the default channel. I am not going to report the error');
+          devChannel.send('I am in the Testserver and wilkommen is the default channel. I am not going to report the error');
+          return;
+        }
         const chatGPTClient = new ChatGPTClient();
         await chatGPTClient.sendChatCompletion(contextData, defaultChannel, 'gpt-4');
         // leave guild
