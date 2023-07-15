@@ -342,9 +342,9 @@ class SystemCommands {
       const defaultChannelViewChannelPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.ViewChannel);
       const defaultChannelSendEmbedLinksPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.EmbedLinks);
       
-      if (defaultChannelSendMessagesPermission && defaultChannelViewChannelPermission && defaultChannelSendEmbedLinksPermission) {
-        devChannel.send('Reporting Error to guild' + guild.name + ' due to missing permissions ' + contextData.toString());
-        console.log('Reporting Error to guild ' + guild.name + ' due to missing permissions. At least I can tell them I\'m leaving');
+      if (defaultChannel && defaultChannelSendMessagesPermission && defaultChannelViewChannelPermission && defaultChannelSendEmbedLinksPermission) {
+        devChannel.send('Reporting Error to guild' + guild.name + 'in ' + defaultChannel.name + ' due to missing permissions ' + contextData.toString());
+        console.log('Reporting Error to guild ' + guild.name + ' due to missing permissions in ' + defaultChannel.name + '. At least I can tell them I have a problem');
         const chatGPTClient = new ChatGPTClient();
         await chatGPTClient.sendChatCompletion(contextData, defaultChannel, 'gpt-4');
         // leave guild
