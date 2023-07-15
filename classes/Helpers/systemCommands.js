@@ -28,13 +28,13 @@ class SystemCommands {
      * if contextData.length == 0 then the guild is setup correctly
      */
     async checkGuildSetup(guild) {
-      console.info('Checking permissions for ' + guild.name);
+  
       let contextData = [];
       // Check if the bot has the required permissions
       console.info(guild.members.me.permissions.toArray());
       if (!guild.members.me.permissions.has(PermissionsBitField.Flags.SendMessages)) {
         this.sendMessages = false;
-        console.log('I do not have the SendMessages permission. Please assign this permission to the bot and try again.');
+        console.log('I do not have the SendMessages permission in ' + guild.name + '. Please assign this permission to the bot and try again.');
         contextData.push({
           role: 'user',
           content: 'Missing SendMessages Permission'
@@ -42,7 +42,7 @@ class SystemCommands {
       } 
 
       if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
-        console.log('I do not have the ManageChannels permission. Please assign this permission to the bot and try again.');
+        console.log('I do not have the ManageChannels permission in ' + guild.name + '. Please assign this permission to the bot and try again.');
         contextData.push({
           role: 'user',
           content: 'Missing ManageChannels Permission'
@@ -54,7 +54,7 @@ class SystemCommands {
         }
         triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
         if (!triviaChannel) {
-          console.log('I do not have the ' + TRIVIA_CHANNEL + ' channel. Please create the channel and try again.');
+          console.log('I do not have the ' + TRIVIA_CHANNEL + ' channel in ' + guild.name + '. Please create the channel and try again.');
           contextData.push({
             role: 'user',
             content: 'Missing ' + TRIVIA_CHANNEL + ' channel. Please create the channel and try again. '
@@ -63,29 +63,25 @@ class SystemCommands {
           console.info('Checking permissions for ' + TRIVIA_CHANNEL + ' channel');
           const triviaChannelViewChannelPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.ViewChannel);
           if (!triviaChannelViewChannelPermission) {
-             console.log('I do not have the View Channel Permission in the ' + TRIVIA_CHANNEL + ' channel. Please assign the View Channel permission to the bot and try again.');
+             console.log('I do not have the View Channel Permission in the ' + TRIVIA_CHANNEL + ' channel in ' + guild.name + '. Please assign the View Channel permission to the bot and try again.');
               contextData.push({
                 role: 'user',
                 content: 'Missing View Channel Permission in ' + TRIVIA_CHANNEL + ' channel'
               });
-          } else {
-            console.info('I have the View Channel Permission in the ' + TRIVIA_CHANNEL + ' channel');
           }
     
           const triviaChannelSendMessagesPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.SendMessages);
           if (!triviaChannelSendMessagesPermission) {
-            console.log('I do not have the Send Messages Permission in the ' + TRIVIA_CHANNEL + ' channel. Please assign the Send Messages permission to the bot and try again.');
+            console.log('I do not have the Send Messages Permission in the ' + TRIVIA_CHANNEL + ' channel in ' + guild.name + '. Please assign the Send Messages permission to the bot and try again.');
             contextData.push({
               role: 'user',
               content: 'Missing Send Messages Permission in ' + TRIVIA_CHANNEL + ' channel'
             });
-          } else {
-            console.info('I have the Send Messages Permission in the ' + TRIVIA_CHANNEL + ' channel');
           }
 
           const triviaChannelEmbedLinksPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.EmbedLinks);
           if (!triviaChannelEmbedLinksPermission) {
-            console.log('I do not have the Embed Links Permission in the ' + TRIVIA_CHANNEL + ' channel. Please assign the Embed Links permission to the bot and try again.');
+            console.log('I do not have the Embed Links Permission in the ' + TRIVIA_CHANNEL + ' channel in ' + guild.name + '. Please assign the Embed Links permission to the bot and try again.');
             contextData.push({
               role: 'user',
               content: 'Missing Embed Links Permission in ' + TRIVIA_CHANNEL + ' channel'
@@ -94,7 +90,7 @@ class SystemCommands {
 
           const triviaChannelReadMessageHistoryPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.ReadMessageHistory);
           if (!triviaChannelReadMessageHistoryPermission) {
-            console.log('I do not have the Read Message History Permission in the ' + TRIVIA_CHANNEL + ' channel. Please assign the Read Message History permission to the bot and try again.');
+            console.log('I do not have the Read Message History Permission in the ' + TRIVIA_CHANNEL + ' channel in ' + guild.name + '. Please assign the Read Message History permission to the bot and try again.');
             contextData.push({
               role: 'user',
               content: 'Missing Read Message History Permission in ' + TRIVIA_CHANNEL + ' channel'
@@ -104,7 +100,7 @@ class SystemCommands {
       }
 
       if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
-        console.log('I do not have the ManageRoles permission. Please assign this permission to the bot and try again.');
+        console.log('I do not have the ManageRoles permission in ' + guild.name + '. Please assign this permission to the bot and try again.');
         contextData.push({
           role: 'user',
           content: 'Missing ManageRoles Permission'
@@ -113,7 +109,7 @@ class SystemCommands {
         await this.createGuildRoles(guild);
               // Check Role Positions
         if (!await this.checkRolePositions(guild)) {
-          console.log('Role positions are incorrect. Please assign the correct role positions to the bot and try again.');
+          console.log('Role positions are incorrect in ' + guild.name + '. Please assign the correct role positions to the bot and try again.');
           contextData.push({
             role: 'user',
             content: 'Incorrect Role Positions - Please make sure I have a higher position than the roles I am supposed to assign. (World Champion, Guild Champion, Player, Noob)'
@@ -123,7 +119,7 @@ class SystemCommands {
 
       // Add Reaction Permissions
       if (!guild.members.me.permissions.has(PermissionsBitField.Flags.AddReactions)) {
-        console.log('I do not have the AddReactions permission. Please assign this permission to the bot and try again.');
+        console.log('I do not have the AddReactions permission in ' + guild.name + '. Please assign this permission to the bot and try again.');
         contextData.push({
           role: 'user',
           content: 'Missing AddReactions Permission'	
@@ -132,7 +128,7 @@ class SystemCommands {
 
       // Manage Events Permissions
       if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageEvents)) {
-        console.log('I do not have the ManageEvents permission. Please assign this permission to the bot and try again.');
+        console.log('I do not have the ManageEvents permission in ' + guild.name + '. Please assign this permission to the bot and try again.');
         contextData.push({
           role: 'user',
           content: 'Missing ManageEvents Permission'
@@ -141,7 +137,7 @@ class SystemCommands {
 
       // Mention Everyone Permissions
       if (!guild.members.me.permissions.has(PermissionsBitField.Flags.MentionEveryone)) {
-        console.log('I do not have the MentionEveryone permission. Please assign this permission to the bot and try again.');
+        console.log('I do not have the MentionEveryone permission in ' + guild.name + '. Please assign this permission to the bot and try again.');
         contextData.push({
           role: 'user',
           content: 'Missing MentionEveryone Permission'
@@ -151,14 +147,19 @@ class SystemCommands {
     }
 // Create Trivia Channel
     async createTriviaChannel(guild) {
+      console.info('Creating ' + TRIVIA_CHANNEL + ' in ' + guild.name);
       let defaultChannel = guild.systemChannel;
+      if (!defaultChannel) {
+        console.info('No default channel in ' + guild.name + '. Please create a channel called ' + TRIVIA_CHANNEL + ' and try again.');
+        return false;
+      }
       let parentTextChannelId = defaultChannel.parentId;
       await guild.channels.create({
         name: TRIVIA_CHANNEL,
         type: 0,
         parent: parentTextChannelId
       }).then(async channel => {
-        console.info('Trivia Channel Created: ' + channel.name);
+        console.info('Trivia Channel Created: ' + channel.name + ' in ' + guild.name);
         channel.permissionOverwrites.set([
           {
             id: guild.id,
@@ -173,7 +174,7 @@ class SystemCommands {
         ]);
         return true;
       }).catch(async error => {
-        console.info('Error creating Trivia Channel: ');
+        console.info('Error creating Trivia Channel in ' + guild.name + ': ');
         console.error(error);
         return false;
       });
@@ -191,7 +192,6 @@ class SystemCommands {
 
     // Check if role exists in guild
     async checkRole(guild, roleName) {
-      console.info('Checking if ' + roleName + ' exists in ' + guild.name);
       let role = await guild.roles.cache.find(role => role.name === roleName);
       if (role) {
         return true;
@@ -204,8 +204,6 @@ class SystemCommands {
       const botMember = guild.members.cache.get(guild.client.user.id);
       const botRole = botMember.roles.highest;
       const botRolePosition = botRole.position;
-      console.info('Creating Guild Roles for ' + guild.name);
-
       
       if (guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
         if (!await this.checkRole(guild, process.env.WORLD_CHAMPION_ROLE)){
@@ -233,7 +231,6 @@ class SystemCommands {
 
     // Check if role positions are correct
     async checkRolePositions(guild) {
-      console.info('Checking role positions for ' + guild.name);
       const botMember = guild.members.cache.get(guild.client.user.id);
       const botRole = await botMember.roles.highest;
       const worldChampionRole = await guild.roles.cache.find(role => role.name === process.env.WORLD_CHAMPION_ROLE);
