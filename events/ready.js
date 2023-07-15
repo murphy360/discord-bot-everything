@@ -36,7 +36,7 @@ module.exports = {
             let contextData = await helper.checkGuildSetup(guild);
 
             if (contextData.length > 0) {
-                helper.reportErrorToGuild(guild, contextData, true);
+                await helper.reportErrorToGuild(guild, contextData, true);
             } 
           
             // Setup only for Discord Bot Development Server
