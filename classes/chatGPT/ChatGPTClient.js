@@ -93,12 +93,12 @@ class ChatGPTClient {
       model: model,
       messages: contextData,
       })
-      .then((result) => {
+      .then(async (result) => {
         //console.log(result);
         try {
           const responseText = result.data.choices[0].message.content.toString();
           console.log('ChatGPTClient: Response in ' + channel.name + ': ' + responseText);
-          channel.send(responseText);
+          await channel.send(responseText);
         } catch (error) {
           console.error("ChatGPTClient: Send Error in " + channel.name);
           console.error(error);
