@@ -170,7 +170,7 @@ class TriviaGuild {
 
         if (worldChampionUser.id == guildChampion.user.id ) {
             console.info(this.guild.name + ': Guild Champion found - ' + guildChampion.user.username + ' is the World Champion');
-            guildChampion = await this.guild.members.fetch(highestScorers[1]);
+            guildChampion = await this.guild.members.fetch(highestScorers[1].dataValues.user_id);
             console.info(this.guild.name + ': Guild Champion found - ' + guildChampion.user.username);
             // remove first player from array
             highestScorers.shift(); 
