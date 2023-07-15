@@ -110,9 +110,7 @@ class Game {
                     promises.push(intro.send(channel)); 
                 } else {
                     console.log('intro.js: ' + TRIVIA_CHANNEL + ' channel Does Not Exist in ' + guild.name + ' guild');
-                    // default channel does not exist, send message to guilds default channel
-                    guild.systemChannel.send('Missing ' + TRIVIA_CHANNEL + ' channel. Please create one or give me the Manage Channels permission. This guild will not be included in game #: ' + this.ID + '.');
-                }     
+               }     
                 
             });
             Promise.all(promises).then(() => {
@@ -136,6 +134,8 @@ class Game {
 
                 if (channel) {
                     promises.push(question.ask(channel)); 
+                } else {
+                    console.log('question.js: ' + TRIVIA_CHANNEL + ' channel Does Not Exist in ' + guild.name + ' guild');
                 }
                 
             });
