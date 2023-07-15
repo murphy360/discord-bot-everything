@@ -338,26 +338,21 @@ class SystemCommands {
   
 
       const defaultChannel = guild.systemChannel;
-      const defaultChannelSendMessagesPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.SendMessages);
-      const defaultChannelViewChannelPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.ViewChannel);
-      const defaultChannelSendEmbedLinksPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.EmbedLinks);
-      
-      if (defaultChannel && defaultChannelSendMessagesPermission && defaultChannelViewChannelPermission && defaultChannelSendEmbedLinksPermission) {
-        devChannel.send('Reporting Error to guild' + guild.name + 'in ' + defaultChannel.name + ' due to missing permissions ' + contextData.toString());
-        console.log('Reporting Error to guild ' + guild.name + ' due to missing permissions in ' + defaultChannel.name + '. At least I can tell them I have a problem');
-        if(defaultChannel.name == wilkommen && guild.name == "Testserver") {
-          console.log('I am in the Testserver and wilkommen is the default channel. I am not going to report the error');
-          devChannel.send('I am in the Testserver and wilkommen is the default channel. I am not going to report the error');
+      if (defaultChannel) {
+        const defaultChannelSendMessagesPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.SendMessages);
+        const defaultChannelViewChannelPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.ViewChannel);
+        const defaultChannelSendEmbedLinksPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.EmbedLinks);
+        if (defaultChannelSendMessagesPermission && defaultChannelViewChannelPermission && defaultChannelSendEmbedLinksPermission) {
+          devChannel.send('Reporting Error to guild' + guild.name + 'in ' + defaultChannel.name + ' due to missing permissions ' + contextData.toString());
+          console.log('Reporting Error to guild ' + guild.name + ' due to missing permissions in ' + defaultChannel.name + '. At least I can tell them I have a problem');
+
+          const chatGPTClient = new ChatGPTClient();
+          await chatGPTClient.sendChatCompletion(contextData, defaultChannel, 'gpt-4');
           return;
         }
-        const chatGPTClient = new ChatGPTClient();
-        await chatGPTClient.sendChatCompletion(contextData, defaultChannel, 'gpt-4');
-        // leave guild
-        //guild.leave();
-      } else {
-        devChannel.send('I do not have permissions in ' + guild.name + ' to send messages in default channel: ' + defaultChannel.name + '. I can\'t even tell them I have a problem');
-        console.log('I do not have permissions in ' + guild.name + ' to send messages in default channel: ' + defaultChannel.name + '. I can\'t even tell them I have a problem');
-      }
+      } 
+      devChannel.send('I do not have permissions in ' + guild.name + ' to send messages in default channel: ' + defaultChannel.name + '. I can\'t even tell them I have a problem');
+      console.log('I do not have permissions in ' + guild.name + ' to send messages in default channel: ' + defaultChannel.name + '. I can\'t even tell them I have a problem');
     }
 
     		// Function to create an about embed
