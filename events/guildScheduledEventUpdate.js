@@ -73,6 +73,9 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 				console.info(LOG_DATE + ": Event Duration: " + eventDuration + " minutes");
 				//let rounds = 3;
 				const rounds = Math.floor(eventDuration / 2);
+				if (rounds < 1) {
+					rounds = 1;
+				}
 				let difficulty = 'all';
             	let categoryName = 'All';
             	let categoryValue = '0';
