@@ -163,7 +163,7 @@ class TriviaGuild {
         let guildChampion = await this.guild.members.fetch(highestScorers[0].dataValues.user_id); 
 
         // If there's only one Player in the guild, they are the Guild Champion (and maybe the World Champion, too)
-        if (highestScorers.length === 1) {
+        if (highestScorers.length == 1) {
             console.info(this.guild.name + ': Only one player in guild - Guild Champion found - ' + guildChampion.user.username);
             return guildChampion;
         } 
