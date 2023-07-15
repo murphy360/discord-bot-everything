@@ -336,7 +336,7 @@ class SystemCommands {
         content: 'An invite to your support Server is: https://discord.gg/cCyAkNwcR3'
       });
   
-
+      /**
       const defaultChannel = guild.systemChannel;
       if (defaultChannel) {
         const defaultChannelSendMessagesPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.SendMessages);
@@ -351,8 +351,10 @@ class SystemCommands {
           return;
         }
       } 
-      devChannel.send('I do not have permissions in ' + guild.name + ' to send messages in default channel: ' + defaultChannel.name + '. I can\'t even tell them I have a problem');
-      console.log('I do not have permissions in ' + guild.name + ' to send messages in default channel: ' + defaultChannel.name + '. I can\'t even tell them I have a problem');
+       */
+      devChannel.send('Reporting Error to guild ' + guild.name + ' due to missing permissions ' + contextData.toString());
+      console.log('Reporting Error to guild ' + guild.name + ' due to missing permissions in default channel. I can\'t even tell them I have a problem');
+      console.log(contextData);
     }
 
     		// Function to create an about embed
