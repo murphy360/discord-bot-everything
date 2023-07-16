@@ -72,9 +72,11 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 				const eventDuration = (guildNewScheduledEvent.scheduledEndTimestamp - guildNewScheduledEvent.scheduledStartTimestamp) / 60000;	
 				console.info(LOG_DATE + ": Event Duration: " + eventDuration + " minutes");
 				//let rounds = 3;
-				const rounds = Math.floor(eventDuration / 2);
+				let rounds = Math.floor(eventDuration / 2);
 				if (rounds < 1) {
 					rounds = 1;
+				} else if (rounds > 45) {
+					rounds = 45;
 				}
 				let difficulty = 'all';
             	let categoryName = 'All';
