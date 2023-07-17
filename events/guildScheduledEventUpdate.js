@@ -12,12 +12,9 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
   module.exports = {
 	name: Events.GuildScheduledEventUpdate,
 	async execute(guildOldScheduledEvent, guildNewScheduledEvent) {
-		
-		console.info(LOG_DATE + ": Old Event");
-		console.info(guildOldScheduledEvent);
 
-		console.info(LOG_DATE + ": New Event");
-		console.info(guildNewScheduledEvent);
+		// Summarize the changes
+		console.info(LOG_DATE + ": " + guildNewScheduledEvent.name + " Event Update in " + guildNewScheduledEvent.guild.name);
 
 		// guild where the event is happening
 		const eventGuild = guildNewScheduledEvent.guild;
@@ -61,12 +58,12 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 			// if the status changed to SCHEDULED, log it
 			if (guildNewScheduledEvent.status == 1) {
 				console.info(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " was scheduled");
-				devChannel.send(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " in " + eventGuild.name + " was scheduled");
+				//devChannel.send(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " in " + eventGuild.name + " was scheduled");
 			}
 			// if the status changed to ACTIVE, log it
 			if (guildNewScheduledEvent.status == 2) {
 				console.info(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " was started");
-				devChannel.send(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " in " + eventGuild.name + " was started");
+				//devChannel.send(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " in " + eventGuild.name + " was started");
 			
 				// get number of minutes event lasts
 				const eventDuration = (guildNewScheduledEvent.scheduledEndTimestamp - guildNewScheduledEvent.scheduledStartTimestamp) / 60000;	
@@ -96,12 +93,12 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 			// if the status changed to COMPLETED, log it
 			if (guildNewScheduledEvent.status == 3) {
 				console.info(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " was completed");
-				devChannel.send(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " in " + eventGuild.name + " was completed");
+				//devChannel.send(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " in " + eventGuild.name + " was completed");
 			}
 			// if the status changed to CANCELLED, log it
 			if (guildNewScheduledEvent.status == 4) {
 				console.info(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " was cancelled");
-				devChannel.send(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " in " + eventGuild.name + " was cancelled");
+				//devChannel.send(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " in " + eventGuild.name + " was cancelled");
 			}
 		}
 
