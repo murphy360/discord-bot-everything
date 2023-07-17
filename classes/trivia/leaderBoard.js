@@ -3,6 +3,8 @@ const { Users } = require('./../../dbObjects.js');
 const { Sequelize, Op } = require('sequelize');
 require('dotenv').config({ path: './../data/.env' });
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
+const WORLD_CHAMPION_ROLE = process.env.WORLD_CHAMPION_ROLE;
+const { SystemCommands } = require('./../Helpers/systemCommands.js');
 
 //This class sends the game introduction
 class LeaderBoard {
@@ -34,10 +36,7 @@ class LeaderBoard {
             this.worldTriviaChampion = this.highestScorers[0];
         }
             
-        console.log('World Trivia Champion: ' + this.worldTriviaChampion.user_name);
-        console.log(this.highestScorers);
-         
-     
+        console.log(WORLD_CHAMPION_ROLE + ": " + this.worldTriviaChampion.user_name);
     }
 
     async getWorldTopScoresString() {
@@ -81,7 +80,7 @@ class LeaderBoard {
             // Set the color of the embed
             .setColor(0x0066ff)
             // Set the main content of the embed
-            .setDescription('Trivi Champion has reigned for: (I\ll fill this out sometime)')
+            .setDescription('Trivia Champion has reigned for: (I\ll fill this out sometime)')
             // Add originGuild icon to embedd
             //.setThumbnail(this.hostGuild.iconURL())
             .addFields(
@@ -105,7 +104,8 @@ class LeaderBoard {
 
     // set World Trivia Champion Role
     async setWorldTriviaChampionRole() {
-        const roleName = "World Trivia Champion"; 
+
+        const helper = new SystemCommands();
         let worldChampionChange = false;       
         await this.findHighScores();       
         console.info('World Trivia Champion: ' + this.worldTriviaChampion.user_name);
@@ -115,22 +115,13 @@ class LeaderBoard {
             console.log(`Guild Name: ${guild.name}`);
             
             // Get the role object if it exists (returns undefined if it doesn't exist)
-            let role = await guild.roles.cache.find(role => role.name === roleName);
-
-            // If the role doesn't exist, create it
-            if (!role) {
-                console.info('Role does not exist, creating it');
-                role = await guild.roles.create({
-                    // Create World Trivia Champion Role
-                    name: roleName,
-                    color: '#ffd700', // Color: Gold
-                    hoist: true,
-                    position: 125,
-                    
-                }).catch(console.error);
-            } else {
-                console.info('Role exists!');
+            if (!helper.createGuildRoles(guild)) {
+                console.info('World Trivia Champion Role does not exist in this guild and cannot be created: ' + guild.name);
+                return;
             }
+
+            let role = await guild.roles.cache.find(role => role.name === WORLD_CHAMPION_ROLE);
+
 
             // Get the members with the role currently
             const currentWorldChampions = role.members.map(member => member);
@@ -153,18 +144,15 @@ class LeaderBoard {
 
             // Verify that worldTriviaChampion is a member of this guild
             if (!guild.members.cache.has(this.worldTriviaChampion.user_id)) {
-                console.info('World Trivia Champion is not a member of this guild: ' + this.worldTriviaChampion.user_name);
+                console.info(this.worldTriviaChampion.user_name +', the World Trivia Champion is not a member of ' + guild.name);
                 return;
             } else {
                 // Get World Trivia Champion Guild Member object from client
                 const worldTriviaChampionGuildMember = await guild.members.fetch(this.worldTriviaChampion.user_id);
                 // Add the role to the member
                 await worldTriviaChampionGuildMember.roles.add(role);
-
             }
             
-           
-
             if (worldChampionChange) {
                 // Send message to the guild that the World Trivia Champion has changed
                 console.info('Sending message to guilds that the World Trivia Champion has changed');
