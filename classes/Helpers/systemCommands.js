@@ -352,9 +352,9 @@ class SystemCommands {
         }
       } 
        */
-      devChannel.send('Reporting Error to guild ' + guild.name + ' due to missing permissions ' + contextData.toString());
-      console.log('Reporting Error to guild ' + guild.name + ' due to missing permissions in default channel. I can\'t even tell them I have a problem');
-      console.log(contextData);
+      //devChannel.send(guild.name + ' is not poperly setup due to missing permissions in default channel. I can\'t even tell them I have a problem');
+      console.log(guild.name + ' is not poperly setup due to missing permissions in default channel. I can\'t even tell them I have a problem');
+      //console.log(contextData);
     }
 
     		// Function to create an about embed

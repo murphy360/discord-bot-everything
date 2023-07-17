@@ -242,7 +242,7 @@ class Question {
 
     // Grade Results after time is up
     gradeResults(channel) {
-        console.info("Grading Results on " + channel.guild.name + " in " + channel.name + ' number of answers: ' + this.answers.length);
+        //console.info("Grading Results on " + channel.guild.name + " in " + channel.name + ' number of answers: ' + this.answers.length);
 
                                      
         // Check if there is a winner
@@ -385,7 +385,6 @@ class Question {
     
     // Display Question in the given Discord channel
     async ask(channel) {
-        console.info("Asking question: " + this.question + " Correct Choice: " + this.correct_choice + " in " + channel.guild.name + " in " + channel.name);
         // set max listeners to 8 times the number of guilds in the client
         const numGuilds = this.client.guilds.cache.size;
         this.client.setMaxListeners(numGuilds * 8); 

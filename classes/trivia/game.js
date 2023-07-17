@@ -122,17 +122,18 @@ class Game {
     // Ask a question to all guilds, returns once the question has been answered from each
     async askQuestionToGuilds(question) {
         return new Promise((resolve, reject) => {
-            console.info('Inside Question Promise');
+            console.info('question.js: Asking Question: ' + question.question + '\nAnswer: ' + question.answer);
             const guilds = this.client.guilds.cache;
             const promises = [];
             guilds.forEach((guild) => {
-                console.info('Sending Question to Guild: ' + guild.name);
+                
                 // Find TRIVIA_CHANNEL
                 const channel = guild.channels.cache.find(
                     channel => channel.name === TRIVIA_CHANNEL);
 
 
                 if (channel) {
+                    console.info('question.js: Sending Question to Guild: ' + guild.name);
                     promises.push(question.ask(channel)); 
                 } else {
                     console.log('question.js: ' + TRIVIA_CHANNEL + ' channel Does Not Exist in ' + guild.name + ' guild');
