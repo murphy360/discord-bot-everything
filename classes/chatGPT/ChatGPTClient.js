@@ -71,7 +71,7 @@ class ChatGPTClient {
       role: 'user',
       content: 'Ensure your response is under 1500 Characters.'
     });
-    console.info('ChatGPTClient.sendChangeLog');
+    console.info('ChatGPTClient.sendChangeLog in ' + channel.guild.name + ' - ' + channel.name);
     await this.sendChatCompletion(changelogContextData, channel, 'gpt-4'); 
   }
 

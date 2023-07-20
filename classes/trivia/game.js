@@ -122,7 +122,7 @@ class Game {
     // Ask a question to all guilds, returns once the question has been answered from each
     async askQuestionToGuilds(question) {
         return new Promise((resolve, reject) => {
-            console.info('question.js: Asking Question: ' + question.question + '\nAnswer: ' + question.answer);
+            console.info('game.js: Asking Question: ' + question.question_num+ ', ' + question.question + '\nAnswer: ' + question.answer);
             const guilds = this.client.guilds.cache;
             const promises = [];
             guilds.forEach((guild) => {

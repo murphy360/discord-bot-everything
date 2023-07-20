@@ -102,7 +102,6 @@ class Player {
             this.currentScore += answer.points;
         } else {                    // If answer is incorrect increment WRONG_ANSWERS
             this.WRONG_ANSWERS++;
-            console.log(answer);
         }
         console.info('Added answer to player: ' + this.user.username + ' ' + this.currentScore);
     }

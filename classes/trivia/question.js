@@ -422,9 +422,6 @@ class Question {
                 // TODO Remove the event listener
                 //this.client.removeListener('messageReactionAdd', handleReaction);
                 
-                console.info("client max listeners = " + this.client.getMaxListeners());
-                console.info("client current messageReactionAdd listeners = " + this.client.listenerCount('messageReactionAdd'));
-
                 // Resolve the promise
                 resolve("Resolved");
             });
