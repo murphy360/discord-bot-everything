@@ -80,7 +80,7 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 				console.info(LOG_DATE + ": Event Duration: " + eventDuration + " minutes");
 				// Each round is about 30 seconds... we want to fill up the event duration with rounds
 				
-				let rounds = Math.floor(eventDuration / 2);
+				let rounds = Math.floor(eventDuration * .9);
 				if (rounds < 1) {
 					rounds = 1;
 				} else if (rounds > 45) {
