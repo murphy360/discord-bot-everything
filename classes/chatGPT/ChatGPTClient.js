@@ -87,6 +87,32 @@ class ChatGPTClient {
     await this.sendChatCompletion(genericContextData, channel, 'gpt-3.5-turbo');  
   }
 
+  // get a random trivia categories
+  async getRandomTriviaCategories(numberCategories, model) {
+    return new Promise(async (resolve, reject) => {
+      let categoryContextData = [{ role: 'system', content: 'You are a Discord Bot Tasked to act as a trivia host.  You are creating a new Trivia Event and need to choose the categories that will be used in the next event.  It is important to be creative, eclectic and surprising in your selections.' }];
+      categoryContextData.push({
+        role: 'user',
+        content: 'Please Generate ' + numberCategories + ' random trivia categories. Return only the categoroes, separated by commas. For example: History, Pokemen, Gray\'s Anatomy' 
+      });
+      await this.openai.createChatCompletion({
+        model: model,
+        messages: categoryContextData,
+        })
+        .then((result) => {
+          console.info('ChatGPTClient: result: ');
+          console.log(result);
+          let introduction = result.data.choices[0].message.content;
+          console.info('Result: ');
+          console.info(introduction);
+          resolve(introduction);
+        })
+          .catch((error) => {
+          console.log(`ChatGPTClient: Request ERROR : ${error}`);
+      });
+    });
+  }
+
   // send chat completion to a specific Channel.  Used by askDevelopmentQuestion() and addressMessage()
   async sendChatCompletion(contextData, channel, model) {
     await this.openai.createChatCompletion({

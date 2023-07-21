@@ -196,7 +196,7 @@ class QuestionManager {
         for (let i = 0; i < numQuestions; i++) {
             questions.push(new Question(this.client, json.results[i], (i + 1), 'The Open Trivia Database', 'https://opentdb.com' ));
         }
-        console.info('QuestionManager: getTDBQuestions(): got ' + questions.length + ' questions from The Open Trivia Database');
+        console.info('QuestionManager: getTDBQuestions(): Requested: ' + numQuestions + ' and got ' + questions.length + ' questions from The Open Trivia Database');
         return questions;
     }
 
@@ -211,7 +211,7 @@ class QuestionManager {
                     //console.log(json[i].source + ' ' + json[i].question);
                     questions.push(new Question(this.client, json[i], (i + 1), json[i].source, 'https://openai.com/' ));
                 }
-                console.info('QuestionManager: getOpenAIQuestions(): got ' + questions.length + ' questions from OpenAI');
+                console.info('QuestionManager: getOpenAIQuestions(): Requested: ' + numQuestions + ' and got ' + questions.length + ' questions from OpenAI');
                 resolve(questions);
             });
         });
@@ -267,12 +267,15 @@ class QuestionManager {
             }
         }
         // Recursively call addQuestions until we have enough new questions
-        if (oldQuestions > 0) {
-            console.info('questionManager: Found ' + oldQuestions + ' existing questions in the database, getting ' + oldQuestions + ' more new questions');
+        const remainingQuestionsNeeded = numQuestions - newQuestions;
+        console.info('questionManager: Needed ' + numQuestions + ' questions and found ' + newQuestions + ' new questions and ' + oldQuestions + ' existing questions in the database. ' + remainingQuestionsNeeded + ' more questions needed');
+        if (remainingQuestionsNeeded > 0) {
+            console.info('questionManager: Found ' + oldQuestions + ' existing questions in the database, getting ' + remainingQuestionsNeeded + ' more new questions');
             // add questions to newQuestionsArray
-            newQuestionsArray = newQuestionsArray.concat(await this.addQuestions(oldQuestions, category, difficulty, oldQuestionContextData, model));
+            newQuestionsArray = newQuestionsArray.concat(await this.addQuestions(remainingQuestionsNeeded, category, difficulty, oldQuestionContextData, model));
         } 
         console.info('Adding ' + newQuestions + ' new questions to database ');
+        
         return newQuestionsArray;
     }
 }
