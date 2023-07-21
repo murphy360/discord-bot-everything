@@ -60,34 +60,56 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 				console.info(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " was scheduled");
 				//devChannel.send(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " in " + eventGuild.name + " was scheduled");
 			}
-			// if the status changed to ACTIVE, log it
+			// if the status changed to ACTIVE (started), lets start the game if the event is trivia related
 			if (guildNewScheduledEvent.status == 2) {
+
+				
+				
+				// if the title doesn't include trivia, don't do anything
+				const title = guildNewScheduledEvent.name;
+				if (!title.includes('Trivia') && !title.includes('trivia')) {
+					console.info(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " in " + eventGuild.name + " started, but is not a trivia event");
+					return;
+				}
+
 				console.info(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " was started");
 				//devChannel.send(LOG_DATE + ": Event " + guildNewScheduledEvent.name + " in " + eventGuild.name + " was started");
 			
 				// get number of minutes event lasts
 				const eventDuration = (guildNewScheduledEvent.scheduledEndTimestamp - guildNewScheduledEvent.scheduledStartTimestamp) / 60000;	
 				console.info(LOG_DATE + ": Event Duration: " + eventDuration + " minutes");
-				//let rounds = 3;
+				// Each round is about 30 seconds... we want to fill up the event duration with rounds
+				
 				let rounds = Math.floor(eventDuration / 2);
 				if (rounds < 1) {
 					rounds = 1;
 				} else if (rounds > 45) {
 					rounds = 45;
 				}
+
 				let difficulty = 'all';
-            	let categoryName = 'All';
+            	
             	let categoryValue = '0';
 
-                const game = new Game(guildNewScheduledEvent.client, guildNewScheduledEvent.creator, eventGuild, rounds, difficulty, categoryValue, categoryName);
-                await game.init();           
-                game_in_progress = true;
-                await game.play(120);
-                game_in_progress = false;
-                await game.end();
-                console.info('game ' + game.ID + ' should be over Starting Leaderboard');
-                const leaderboard = new LeaderBoard(client);            
-                await leaderboard.setWorldTriviaChampionRole()
+
+				// get the category name from the event description
+				let categoryName = guildNewScheduledEvent.description;
+				// check if the description is not empty
+				if (categoryName == '') {
+					categoryName = 'Eclectic';
+				}
+				
+				const game = new Game(guildNewScheduledEvent.client, guildNewScheduledEvent.creator, eventGuild, rounds, difficulty, categoryValue, categoryName);
+				await game.init();           
+				game_in_progress = true;
+				await game.play(120);
+				game_in_progress = false;
+				await game.end();
+				console.info('game ' + game.ID + ' should be over Starting Leaderboard');
+				const leaderboard = new LeaderBoard(client);            
+				await leaderboard.setWorldTriviaChampionRole();
+
+                
 			
 			}
 			// if the status changed to COMPLETED, log it
