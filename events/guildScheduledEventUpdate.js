@@ -63,8 +63,6 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 			// if the status changed to ACTIVE (started), lets start the game if the event is trivia related
 			if (guildNewScheduledEvent.status == 2) {
 
-				
-				
 				// if the title doesn't include trivia, don't do anything
 				const title = guildNewScheduledEvent.name;
 				if (!title.includes('Trivia') && !title.includes('trivia')) {
@@ -88,15 +86,24 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 				}
 
 				let difficulty = 'all';
-            	
             	let categoryValue = '0';
-
 
 				// get the category name from the event description
 				let categoryName = guildNewScheduledEvent.description;
 				// check if the description is not empty
 				if (categoryName == '') {
-					categoryName = 'Eclectic';
+					// Unless defined, make sure we don't have more than 10 questions in any category
+					let numCategories = Math.floor(rounds / 10);
+					remainder = rounds % 10;
+					if (remainder > 0) {
+						numCategories++;
+					}
+					const manager = new QuestionManager(client);
+					let categories = [];
+					for (let i = 0; i < numCategories; i++) {
+						categories.push(await manager.getRandomCategoryFromDataBase());
+					}
+					categoryName = categories.join(', ');
 				}
 				
 				const game = new Game(guildNewScheduledEvent.client, guildNewScheduledEvent.creator, eventGuild, rounds, difficulty, categoryValue, categoryName);
@@ -108,9 +115,6 @@ const LOG_DATE = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 				console.info('game ' + game.ID + ' should be over Starting Leaderboard');
 				const leaderboard = new LeaderBoard(client);            
 				await leaderboard.setWorldTriviaChampionRole();
-
-                
-			
 			}
 			// if the status changed to COMPLETED, log it
 			if (guildNewScheduledEvent.status == 3) {
