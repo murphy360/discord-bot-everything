@@ -83,6 +83,7 @@ module.exports = {
 
         // Schedule a Trivia Night Event at 8pm tonight if it doesn't exist
         function scheduleNightlyTriviaGame(guild) {
+            const manager = new QuestionManager(client);
             // Code to execute on the schedule
             console.log('Scheduled task executed!');
             // Create Trivia Night Event next thursday at 8pm if it doesn't exist
@@ -99,13 +100,18 @@ module.exports = {
                 const scheduledStartTime = tonight;
                 const scheduledEndTime = new Date(tonight.getTime() + 3600000);
                 const tonightsEvent = events.find(event => event.name === 'Trivia Night');
-                const chatGPTClient = new ChatGPTClient();
-                const categories = await chatGPTClient.getRandomTriviaCategories(3, 'gpt-3.5-turbo');
+                let categories = [];
+                categories.push(await manager.getRandomCategoryFromDataBase());
+                categories.push(await manager.getRandomCategoryFromDataBase());
+                categories.push(await manager.getRandomCategoryFromDataBase());
+                let description = categories.join(', ');
+                console.info('ready.js: Categories: ' + description);
+                
                 
                 if (!tonightsEvent) {
                     guild.scheduledEvents.create({
                         name: 'Trivia Night',
-                        description: categories,
+                        description: description,
                         scheduledStartTime: scheduledStartTime,
                         scheduledEndTime: scheduledEndTime,
                         privacyLevel: 2,

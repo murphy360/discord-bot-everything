@@ -56,10 +56,34 @@ class Game {
         }
     }
 
+    // check if category is a comma separated list of categories and return an array of categories
+    async splitCategories(category) {
+        let categoryArray = [];
+        if (category.includes(',')) {
+            categoryArray = category.split(',');
+        } else {
+            categoryArray.push(category);
+        }
+        for (let i = 0; i < categoryArray.length; i++) {
+            categoryArray[i] = categoryArray[i].trim();
+        }
+        return categoryArray;
+    }
+
     async getQuestions(numQuestions, category, difficulty) {
         console.info("createQuestions");
-        
-        let questions = await this.manager.getDBQuestions(numQuestions, category, difficulty);
+        let questions = new Array();
+        // if this.hostUser is my bot, then try to split the category into an array of categories
+        if (this.hostUser.id === this.client.user.id) {
+            const categories = await this.splitCategories(category);
+            const numQuestionsPerCategory = Math.floor(numQuestions / categories.length);
+            for (let i = 0; i < categories.length; i++) {
+                questions = questions.concat(await this.manager.getDBQuestions(numQuestionsPerCategory, categories[i], difficulty));
+            }
+        } else {
+            questions = await this.manager.getDBQuestions(numQuestions, category, difficulty);
+        }
+       
         for (let i = 0; i < questions.length; i++) {
             questions[i].questionNumber = i + 1;
         }
