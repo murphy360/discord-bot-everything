@@ -91,7 +91,13 @@ module.exports = {
             .then(async events => {
                 
                 // get current date
-                const tonight = new Date(); 
+                const tonight = new Date();
+                
+                // Check if tonight is after 7pm
+                if (tonight.getHours() >= 19) {
+                    // set tonight to tomorrow
+                    tonight.setDate(tonight.getDate() + 1);
+                }
 
                 // set tonight to tonight at 7pm
                 tonight.setHours(19, 0, 0, 0);
