@@ -59,8 +59,11 @@ class Game {
     async getQuestions(numQuestions, category, difficulty) {
         console.info("createQuestions");
         
-        let newQuestions = await this.manager.getDBQuestions(numQuestions, category, difficulty);
-        return newQuestions;
+        let questions = await this.manager.getDBQuestions(numQuestions, category, difficulty);
+        for (let i = 0; i < questions.length; i++) {
+            questions[i].questionNumber = i + 1;
+        }
+        return questions;
     }
     
     async play(introTimerSec) {

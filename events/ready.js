@@ -73,6 +73,9 @@ module.exports = {
             // Get a random category
             let category = await manager.getRandomCategoryFromDataBase();
             let questions = await manager.addQuestions(10, category, 'all', null, 'gpt-4');
+            for (let i = 0; i < questions.length; i++) {
+                questions[i].questionNumber = i + 1;
+            }
             console.info('ready.js: Added ' + questions.length + ' questions to the database');
             manager.reportNewQuestionsToDeveloperChannel(questions, category, 'all');          
         }
