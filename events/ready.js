@@ -89,18 +89,20 @@ module.exports = {
                 // get current date
                 const tonight = new Date(); 
 
-                // set tonight to tonight at 8pm
-                tonight.setHours(20, 0, 0, 0);
+                // set tonight to tonight at 7pm
+                tonight.setHours(19, 0, 0, 0);
 
                 // scheduled start time ISO8601 timestamp
                 const scheduledStartTime = tonight;
                 const scheduledEndTime = new Date(tonight.getTime() + 3600000);
                 const tonightsEvent = events.find(event => event.name === 'Trivia Night');
+                const chatGPTClient = new ChatGPTClient();
+                const categories = await chatGPTClient.getRandomTriviaCategories(3, 'gpt-3.5-turbo');
                 
                 if (!tonightsEvent) {
                     guild.scheduledEvents.create({
                         name: 'Trivia Night',
-                        description: 'Trivia Night',
+                        description: categories,
                         scheduledStartTime: scheduledStartTime,
                         scheduledEndTime: scheduledEndTime,
                         privacyLevel: 2,
