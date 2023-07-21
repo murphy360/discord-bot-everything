@@ -98,14 +98,13 @@ class ChatGPTClient {
       await this.openai.createChatCompletion({
         model: model,
         messages: categoryContextData,
+        temperature: 0.7, // adjust this value to control the amount of randomness in the response
         })
         .then((result) => {
-          console.info('ChatGPTClient: result: ');
-          console.log(result);
-          let introduction = result.data.choices[0].message.content;
-          console.info('Result: ');
-          console.info(introduction);
-          resolve(introduction);
+          let categories = result.data.choices[0].message.content;
+          console.info('ChatGPTClient: Category: ');
+          console.info(categories);
+          resolve(categories);
         })
           .catch((error) => {
           console.log(`ChatGPTClient: Request ERROR : ${error}`);
@@ -172,7 +171,7 @@ class ChatGPTClient {
     await this.openai.createChatCompletion({
       model: model,
       messages: triviaContextData,
-      temperature: 0.5, // adjust this value to control the amount of randomness in the response
+      temperature: 0.7, // adjust this value to control the amount of randomness in the response
 
       })
       .then((result) => {
