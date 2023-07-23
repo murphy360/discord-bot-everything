@@ -39,14 +39,6 @@ class LeaderBoard {
         console.log(WORLD_CHAMPION_ROLE + ": " + this.worldTriviaChampion.user_name);
     }
 
-    async getWorldTopScoresString() {
-
-    }
-
-    async findGuildChampion(guild) {
-
-    }
-
     async postManualWorldLeaderBoard(interaction) {
         console.info('postWorldLeaderBoard World Trivia Champion: ');
         await this.findHighScores();
@@ -114,14 +106,13 @@ class LeaderBoard {
             
             console.log(`Guild Name: ${guild.name}`);
             
-            // Get the role object if it exists (returns undefined if it doesn't exist)
+            // Get the role object if it exists (returns if it doesn't exist)
             if (!helper.createGuildRoles(guild)) {
-                console.info('World Trivia Champion Role does not exist in this guild and cannot be created: ' + guild.name);
+                console.info('World Trivia Champion Role does not exist in ' + guild.name + ' guild and cannot be created' );
                 return;
             }
 
             let role = await guild.roles.cache.find(role => role.name === WORLD_CHAMPION_ROLE);
-
 
             // Get the members with the role currently
             const currentWorldChampions = role.members.map(member => member);
@@ -155,7 +146,7 @@ class LeaderBoard {
             
             if (worldChampionChange) {
                 // Send message to the guild that the World Trivia Champion has changed
-                console.info('Sending message to guilds that the World Trivia Champion has changed');
+                console.info('Sending message to ' + guild.name +' guild that the World Trivia Champion has changed');
                 let embed = await this.getWorldLeaderBoardEmbed();
                 // Send the embed to the trivia channel of the current guild
                 const triviaChannel = guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
