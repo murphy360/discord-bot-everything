@@ -9,7 +9,8 @@ const CHAT_GPT_CHANNEL = process.env.CHAT_GPT_CHANNEL;
 const PLAYER_ROLE = process.env.PLAYER_ROLE;
 const GUILD_CHAMPION_ROLE = process.env.GUILD_CHAMPION_ROLE;
 const WORLD_CHAMPION_ROLE = process.env.WORLD_CHAMPION_ROLE;
-const { systemCommands } = require('./../Helpers/systemCommands.js');
+const NOOB_ROLE = process.env.NOOB_ROLE;
+const { SystemCommands } = require('./../Helpers/systemCommands.js');
 
 // Get the channels from the guild object
 
@@ -23,18 +24,21 @@ class TriviaGuild {
     WINS=0;                         // Total number of wins
     WIN_STREAK=0;                   // Number of consecutive wins
 
-    constructor(answer) {
-        this.guild = answer.guild;
+    constructor(guild) {
+        this.guild = guild;
+        this.client = guild.client;
         this.DATE_JOINED = new Date();
         this.answers = new Array();
         this.players = new Array(); // Array of current game players in the guild
         this.allGuildPlayers = new Array(); // Array of all players in the guild
         this.currentScore = 0;
-        this.addAnswer(answer);
         this.triviaChannel = this.guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
         this.defaultChannel = this.guild.systemChannel;
         this.chatGPTChannel = this.guild.channels.cache.find(channel => channel.name === CHAT_GPT_CHANNEL);
-        
+        this.guildTriviaChampion = null;    // The user with the highest trivia_points_total (Member Object)
+        this.isReady = false;
+        this.highestScorers = null;
+        this.checkGuildCriticalSetup();
     }
     
     getStreak() {                   // Return the player's win streak
@@ -100,41 +104,46 @@ class TriviaGuild {
         return this.USER_ID;
     }
 
-    async sendGameGuildScoreBoard(worldChampionUser, winningGuild) {
-        const channel = this.guild.channels.cache.find(
-            channel => channel.name.toLowerCase() === TRIVIA_CHANNEL);
-        const embed = this.createGameScoreboardEmbed(worldChampionUser, winningGuild);
-        if (channel) {
-            channel.send({ embeds: [embed] });
-            this.setGuildChampionRole(worldChampionUser);
+    async sendGameGuildScoreBoard(winningUser, winningGuild) {  
+        if (this.isReady) {
+            const embed = this.createGameScoreboardEmbed(winningUser, winningGuild);
+            this.triviaChannel.send({ embeds: [embed] });
+            this.setGuildChampionRole();
         } else {
-            console.log('triviaGuild.js: Channel Does Not Exist in ' + this.guild.name);
-        }
-        
+            console.log('triviaGuild.js: sendGameGuildScoreBoard: Guild not ready: ' + this.guild.name);
+        } 
     }
 
     // Create question winner embed
     createGameScoreboardEmbed(worldChampionUser, winningGuild) {
-        // Sort players by points
-        this.players.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
-        this.players.reverse();
 
-        // Get Game winner
-        let winner = this.players[0];
+        let winner = null;
+        let guildWinnerString = "No Guild Winner";
+        let scoreString = "No Scores";
 
-        // Format Score String
-        let scoreString = "";
-        for (let i = 0; i < this.players.length; i++) {
-            scoreString += this.players[i].currentScore + ":   " + this.players[i].user.username + "\n";
+        if (this.players.length > 0) {
+            // Sort players by points
+            this.players.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
+            this.players.reverse();
+
+            // Get Game winner
+            winner = this.players[0];
+            guildWinnerString = winner.user.username;
+            scoreString = "";
+            
+            // Format Score String
+            for (let i = 0; i < this.players.length; i++) {
+                scoreString += this.players[i].currentScore + ":   " + this.players[i].user.username + "\n";
+            }
         }
+        
         let embed = new EmbedBuilder()
             .setTitle(this.guild.name + ' Final Scoreboard')
             .addFields(
                 {name: 'Game Winner', value: worldChampionUser.username, inline: true},
-                {name: 'Guild Winner', value: winner.user.username, inline: true},
                 {name: 'Winning Guild', value: winningGuild.name, inline: true},
                 {name: '\u200B', value: '\u200B'},
-                {name: this.guild.name + ' Winner', value: winner.user.username, inline: true},
+                {name: this.guild.name + ' Winner', value: guildWinnerString, inline: true},
                 {name: 'Guild Score', value: this.currentScore.toString(), inline: true},
                 {name: 'Scores', value: scoreString, inline: false}
             )
@@ -144,187 +153,85 @@ class TriviaGuild {
     }
 
     // Find the Guild Champion
-    async findGuildChampion(worldChampionUser) {
+    async setGuildChampion() {
 
-        let highestScorers = await Answers.findAll({
-            attributes: [
-                'user_id',
-                [Sequelize.fn('sum', Sequelize.col('points')), 'total_points'],
-            ],
-            where: {
-                guild_id: this.guild.id,
-            },
-            group: ['user_id'],
-            order: [[Sequelize.fn('sum', Sequelize.col('points')), 'DESC']],
-            limit: 10,
-        });
-            
-        // Set the Guild Champion as the member with highest points
-        let guildChampion = await this.guild.members.fetch(highestScorers[0].dataValues.user_id); 
-
-        // If there's only one Player in the guild, they are the Guild Champion (and maybe the World Champion, too)
-        if (highestScorers.length == 1) {
-            console.info(this.guild.name + ': Only one player in guild - Guild Champion found - ' + guildChampion.user.username);
-            return guildChampion;
-        } 
-
-        if (worldChampionUser.id == guildChampion.user.id ) {
-            console.info(this.guild.name + ': Guild Champion found - ' + guildChampion.user.username + ' is the World Champion');
-            console.info('Next Highest Scorer ID: ' + highestScorers[1].dataValues.user_id);
-            guildChampion = await this.guild.members.fetch(highestScorers[1].dataValues.user_id);
-            console.info(this.guild.name + ': Guild Champion found - ' + guildChampion.user.username);
-            // remove first player from array
-            highestScorers.shift(); 
-        } 
-
-        const highestScore = highestScorers[0].dataValues.total_points;
-        const tiedHighestScorers = highestScorers.filter((scorer) => scorer.dataValues.total_points === highestScore);
+        await this.setGuildHighScores();
         
-        // We have a tie for top score 
-        if (tiedHighestScorers.length > 1) {
-
-            const tiedHighestScorerIds = tiedHighestScorers.map((scorer) => scorer.dataValues.user_id);
-            const highestXpUser = await Users.findOne({
-            where: {
-                id: {
-                [Sequelize.Op.in]: tiedHighestScorerIds,
-                },
-            },
-            order: [['total_xp', 'DESC']],
-            });
-            guildChampion = await this.guild.members.fetch(highestXpUser.user_id);
+        if (this.highestScorers.length > 0) {
+            this.guildTriviaChampion = await this.guild.members.fetch(this.highestScorers[0].dataValues.user_id);
+        } else {
+            console.info('triviaGuild.js: ' + this.guild.name + ': No Guild Champion found');
+            return;
         }
-                      
-        console.info("Printing Guild Champion " + guildChampion.user.username + " " + guildChampion.user.id + " " + guildChampion.user.displayAvatarURL());
-        return guildChampion;
+    
+        console.info("triviaGuild.js: Printing Guild Champion " + this.guildTriviaChampion.user.username);
+        return this.guildTriviaChampion;
     }
 
     // set Guild Champion Role
-    async setGuildChampionRole(worldChampionUser) {
-
+    async setGuildChampionRole() {
+        const helper = new SystemCommands(this.client);
         // Get Guild Champion guildMember object
-        const guildChampion = await this.findGuildChampion(worldChampionUser);
+        await this.setGuildChampion();
                 
-        // Check if role exists
-        let guildChampRole = await this.guild.roles.cache.find(role => role.name === GUILD_CHAMPION_ROLE);
-
         // Create role if it doesn't exist
-        if (!guildChampRole) {
-            const helper = new systemCommands();
-            await helper.createGuildRoles(guild);
+        if (!await helper.createGuildRoles(this.guild)) {
+            console.info('triviaGuild.js: ' + this.guild.name + ': ' + GUILD_CHAMPION_ROLE + ' Role does not exist in ' + guild.name + ' guild and cannot be created' );
+            return;
         } 
+        
+        let guildChampRole = await this.guild.roles.cache.find(role => role.name === GUILD_CHAMPION_ROLE);
 
         if (guildChampRole) {      
             console.info(this.guild.name + ': ' + guildChampRole.name + ' Role found - Now checking for current champions');
             const currentChampions = await guildChampRole.members.map(member => member);
             if (!currentChampions.length > 0) {
                 // No current champion so add the role to the guild champion
-                guildChampion.roles.add(guildChampRole.id);
-            } else if (currentChampions.length === 1 && currentChampions[0].user.id === guildChampion.user.id) {
+                this.guildTriviaChampion.roles.add(guildChampRole.id);
+            } else if (currentChampions.length === 1 && currentChampions[0].user.id === this.guildTriviaChampion.user.id) {
                 console.info(this.guild.name + ': Guild Champion is already the Guild Trivia Champion');
             } else {   
                 console.info(this.guild.name + ': Guild Champion is not the Guild Trivia Champion, removing role from current champions and adding to new champion'); 
                 for (const member of currentChampions) {
                     await this.removeRole(member, guildChampRole.name);
                   }
-                await guildChampion.roles.add(guildChampRole.id);
+                await this.guildTriviaChampion.roles.add(guildChampRole.id);
             }
         } else {
             console.info(this.guild.name + ': ' + GUILD_CHAMPION_ROLE + ' Role not found');
         }
     }
 
-    async createGuildRole(roleName) {
-
-        return new Promise(async (resolve, reject) => {
-
-            
-            // Create Player role
-            await this.guild.roles.create({
-                name: roleName,
-                color: '#00ff00', // Green
-                hoist: true,
-                position: 105,
-            }).then(async role => {
-                // TODO add some cool permissions
-                /*
-                await this.triviaChannel.permissionOverwrites.set([
-                    {
-                    id: role.id,
-                    allow: [
-                        PermissionsBitField.Flags.SendMessages,
-                        PermissionsBitField.Flags.ViewChannel,
-                        PermissionsBitField.Flags.ReadMessageHistory,
-                        PermissionsBitField.Flags.AddReactions,
-                        PermissionsBitField.Flags.CreatePrivateThreads],
-                    }
-                ]);
-
-                
-                await this.chatGPTChannel.permissionOverwrites.set([
-                    {
-                    id: role.id,
-                    allow: [
-                        PermissionsBitField.Flags.SendMessages,
-                        PermissionsBitField.Flags.ViewChannel,
-                        PermissionsBitField.Flags.ReadMessageHistory,
-                        PermissionsBitField.Flags.AddReactions,
-                        PermissionsBitField.Flags.CreatePrivateThreads],
-                    }
-                ]);
-
-                
-                await this.defaultChannel.permissionOverwrites.set([
-                    {
-                    id: role.id,
-                    allow: [
-                        PermissionsBitField.Flags.SendMessages,
-                        PermissionsBitField.Flags.ViewChannel,
-                        PermissionsBitField.Flags.ReadMessageHistory,
-                        PermissionsBitField.Flags.AddReactions,
-                        PermissionsBitField.Flags.CreatePrivateThreads],
-                    }
-                ]);*/
-                resolve(role);
-            }).catch(console.error); 
-        });
-    }
-
     async setPlayerGuildRole(user) {
-        const roleName = "Player";
-        
+        const helper = new SystemCommands(this.client);
 
         // Get Guild Champion guildMember object
         const guildMember = await this.guild.members.fetch(user.id);
 
-        // Check if role exists
-        let playerRole = await this.guild.roles.cache.find(role => role.name === roleName);
-        
-
-
-        // Create role if it doesn't exist
-        if (!playerRole) {
-             await this.createGuildRole(roleName).then(role => {
-                playerRole = role;
-             }).catch(console.error);
-             
-            
-        // Role exists && Member has role so do nothing    
-        } else if (guildMember.roles.cache.has(playerRole.id)) {
-            console.info(this.guild.name + ': Member ' + guildMember.user.username + ' already has role ' + playerRole.name);
+        // Check the Guild has Roles
+        if (!helper.createGuildRoles(this.guild)) {
+            console.info('triviaGuild.js: ' + this.guild.name + ': ' + PLAYER_ROLE + ' Role does not exist in ' + guild.name + ' guild and cannot be created' );
             return;
+        // Role exists && Member has role so do nothing    
         } 
+        let playerRole = await this.guild.roles.cache.find(role => role.name === PLAYER_ROLE);
+        if (!playerRole) {
+            console.info('triviaGuild.js: ' + this.guild.name + ': ' + PLAYER_ROLE + ' Role not found');
+            return;
+        }
         
-        // Role exists && Member doesn't have role so add it (And remove Noob role)
-        // Add the role to the the Player
-        await guildMember.roles.add(playerRole.id);
-        await this.triviaChannel.send(`Level Up! ${guildMember.user.username}, You are now a Player!`);
-        this.removeRole(guildMember, 'Noob');
+        if (guildMember.roles.cache.has(playerRole.id)) {
+            console.info(this.guild.name + ': Member ' + guildMember.user.username + ' already has role ' + PLAYER_ROLE);
+            return;
+        } else {
+            await guildMember.roles.add(playerRole.id);
+            await this.triviaChannel.send(`Level Up! ${guildMember.user.username}, You are now a Player!`);
+            this.removeRole(guildMember, NOOB_ROLE);
+        }
     }
 
     // remove the Noob role from the member
-    async removeRole(guildMember, roleName) {
-                    
+    async removeRole(guildMember, roleName) {   
         const role = await this.guild.roles.cache.find(role => role.name === roleName);
         if (role) {
             if (guildMember.roles.cache.has(role.id)) {
@@ -364,54 +271,63 @@ class TriviaGuild {
     }
 
      // Find the top 10 highest scoring players in the guild
-     async findGuildHighScores() {
+     async setGuildHighScores() {
         
         console.info('findGuildHighScores');
-        let highestScorers = await Answers.findAll({
+        this.highestScorers = await Answers.findAll({
             attributes: [
-              'user_id',
-              [Sequelize.fn('sum', Sequelize.col('points')), 'total_points'],
+                'user_id',
+                [Sequelize.fn('sum', Sequelize.col('points')), 'total_points'],
             ],
             where: {
-              guild_id: guild.id,
+                guild_id: this.guild.id,
             },
             group: ['user_id'],
             order: [[Sequelize.fn('sum', Sequelize.col('points')), 'DESC']],
-            limit: 10,
-          });
+        });
 
-
-
-        
-        if (this.highestScorers.length === 1) {
-            console.info('Highest Score: ' + this.highestScorers[0].dataValues.total_points);
-            this.guildTriviaChampion = await this.client.users.cache.get(this.highestScorers[0].dataValues.user_id);
-        } else if (this.highestScorers.length > 1) {
-            console.info('More than one score found');
-            
-            
-            if (this.highestScorers[0].dataValues.total_points === this.highestScorers[1].dataValues.total_points) {
-                console.info('Tie for top score - Currently Unhandled'); // TODO Handle ties for top score
-                // TODO Figure our ties
-            } else {
-                console.info('No tie for top score');
+        // Check all highest scorers are members of the guild
+        for (let i = 0; i < this.highestScorers.length; i++) {
+            const guildMember = await this.guild.members.fetch(this.highestScorers[i].dataValues.user_id);
+            if (!guildMember) {
+                console.info('triviaGuild.js: ' + this.guild.name + ': User ID not a member - ' + this.highestScorers[i].dataValues.user_id);
+                this.highestScorers.splice(i, 1); // Remove the user from the array
             }
-            this.guildTriviaChampion = await this.client.users.cache.get(this.highestScorers[0].dataValues.user_id);
-        } else {
-
-            console.info('No scores found');
         }
 
-        if (this.highestScorers.length > 0) {
-            console.log(this.highestScorers);
-            console.log(this.highestScorers[0]);
-            console.log(this.highestScorers[0].dataValues);
-            console.log("THIS MAY BE IT:");
-            console.log(this.highestScorers[0].dataValues.user_id);
-            this.highestScore = this.highestScorers[0].total_points;
-            console.log('Guild Trivia Champion: ' + this.guildTriviaChampion.username + ' with ' + this.highestScorers[0].dataValues.total_points + ' points');
+        const highestScore = this.highestScorers[0].dataValues.total_points;
+        const tiedHighestScorers = this.highestScorers.filter((scorer) => scorer.dataValues.total_points === highestScore);
+        
+        // We have a tie for top score 
+        if (tiedHighestScorers.length > 1) {
+            console.info('triviaGuild.js: ' + this.guild.name + ': Tie for top score'); 
+            const tiedHighestScorerIds = tiedHighestScorers.map((scorer) => scorer.dataValues.user_id);
+            const highestXpUser = await Users.findOne({
+            where: {
+                id: {
+                [Sequelize.Op.in]: tiedHighestScorerIds,
+                },
+            },
+            order: [['total_xp', 'DESC']],
+            });
+            // Move the highest xp user to the top of the highestScorers array
+            for (let i = 0; i < this.highestScorers.length; i++) {
+                if (this.highestScorers[i].dataValues.user_id === highestXpUser.id) {
+                    this.highestScorers.splice(0, 0, this.highestScorers.splice(i, 1)[0]);
+                    break;
+                }
+            }
+            
         }
-        return this.highestScorers;
+
+
+    }
+    async checkGuildCriticalSetup() {
+        const helper = new SystemCommands(this.client);
+        const contextData = await helper.checkGuildCriticalSetup(this.guild);
+        if (contextData.length == 0) {
+            this.isReady = true;
+        }
     }
 }
 
