@@ -21,6 +21,82 @@ class SystemCommands {
           this.guildRoles.push(process.env.GUILD_CHAMPION_ROLE);
     }
 
+    // Only Critical Requirements are:
+    // 1. There is a Trivia Channel
+    // 2. The bot can send Messages in the Trivia Channel
+    // 3. The bot can add reactions in the Trivia Channel
+    async checkGuildCriticalSetup(guild) {
+      let contextData = [];
+      let triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
+      if (!triviaChannel) {
+        // Check if we have manage channels permission
+        if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
+          contextData.push({
+            role: 'user',
+            content: 'Missing ' + TRIVIA_CHANNEL + ' channel. Please create the channel and give me SendMessages, AddReactions, ViewChannel, ReadMessageHistory and EmbedLinks Permissions. If you assign me the ManageChannels permission, I will create the channel for you. '
+            });
+        } else {
+          if (await this.createTriviaChannel(guild)) {
+            console.log('I have created the ' + TRIVIA_CHANNEL + ' channel in ' + guild.name + '. Please assign me the SendMessages permission in the channel and try again.');
+          } else {
+            contextData.push({
+              role: 'user',
+              content: 'Missing ' + TRIVIA_CHANNEL + ' channel. Please create the channel and give me  SendMessages, AddReactions, ViewChannel, ReadMessageHistory and EmbedLinks Permissions. If you assign me the ManageChannels permission, I will create the channel for you. '
+              });
+          }
+        }
+      } else {
+        // Check if bot has SendMessages permission in Trivia Channel
+        const triviaChannelSendMessagesPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.SendMessages);
+        if (!triviaChannelSendMessagesPermission) {
+          contextData.push({
+            role: 'user',
+            content: 'Missing Send Messages Permission in ' + TRIVIA_CHANNEL + ' channel'
+          });
+        }
+        // Check if bot has AddReactions permission in Trivia Channel
+        const triviaChannelAddReactionsPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.AddReactions);
+        if (!triviaChannelAddReactionsPermission) {
+          contextData.push({
+            role: 'user',
+            content: 'Missing Add Reactions Permission in ' + TRIVIA_CHANNEL + ' channel'
+          });
+        }
+
+        // Check if the bot has the ViewChannel permission in the Trivia Channel
+        const triviaChannelViewChannelPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.ViewChannel);
+        if (!triviaChannelViewChannelPermission) {
+          contextData.push({
+            role: 'user',
+            content: 'Missing View Channel Permission in ' + TRIVIA_CHANNEL + ' channel'
+          });
+        }
+
+        // Check if the bot has the ReadMessageHistory permission in the Trivia Channel
+        const triviaChannelReadMessageHistoryPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.ReadMessageHistory);
+        if (!triviaChannelReadMessageHistoryPermission) {
+          contextData.push({
+            role: 'user',
+            content: 'Missing Read Message History Permission in ' + TRIVIA_CHANNEL + ' channel'
+          });
+        }
+
+        // Check if the bot has the EmbedLinks permission in the Trivia Channel
+        const triviaChannelEmbedLinksPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.EmbedLinks);
+        if (!triviaChannelEmbedLinksPermission) {
+          contextData.push({
+            role: 'user',
+            content: 'Missing Embed Links Permission in ' + TRIVIA_CHANNEL + ' channel'
+          });
+        }
+      }
+      console.info('SystemCommands: checkGuildCriticalSetup ' + guild.name);
+      console.info(contextData);
+      return contextData;
+    }
+
+
+
     /**
      * 
      * @param {*} guild 
