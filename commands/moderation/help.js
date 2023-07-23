@@ -17,7 +17,7 @@ module.exports = {
 		const guild = interaction.guild;
 
 		const helper = new SystemCommands();
-		const contextData = await helper.checkGuildSetup(guild);
+		const contextData = await helper.checkGuildCriticalSetup(guild);
 
 		if (contextData.length > 0) {
 			console.log('help.js: trying to explain to these fools in ' + guild.name + ' that they need permissions.');

@@ -116,7 +116,7 @@ module.exports = {
 
         const helper = new SystemCommands();
         // Check if the bot has the permissions it needs to work properly
-        let contextData = await helper.checkGuildSetup(interaction.guild);
+        let contextData = await helper.checkGuildCriticalSetup(interaction.guild);
         if (contextData.length > 0) {
             const embed = await helper.getHelpEmbedErrors(contextData, interaction.client);
             return interaction.reply({ embeds: [embed] });
