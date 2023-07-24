@@ -412,25 +412,7 @@ class SystemCommands {
         content: 'An invite to your support Server is: https://discord.gg/cCyAkNwcR3'
       });
   
-      /**
-      const defaultChannel = guild.systemChannel;
-      if (defaultChannel) {
-        const defaultChannelSendMessagesPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.SendMessages);
-        const defaultChannelViewChannelPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.ViewChannel);
-        const defaultChannelSendEmbedLinksPermission = await guild.members.me.permissionsIn(defaultChannel).has(PermissionsBitField.Flags.EmbedLinks);
-        if (defaultChannelSendMessagesPermission && defaultChannelViewChannelPermission && defaultChannelSendEmbedLinksPermission) {
-          devChannel.send('Reporting Error to guild' + guild.name + 'in ' + defaultChannel.name + ' due to missing permissions ' + contextData.toString());
-          console.log('Reporting Error to guild ' + guild.name + ' due to missing permissions in ' + defaultChannel.name + '. At least I can tell them I have a problem');
-
-          const chatGPTClient = new ChatGPTClient();
-          await chatGPTClient.sendChatCompletion(contextData, defaultChannel, 'gpt-4');
-          return;
-        }
-      } 
-       */
-      //devChannel.send(guild.name + ' is not poperly setup due to missing permissions in default channel. I can\'t even tell them I have a problem');
-      console.log(guild.name + ' is not poperly setup due to missing permissions in default channel. I can\'t even tell them I have a problem');
-      //console.log(contextData);
+      console.log(guild.name + ' is not properly setup due to missing permissions in default channel. I can\'t even tell them I have a problem');
     }
 
     		// Function to create an about embed
