@@ -176,7 +176,7 @@ class TriviaGuild {
                 
         // Create role if it doesn't exist
         if (!await helper.createGuildRoles(this.guild)) {
-            console.info('triviaGuild.js: ' + this.guild.name + ': ' + GUILD_CHAMPION_ROLE + ' Role does not exist in ' + guild.name + ' guild and cannot be created' );
+            console.info('triviaGuild.js: ' + this.guild.name + ': ' + GUILD_CHAMPION_ROLE + ' Role does not exist in ' + this.guild.name + ' guild and cannot be created' );
             return;
         } 
         
