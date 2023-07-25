@@ -5,6 +5,7 @@ const { TriviaGuild } = require('./triviaGuild.js');
 const { Sequelize } = require('sequelize');
 const { Games, Questions } = require('./../../dbObjects.js');
 const { QuestionManager } = require('./questionManager.js');
+const { SystemCommands } = require('./../Helpers/systemCommands.js');
 const { ChatGPTClient } = require('../../classes/chatGPT/ChatGPTClient.js');
 const fetch = require('node-fetch');
 require('dotenv').config({ path: './../data/.env' });
@@ -34,7 +35,16 @@ class Game {
         this.winningGuild = null;
         this.chatGPTClient = new ChatGPTClient();
         this.manager = new QuestionManager(this.client);
+        this.triviaGuilds = new Array();
+        this.getTriviaGuilds();
         
+    }
+
+    async getTriviaGuilds() {
+        const guilds = this.client.guilds.cache;
+        guilds.forEach((guild) => {
+            this.triviaGuilds.push(new TriviaGuild(guild));
+        });
     }
     
     async storeGame(endType) {
@@ -103,6 +113,7 @@ class Game {
         
         // await this.gradeGame(); and see what the resolve is
         await this.gradeGame().then(resolve => {
+            console.info('Game ended with resolve: ' + resolve);
             // Only send score to guilds if the game ended with a winner
             switch (resolve) {
                 case 'Grading Complete':
@@ -122,23 +133,18 @@ class Game {
         });
     }
 
-
     /***** INTRO: Display Intro before game *****/
     async sendIntroToGuilds(intro) {
         
         return new Promise((resolve, reject) => {
             
-            const guilds = this.client.guilds.cache;
             const promises = [];
-            guilds.forEach((guild) => {
-                const channel = guild.channels.cache.find(
-                    channel => channel.name === TRIVIA_CHANNEL);
-                if (channel) {
-                    promises.push(intro.send(channel)); 
+            this.triviaGuilds.forEach((triviaGuild) => {
+                if (triviaGuild.isReady) {
+                    promises.push(intro.send(triviaGuild.triviaChannel)); 
                 } else {
-                    console.log('intro.js: ' + TRIVIA_CHANNEL + ' channel Does Not Exist in ' + guild.name + ' guild');
+                    console.log('intro.js: ' + triviaGuild.guild.name + ' is not setup properly');
                }     
-                
             });
             Promise.all(promises).then(() => {
                 resolve();
@@ -148,30 +154,24 @@ class Game {
 
     // Ask a question to all guilds, returns once the question has been answered from each
     async askQuestionToGuilds(question) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             console.info('game.js: Asking Question: ' + question.question_num+ ', ' + question.question + '\nAnswer: ' + question.answer);
-            const guilds = this.client.guilds.cache;
             const promises = [];
-            guilds.forEach((guild) => {
+            this.triviaGuilds.forEach((triviaGuild) => {
                 
                 // Find TRIVIA_CHANNEL
-                const channel = guild.channels.cache.find(
-                    channel => channel.name === TRIVIA_CHANNEL);
-
-
-                if (channel) {
-                    console.info('question.js: Sending Question to Guild: ' + guild.name);
-                    promises.push(question.ask(channel)); 
+                if (triviaGuild.isReady) {
+                    console.info('question.js: Sending Question to Guild: ' + triviaGuild.guild.name);
+                    promises.push(question.ask(triviaGuild.triviaChannel)); 
                 } else {
-                    console.log('question.js: ' + TRIVIA_CHANNEL + ' channel Does Not Exist in ' + guild.name + ' guild');
+                    console.log('question.js: ' + triviaGuild.guild.name + ' is not setup properly');
                 }
-                
             });
             
-            console.info('Waiting for all promises to resolve');
+            console.info('Waiting for all promises to resolve for question ' + question.question_num);
             const promise = Promise.all(promises); 
             promise.then(() => {
-                console.info('All promises resolved');
+                console.info('All promises resolved for question ' + question.question_num);
                 resolve();
             });
         });
@@ -184,8 +184,13 @@ class Game {
             console.info('Results');
             const promises = [];
             this.triviaGuilds.forEach((triviaGuild) => {
-                console.info('Sending Score to Guild: ' + triviaGuild.guild.name);
-                promises.push(triviaGuild.sendGameGuildScoreBoard(this.winningUser, this.winningGuild)); 
+                if (triviaGuild.isReady) {
+                    console.info('Sending Score to Guild: ' + triviaGuild.guild.name);
+                    promises.push(triviaGuild.sendGameGuildScoreBoard(this.winningUser, this.winningGuild)); 
+                } else {
+                    console.log('game.js: ' + triviaGuild.guild.name + ' is not setup properly');
+                }
+                
             });
             Promise.all(promises).then(() => {
                 resolve();
@@ -216,11 +221,11 @@ class Game {
                     
                     // Add the guild to the game if it is not already in it
                     let answerGuild = this.triviaGuilds.find(triviaGuild => triviaGuild.guild.id === answer.guild.id);
-                    if (answerGuild === undefined) {
-                        answerGuild = new TriviaGuild(answer); // TODO I'd like to move this logic to the end of each question
-                        this.triviaGuilds.push(answerGuild);
-                    } else {    
+                    if (answerGuild) {
                         answerGuild.addAnswer(answer);
+                       
+                    } else {    
+                        console.info('game.js: Guild not a triviaGuild ' + answer.guild.name);
                     } 
 
                     // Add the player to the guild if they are not already in it
@@ -233,8 +238,7 @@ class Game {
             // Sort the players by score highest to lowest      
             this.players.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
             this.players.reverse();
-
-            
+ 
             if (this.players.length === 0) {
                 resolve("No Players Answered Any Questions");
                 return;

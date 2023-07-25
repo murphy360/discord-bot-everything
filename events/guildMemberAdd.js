@@ -2,79 +2,64 @@ const { Events } = require('discord.js');
 require('dotenv').config({ path: './../data/.env' });
 const { PermissionsBitField }  = require('discord.js');
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
+const NOOB_ROLE = process.env.NOOB_ROLE;
+const DEV_GUILD_ID = process.env.DEV_GUILD_ID;
+const { SystemCommands } = require('./../classes/Helpers/systemCommands.js');
 
 module.exports = {
 	name: Events.GuildMemberAdd,
 	async execute(member) {
         console.info('guildMemberAdd.js');
 		const defaultChannel = member.guild.systemChannel;
-		const roleName = "Noob";
+		const helper = new SystemCommands();
+		const devGuild = await member.client.guilds.fetch(DEV_GUILD_ID);
+		const devChannel = await devGuild.channels.cache.find(channel => channel.name === 'trivia_bot');
 
-		console.info('Adding ' + member.user.username + ' to Guild: ' + member.guild.name + ' Default Channel: ' + defaultChannel.name + ' Role Name: ' + roleName);
-		
 		// Refresh the role cache
 		await member.guild.roles.fetch();
 
 		// print all role names
 		console.info('Roles: ' + member.guild.roles.cache.map(role => role.name).join(', '));
 
-        // Check if role exists
-        let noobRole = await member.guild.roles.cache.find(role => role.name === roleName);
+		if (!await helper.createGuildRoles(member.guild)) {
+			console.info('Adding ' + member.user.username + ' to Guild: ' + member.guild.name + ' Role Name: ' + roleName + ' doesn\'t exist.');
+			devChannel.send(member.guild.name + ' is missing a role and can\'t properly onboard ' + member.user.username + '. Please check the logs.');
+			return;
+		} 
+
+		// Check if role exists
+		let noobRole = await member.guild.roles.cache.find(role => role.name === NOOB_ROLE);
         
-        // Create role if it doesn't exist
-        if (!noobRole) {
-            console.info('Role ' + roleName + ' Doesn\'t exist. Creating it.');
-            await member.guild.roles.create({
-				name: roleName,
-				color: '#964b00', // Brown
-				hoist: true,
-				position: 100,
-                
-            }).then( async role => {
-				console.info('Role ' + roleName + ' Should have been created');
-				const triviaChannel = await member.guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
-				console.info('Trivia Channel: ' + triviaChannel.name + ' Role Name: ' + role.name);
-				
-				await triviaChannel.permissionOverwrites.set([
-					{
-						id: role.id,
-						allow: [
-							PermissionsBitField.Flags.ViewChannel, 
-							PermissionsBitField.Flags.UseApplicationCommands, 
-							PermissionsBitField.Flags.AddReactions, 
-							PermissionsBitField.Flags.ReadMessageHistory
-						],
-					},
-				]);
-
-				console.info('Default Channel: ' + defaultChannel.name);
-				await defaultChannel.permissionOverwrites.set([
-					{
-						id: role.id,
-						allow: [
-							PermissionsBitField.Flags.ViewChannel,
-							PermissionsBitField.Flags.UseApplicationCommands,
-							PermissionsBitField.Flags.SendMessages, 
-							PermissionsBitField.Flags.ReadMessageHistory
-						],
-					},
-				]);
-				
-				await member.roles.add(role.id);
-				console.info('Role added ' + role.name + ' to ' + member.user.username);
-					
-			}).catch(console.error);
-
-        } else {
-			// Role exists
-			console.info('Role: ' + noobRole.name + ' exists');     
-			// Add the role to the the Noob
-			console.info('Adding role ' + noobRole.name + ' to ' + member.user.username);
-			member.roles.add(noobRole.id);
-			console.info('Role added ' + noobRole.name + ' to ' + member.user.username);
-			defaultChannel.send(`Welcome to the server, ${member.user.username} I'm going to set you as a Noob until you do something interesting... good luck!`);
+		// Create role if it doesn't exist
+		if (noobRole) {
+			await member.roles.add(role.id);
+			console.info('Role added ' + role.name + ' to ' + member.user.username);
 		}
-			// print all role names
-			console.info('Roles: ' + member.guild.roles.cache.map(role => role.name).join(', '));
+
+		const contextData = await helper.checkGuildCriticalSetup(member.guild);
+		if (contextData.length > 0) {
+			console.info('guildMemberAdd.js: Trying to onboard ' + member.user.username + ' in ' + member.guild.name + ' but they are missing some Critical Setups.');
+			devChannel.send(member.guild.name + ' is missing some critical setups and can\'t properly onboard ' + member.user.username + '. Please check the logs.');
+		} else {
+			const triviaChannel = await member.guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
+			const welcomeEmbed = await createWelcomeEmbed(member);
+			triviaChannel.send({ embeds: [welcomeEmbed] });
+		}
+        
+        async function createWelcomeEmbed(member) {
+			// Function to create an about embed
+			let welcomeEmbed = new EmbedBuilder()
+				.setColor('#0099ff') // Blue
+				.setTitle('Welcome to ' + member.guild.name + '!')
+				.setDescription('This is a Trivia Bot. Start by using /trivia play to start a game of trivia. You will compete against members of your server and other servers in the world!')
+				.addFields(
+					{name: '/trivia play', value: 'All you need to play a single round of trivia'},
+					{name: '/trivia play rounds:[ROUNDS] category:[CATEGORIES] difficulty:[DIFFICULTY]', value: 'Optionally specify the number of rounds, the categories, and the difficulty'},
+					{name: '/trivia play custom_category:[CUSTOM_CATEGORY]', value: 'Optionally specify a custom category. I\'ll do my best to find questions that match your custom category.'},
+				)
+				.setThumbnail(member.guild.iconURL())
+				.setTimestamp();
+			return welcomeEmbed;
+		}
 	},
 };

@@ -13,28 +13,35 @@ module.exports = {
 		console.info(`Entering new guild: + ${guild.name} + checking setups`);
 
 		const helper = new SystemCommands();
+		let criticalContextData = await helper.checkGuildCriticalSetup(guild);
 		let contextData = await helper.checkGuildSetup(guild);
 		
 		if (contextData.length == 0) {
-			devChannelReport(true);
+			devChannelReport("FullSetup");
 			helper.introduceBotToGuild(guild, contextData);
 			
+		} else if (criticalContextData.length == 0) {
+			devChannelReport("CriticalSetup");
+			
 		} else {
-			devChannelReport(false);
+			devChannelReport("NoSetup");
 			helper.reportErrorToGuild(guild, contextData, true);
 		}
 
-		async function devChannelReport(isHealthy){
-			let devGuild = guild.client.guilds.cache.get(DEV_GUILD_ID);
+		async function devChannelReport(setupType) {
+			let devGuild = await guild.client.guilds.cache.get(DEV_GUILD_ID);
 			let devChannel = devGuild.channels.cache.find(channel => channel.name === "trivia_bot"); 
 			let description = '';
 			let color = '';
-			if (isHealthy) {
-				description = 'New server joined with necessary permissions.';
+			if (setupType == "FullSetup") {
+				description = 'New server joined with all necessary permissions.';
 				color = 0x00ff00; // Green
-			} else {
-				description = 'New server joined but is having issues with permissions.';
+			} else if (setupType == "CriticalSetup") {
+				description = 'New server joined but has basic permissions required to play';
 				color = 0xffa500; // Orange
+			} else {
+				description = 'New server joined but is missing some permissions required to play';
+				color = 0xff0000; // Red
 			}
 
 			let embed = new EmbedBuilder()
