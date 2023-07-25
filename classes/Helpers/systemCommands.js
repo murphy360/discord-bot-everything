@@ -33,7 +33,7 @@ class SystemCommands {
         if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
           contextData.push({
             role: 'user',
-            content: 'Missing ' + TRIVIA_CHANNEL + ' channel. Please create the channel and give me SendMessages, AddReactions, ViewChannel, ReadMessageHistory and EmbedLinks Permissions. If you assign me the ManageChannels permission, I will create the channel for you. '
+            content: 'Missing ' + TRIVIA_CHANNEL + ' channel. Please create the channel and give me SendMessages, AddReactions, ViewChannel, ReadMessageHistory and EmbedLinks Permissions.'
             });
         } else {
           if (await this.createTriviaChannel(guild)) {
