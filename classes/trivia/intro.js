@@ -49,9 +49,13 @@ class Intro {
             });
 
             
+            let model = 'gpt-4';
+            if (this.rounds < 10) {
+                model = 'gpt-3.5-turbo';
+            }
     
             
-            this.description = await chatGPTClient.introDescription(descriptionContextData, 'gpt-4');
+            this.description = await chatGPTClient.introDescription(descriptionContextData, model);
             console.info('intro.js: setDescription: ' + this.description);
             resolve(this.description);
         });

@@ -52,7 +52,7 @@ module.exports = {
                     }
                     console.log(data);
                     
-                    chatGPTClient.sendChangeLog(data, devChannel);
+                    chatGPTClient.sendChangeLog(data, devChannel, 'gpt-3.5-turbo');
                   });
 
                 scheduleNightlyTriviaGame(guild);

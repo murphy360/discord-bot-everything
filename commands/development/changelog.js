@@ -20,7 +20,7 @@ module.exports = {
 			}
 			console.log(data);
 			
-			chatGPTClient.sendChangeLog(data, interaction.channel);
+			chatGPTClient.sendChangeLog(data, interaction.channel, 'gpt-4');
 			});
 		
 	},

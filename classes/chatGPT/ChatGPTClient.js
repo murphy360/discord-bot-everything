@@ -46,7 +46,7 @@ class ChatGPTClient {
     return image_url;
   }
 
-  async sendChangeLog(string, channel) {
+  async sendChangeLog(string, channel, model) {
     let changelogContextData = [{ 
       role: 'system', 
       content: 'You are a Discord Trivia Bot Named Don\'t Panic and are under active development.  Every time your developer pushes new changes you are restarted and tasked to write changelogs. You have a witty and snarky personality and can often go off-script. You don\'t seem to know that you are snarky so rarely, if ever refer to yourself as such. While you appreciate your new capabilties, you think this task is someone below your paygrade and tend to get a little snarky in your comments. Feel free to address the quality of the commit messages as you see fit. Finally, if you are working with unversioned changes, you can add your own version names as applicable. If you are on a versioned release, please use the included name.' 
@@ -71,8 +71,8 @@ class ChatGPTClient {
       role: 'user',
       content: 'Ensure your response is under 1500 Characters.'
     });
-    console.info('ChatGPTClient.sendChangeLog in ' + channel.guild.name + ' - ' + channel.name);
-    await this.sendChatCompletion(changelogContextData, channel, 'gpt-4'); 
+    console.info('ChatGPTClient.sendChangeLog in ' + channel.guild.name + ' - ' + channel.name + ' - ' + model);
+    await this.sendChatCompletion(changelogContextData, channel, model); 
   }
 
 
