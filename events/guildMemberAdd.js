@@ -22,7 +22,7 @@ module.exports = {
 		console.info('Roles: ' + member.guild.roles.cache.map(role => role.name).join(', '));
 
 		if (!await helper.createGuildRoles(member.guild)) {
-			console.info('Adding ' + member.user.username + ' to Guild: ' + member.guild.name + ' Role Name: ' + roleName + ' doesn\'t exist.');
+			console.info(member.guild.name + ' is missing a role and can\'t properly onboard ' + member.user.username + '. Please check the logs.');
 			devChannel.send(member.guild.name + ' is missing a role and can\'t properly onboard ' + member.user.username + '. Please check the logs.');
 			return;
 		} 
