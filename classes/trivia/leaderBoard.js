@@ -55,12 +55,13 @@ class LeaderBoard {
             let leaderXPString = "";
 
             // Find the lower of this.highesScorers.length and 10
-            let maxScores = 10;
-            if (this.highestScorers.length < 10) {
+            let maxScores = 11;
+            if (this.highestScorers.length < 11) {
                 maxScores = this.highestScorers.length;
             }
             
-            for (let i = 0; i < maxScores; i++) {
+            // Build the strings for the embed World Champion not included in this list
+            for (let i = 1; i < maxScores; i++) {
                 leaderNameString += this.highestScorers[i].user_name + '\n';
                 leaderScoreString += this.highestScorers[i].trivia_points_total + '\n';
                 leaderXPString += this.highestScorers[i].total_xp + '\n';
