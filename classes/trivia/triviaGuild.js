@@ -37,7 +37,7 @@ class TriviaGuild {
         this.chatGPTChannel = this.guild.channels.cache.find(channel => channel.name === CHAT_GPT_CHANNEL);
         this.guildTriviaChampion = null;    // The user with the highest trivia_points_total (Member Object)
         this.isReady = false;
-        this.highestScorers = null;
+        this.highestScorers = new Array(); // Array of highest scorers in the guild
         this.checkGuildCriticalSetup();
     }
     
@@ -277,7 +277,7 @@ class TriviaGuild {
      async setGuildHighScores() {
         
         console.info('triviaGuild.js: findGuildHighScores: ' + this.guild.name + ': Finding highest scorers');
-        this.highestScorers = await Answers.findAll({
+        const dbHighScorers = await Answers.findAll({
             attributes: [
                 'user_id',
                 [Sequelize.fn('sum', Sequelize.col('points')), 'total_points'],
@@ -289,18 +289,24 @@ class TriviaGuild {
             order: [[Sequelize.fn('sum', Sequelize.col('points')), 'DESC']],
         });
 
+        // Check if there are any highest scorers left
+        if (dbHighScorers.length < 1) {
+            console.info('triviaGuild.js: ' + this.guild.name + ': No highest scorers found');
+            return;
+        }
+
         
         // Check all highest scorers are members of the guild
-        for (let i = 0; i < this.highestScorers.length; i++) {
+        for (let i = 0; i < dbHighScorers.length; i++) {
+            console.info('triviaGuild.js: ' + this.guild.name + ': Checking if user is a member - ' + dbHighScorers[i].dataValues.user_id);
             const guildMember = await this.guild.members.fetch(this.highestScorers[i].dataValues.user_id);
             if (!guildMember) {
                 console.info('triviaGuild.js: ' + this.guild.name + ': User ID not a member - ' + this.highestScorers[i].dataValues.user_id);
-                this.highestScorers.splice(i, 1); // Remove the user from the array
-                i--;
+            } else {
+                this.highestScorers.push(dbHighScorers[i]);
             }
         }
 
-        // Check if there are any highest scorers left
         if (this.highestScorers.length < 1) {
             console.info('triviaGuild.js: ' + this.guild.name + ': No highest scorers found');
             return;
