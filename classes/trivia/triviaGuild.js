@@ -273,7 +273,7 @@ class TriviaGuild {
      // Find the top 10 highest scoring players in the guild
      async setGuildHighScores() {
         
-        console.info('findGuildHighScores');
+        console.info('triviaGuild.js: findGuildHighScores: ' + this.guild.name + ': Finding highest scorers');
         this.highestScorers = await Answers.findAll({
             attributes: [
                 'user_id',
@@ -286,13 +286,21 @@ class TriviaGuild {
             order: [[Sequelize.fn('sum', Sequelize.col('points')), 'DESC']],
         });
 
+        
         // Check all highest scorers are members of the guild
         for (let i = 0; i < this.highestScorers.length; i++) {
             const guildMember = await this.guild.members.fetch(this.highestScorers[i].dataValues.user_id);
             if (!guildMember) {
                 console.info('triviaGuild.js: ' + this.guild.name + ': User ID not a member - ' + this.highestScorers[i].dataValues.user_id);
                 this.highestScorers.splice(i, 1); // Remove the user from the array
+                i--;
             }
+        }
+
+        // Check if there are any highest scorers left
+        if (this.highestScorers.length < 1) {
+            console.info('triviaGuild.js: ' + this.guild.name + ': No highest scorers found');
+            return;
         }
 
         const highestScore = this.highestScorers[0].dataValues.total_points;
@@ -310,6 +318,7 @@ class TriviaGuild {
             },
             order: [['total_xp', 'DESC']],
             });
+            
             // Move the highest xp user to the top of the highestScorers array
             for (let i = 0; i < this.highestScorers.length; i++) {
                 if (this.highestScorers[i].dataValues.user_id === highestXpUser.id) {
@@ -317,11 +326,9 @@ class TriviaGuild {
                     break;
                 }
             }
-            
         }
-
-
     }
+
     async checkGuildCriticalSetup() {
         const helper = new SystemCommands(this.client);
         const contextData = await helper.checkGuildCriticalSetup(this.guild);
