@@ -299,9 +299,9 @@ class TriviaGuild {
         // Check all highest scorers are members of the guild
         for (let i = 0; i < dbHighScorers.length; i++) {
             console.info('triviaGuild.js: ' + this.guild.name + ': Checking if user is a member - ' + dbHighScorers[i].dataValues.user_id);
-            const guildMember = await this.guild.members.fetch(this.highestScorers[i].dataValues.user_id);
+            const guildMember = await this.guild.members.fetch(dbHighScorers[i].dataValues.user_id);
             if (!guildMember) {
-                console.info('triviaGuild.js: ' + this.guild.name + ': User ID not a member - ' + this.highestScorers[i].dataValues.user_id);
+                console.info('triviaGuild.js: ' + this.guild.name + ': User ID not a member - ' + dbHighScorers[i].dataValues.user_id);
             } else {
                 this.highestScorers.push(dbHighScorers[i]);
             }
