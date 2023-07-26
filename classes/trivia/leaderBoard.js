@@ -107,13 +107,17 @@ class LeaderBoard {
             console.log(`Guild Name: ${guild.name}`);
             
             // Get the role object if it exists (returns if it doesn't exist)
-            if (!helper.createGuildRoles(guild)) {
+            if (!await helper.createGuildRoles(guild)) {
                 console.info('World Trivia Champion Role does not exist in ' + guild.name + ' guild and cannot be created' );
                 return;
             }
 
             let role = await guild.roles.cache.find(role => role.name === WORLD_CHAMPION_ROLE);
-
+            if (!role) {
+                console.info('World Trivia Champion Role does not exist in ' + guild.name + ' guild and cannot be created' );
+                return;
+            }
+            
             // Get the members with the role currently
             const currentWorldChampions = role.members.map(member => member);
             console.info(guild.name + ': Number of World Trivia Champions: ' + currentWorldChampions.length);
