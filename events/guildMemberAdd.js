@@ -23,7 +23,7 @@ module.exports = {
 
 		if (!await helper.createGuildRoles(member.guild)) {
 			console.info(member.guild.name + ' is missing a role and can\'t properly onboard ' + member.user.username + '. Please check the logs.');
-			devChannel.send(member.guild.name + ' is missing a role and can\'t properly onboard ' + member.user.username + '. Please check the logs.');
+			//devChannel.send(member.guild.name + ' is missing a role and can\'t properly onboard ' + member.user.username + '. Please check the logs.');
 			return;
 		} 
 
