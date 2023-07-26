@@ -161,7 +161,7 @@ class TriviaGuild {
             this.guildTriviaChampion = await this.guild.members.fetch(this.highestScorers[0].dataValues.user_id);
         } else {
             console.info('triviaGuild.js: ' + this.guild.name + ': No Guild Champion found');
-            return;
+            return false;
         }
     
         console.info("triviaGuild.js: Printing Guild Champion " + this.guildTriviaChampion.user.username);
@@ -172,7 +172,10 @@ class TriviaGuild {
     async setGuildChampionRole() {
         const helper = new SystemCommands(this.client);
         // Get Guild Champion guildMember object
-        await this.setGuildChampion();
+        if (!await this.setGuildChampion()) {
+            console.info('triviaGuild.js: ' + this.guild.name + ': No Guild Champion found');
+            return;
+        }
                 
         // Create role if it doesn't exist
         if (!await helper.createGuildRoles(this.guild)) {
@@ -318,7 +321,7 @@ class TriviaGuild {
             },
             order: [['total_xp', 'DESC']],
             });
-            
+
             // Move the highest xp user to the top of the highestScorers array
             for (let i = 0; i < this.highestScorers.length; i++) {
                 if (this.highestScorers[i].dataValues.user_id === highestXpUser.id) {
