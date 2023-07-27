@@ -1,6 +1,6 @@
 const { Events } = require('discord.js');
 require('dotenv').config({ path: './../data/.env' });
-const { PermissionsBitField }  = require('discord.js');
+const { PermissionsBitField, EmbedBuilder }  = require('discord.js');
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 const NOOB_ROLE = process.env.NOOB_ROLE;
 const DEV_GUILD_ID = process.env.DEV_GUILD_ID;
