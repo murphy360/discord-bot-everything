@@ -95,7 +95,7 @@ class Game {
         }
        
         for (let i = 0; i < questions.length; i++) {
-            questions[i].questionNumber = i + 1;
+            questions[i].question_num = i + 1;
         }
         return questions;
     }
