@@ -18,12 +18,8 @@ module.exports = {
 		// Refresh the role cache
 		await member.guild.roles.fetch();
 
-		// print all role names
-		console.info('Roles: ' + member.guild.roles.cache.map(role => role.name).join(', '));
-
 		if (!await helper.createGuildRoles(member.guild)) {
 			console.info(member.guild.name + ' is missing a role and can\'t properly onboard ' + member.user.username + '. Please check the logs.');
-			//devChannel.send(member.guild.name + ' is missing a role and can\'t properly onboard ' + member.user.username + '. Please check the logs.');
 			return;
 		} 
 
@@ -32,8 +28,8 @@ module.exports = {
         
 		// Create role if it doesn't exist
 		if (noobRole) {
-			await member.roles.add(role.id);
-			console.info('Role added ' + role.name + ' to ' + member.user.username);
+			await member.roles.add(noobRole.id);
+			console.info('Role added ' + noobRole.name + ' to ' + member.user.username);
 		}
 
 		const contextData = await helper.checkGuildCriticalSetup(member.guild);

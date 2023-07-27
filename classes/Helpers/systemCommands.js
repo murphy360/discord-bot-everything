@@ -107,7 +107,6 @@ class SystemCommands {
   
       let contextData = [];
       // Check if the bot has the required permissions
-      console.info(guild.members.me.permissions.toArray());
       if (!guild.members.me.permissions.has(PermissionsBitField.Flags.SendMessages)) {
         this.sendMessages = false;
         console.log('I do not have the SendMessages permission in ' + guild.name + '. Please assign this permission to the bot and try again.');
