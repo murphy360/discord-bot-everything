@@ -258,7 +258,7 @@ class QuestionManager {
             if (await questions[i].storeQuestion()) {
                 oldQuestionContextData.push({
                     role: 'user',
-                    content: questions[i].question + ' already exists do not return any variation of it again',
+                    content: questions[i].question + ' already exists. Create a related question with a different answer. ',
                   });
                 oldQuestions++;
             } else {

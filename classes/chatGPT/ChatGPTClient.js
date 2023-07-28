@@ -156,7 +156,7 @@ class ChatGPTClient {
     });
     triviaContextData.push({
       role: 'user',
-      content: 'Generate ' + numberQuestions + ' trivia questions related to ' + category + '  with ' + difficulty + ' difficulty.  For each question (if not defined, difficulty should be Easy, Medium or Hard), include the following information in JSON format: category, difficulty, question, incorrect_answers (These should be different than the correct answer), correct_answer, and source (' + model + ' )"). Do your best to classify your responses into common trivia categories.  Return the questions as a JSON string: ',
+      content: 'Generate ' + numberQuestions + ' trivia questions related to ' + category + '  with ' + difficulty + ' difficulty.  For each question (if not defined, difficulty should be Easy, Medium or Hard), include the following information in JSON format: category, difficulty, question, incorrect_answers. (Three for multiple choice. These should be different than the correct answer), correct_answer, and source (' + model + ' )"). Do your best to classify your responses into common trivia categories.  Return the questions as a JSON string: ',
     });
  
     return await this.getJsonFromAi(model, triviaContextData);
