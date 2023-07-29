@@ -1,6 +1,6 @@
 const { EmbedBuilder, PermissionsBitField }  = require('discord.js');
 const { Player } = require('./player.js');
-const { Guilds, Answers } = require('./../../dbObjects.js');
+const { Guilds, Answers, Users } = require('./../../dbObjects.js');
 const Sequelize = require('sequelize');
 require('dotenv').config({ path: './../data/.env' });
 // Names of channels to use
