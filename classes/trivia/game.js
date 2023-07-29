@@ -157,6 +157,7 @@ class Game {
         return new Promise(async (resolve, reject) => {
             console.info('game.js: Asking Question: ' + question.question_num+ ', ' + question.question + '\nAnswer: ' + question.answer);
             const promises = [];
+            question.questionNumber = this.current_round + 1;
             this.triviaGuilds.forEach((triviaGuild) => {
                 
                 // Find TRIVIA_CHANNEL
