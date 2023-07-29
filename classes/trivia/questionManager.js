@@ -258,7 +258,7 @@ class QuestionManager {
             if (await questions[i].storeQuestion()) {
                 oldQuestionContextData.push({
                     role: 'user',
-                    content: questions[i].question + ' already exists. Create a related question with a different answer. ',
+                    content: questions[i].question + ' already exists with answer' + questions[i].answer + '. Create a new question with a random sub-genre and different answer. ',
                   });
                 oldQuestions++;
             } else {
