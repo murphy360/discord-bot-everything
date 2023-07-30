@@ -21,7 +21,6 @@ module.exports = {
             .setTimestamp()
 		
 		devChannel.send({ embeds: [embed] });    
-
 		console.info(`Exiting: + ${guild.name}`);
 	},
-  };
+};

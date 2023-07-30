@@ -33,10 +33,10 @@ module.exports = {
             guild.commands.set([]); // Clear the commands cache for this guild
 
             let helper = new SystemCommands();
-            let contextData = await helper.checkGuildSetup(guild);
+            let contextData = await helper.checkGuildCriticalSetup(guild);
 
             if (contextData.length > 0) {
-                await helper.reportErrorToGuild(guild, contextData, true);
+                await helper.reportErrorToGuild(guild, contextData, false);
             } 
           
             // Setup only for Discord Bot Development Server
