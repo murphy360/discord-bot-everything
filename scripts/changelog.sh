@@ -1,35 +1,103 @@
 #!/bin/bash
 
-# Get the latest tag
-latest_tag=$(git describe --tags --abbrev=0)
-# Get the date of the latest tag
-latest_tag_date=$(git log -1 --format=%ai $latest_tag)
+change_log_file="changelog.txt"
+change_log_json="changelog.json"
+last_tag="e4a858c"
+echo $last_tag
+json='['
 
-# Get the second to last tag
-last_tag=$(git describe --tags --abbrev=0 HEAD^1)
-# Get the date of the second to last tag
-last_tag_date=$(git log -1 --format=%ai $last_tag)
+# Iterate through all tags
+for tag in $(git tag --sort=taggerdate) 
+# Write an entry for each tag to the changelog json object
 
+do
+  echo $tag
+  echo $tag_comment
+  # Get the date of the tag
+  tag_date=$(git log -1 --format=%ai $tag)
+  # Get the comments for the tag
+  tag_comment=$(git tag -n1 --format='%(subject)' $tag)
 
-# Get the comments for the latest and last tags
-last_tag_comment=$(git tag -n1 $last_tag)
-latest_tag_comment=$(git tag -n1 $latest_tag)
+  # Get the changes for the tag
+  echo 'Changes between '$last_tag' and '$tag':'
+  tag_changes=$(git log --pretty=format:"%h %s (%ad)" --date=short $last_tag..$tag)
 
-# Check if there are any changes since the last tag
-if [ "$(git log $latest_tag..HEAD --oneline)" = "" ]; then
-  # If there are no changes, report changes up to this tag from the previous tag
-  echo "Current Release: $latest_tag_comment" > changelog.txt
-  echo "Version Date: $latest_tag_date" >> changelog.txt
-  echo "Changes in $latest_tag:" >> changelog.txt
-  git log --pretty=format:"%h %s (%ad)" --date=short $last_tag..$latest_tag >> changelog.txt
-else
-  # If there are changes, report changes since the last tag
-  echo "You have unversioned changes since $latest_tag_comment" > changelog.txt
-  echo "Unversioned changes since $latest_tag_comment:" > changelog.txt
-  echo "Previous Version Date: $latest_tag_date" >> changelog.txt
-  git log $latest_tag..HEAD --pretty=format:"%h %s (%ad)" >> changelog.txt
+  
+  readarray -t changes_array <<< "$tag_changes"
+  change_elements='['
+
+  # Print each element of the array
+  for change in "${changes_array[@]}"; do
+    read -ra change_array <<< "$change"
+    hash=${change_array[0]} # first element of the array
+    date=${change_array[-1]} # last element of the array
+    date=${date//\(/} # remove the opening parenthesis
+    date=${date//\)/} # remove the closing parenthesis
+    message=${change_array[@]:1:${#change_array[@]}-2} # remove the hash and the date
+    message=${message//\"/} # remove the quotes from the message
+    # Add the change to the change_elements string
+    change_elements+='{"hash": "'$hash'", "message": "'$message'", "date": "'$date'"}'
+    # Add a comma if the change is not the last element of the array
+    if [ "$change" != "${changes_array[-1]}" ]; then
+      change_elements+=','
+    fi
+  done
+  change_elements+=']' # close the array
+  last_tag=$tag # set the last tag to the current tag for the next iteration
+
+  # Add the tag to the json string
+  if [ "$json" != "[" ]; then
+    json+=','
+  fi
+  json+='{"version": "'$tag'", "tag_date": "'$tag_date'", "version_name": "'$tag_comment'", "changes": '$change_elements'}'
+
+done
+
+# Is last tag on latest commit
+if [ "$(git rev-parse "$last_tag")"  != "$(git rev-parse HEAD)" ]; then
+  # Get the changes for the last tag
+  echo 'Changes between '$last_tag' and HEAD:'
+  tag_changes=$(git log --pretty=format:"%h %s (%ad)" --date=short $last_tag..HEAD)
+
+  readarray -t changes_array <<< "$tag_changes"
+  unversioned_date=""
+  change_elements='['
+
+  # Print each element of the array
+  for change in "${changes_array[@]}"; do
+    read -ra change_array <<< "$change"
+    hash=${change_array[0]} # first element of the array
+    date=${change_array[-1]} # last element of the array
+    date=${date//\(/} # remove the opening parenthesis
+    date=${date//\)/} # remove the closing parenthesis
+    message=${change_array[@]:1:${#change_array[@]}-2} # remove the hash and the date
+    message=${message//\"/} # remove the quotes from the message
+    # Add the change to the change_elements string
+    change_elements+='{"hash": "'$hash'", "message": "'$message'", "date": "'$date'"}'
+    # Add a comma if the change is not the last element of the array
+    if [ "$change" != "${changes_array[-1]}" ]; then
+      change_elements+=','
+    fi
+  done
+  change_elements+=']' # close the array
+
+  # Add the tag to the json string
+  if [ "$json" != "[" ]; then
+    json+=','
+  fi
+  unversioned_date=$(git log -1 --format=%ai HEAD) # Get the date of the tag
+
+  json+='{"version": "HEAD", "tag_date": "'$unversioned_date'", "version_name": "HEAD", "changes": '$change_elements'}'
 fi
 
-echo "\n" >> changelog.txt
-echo "Version History:" >> changelog.txt
-git for-each-ref --sort=-taggerdate --format '%(refname:short) %(subject) %(taggerdate)' refs/tags | grep v >> changelog.txt
+json+=']' # Add the closing bracket to create a valid JSON array
+echo $json
+
+# Use `jq` to format the JSON string
+formatted_json=$(echo $json | jq '.')
+
+# Use `echo` to print the formatted JSON string
+echo "$formatted_json"
+
+# Use `echo` to write the updated JSON string to a file
+echo $formatted_json > changelog.json

@@ -46,34 +46,7 @@ class ChatGPTClient {
     return image_url;
   }
 
-  async sendChangeLog(string, channel, model) {
-    let changelogContextData = [{ 
-      role: 'system', 
-      content: 'You are a Discord Trivia Bot Named Don\'t Panic and are under active development.  Every time your developer pushes new changes you are restarted and tasked to write changelogs. You have a witty and snarky personality and can often go off-script. You don\'t seem to know that you are snarky so rarely, if ever refer to yourself as such. While you appreciate your new capabilties, you think this task is someone below your paygrade and tend to get a little snarky in your comments. Feel free to address the quality of the commit messages as you see fit. Finally, if you are working with unversioned changes, you can add your own version names as applicable. If you are on a versioned release, please use the included name.' 
-    }];
-
-    changelogContextData.push({
-      role: 'user',
-      content: 'If you are on a Current Named Version, this is a good format :  Release: v0.x.x - “The Snarkening” - DD MMMM YYYY\n\nBLUF:  includes improvements on formatting, changelog-only feature, attitude tweaking and personality updating of the bot.\n\nChanges:\n- [git hash] Description of the change (Issue #XX if available). \n- [git hash] Description of the change. \n- 4498c56: The bot is now less constrained on unversioned comments. Who knows what kind of snarky remarks I\'ll come up with now?.\n- #92e70f6: My developer finally stopped ignoring the .git directory. About time.\n- #aa86480: The bot personality is now itself. Wait, what was it before?\n\nSummary:\nFirst things first, I have a bone to pick with my developer. Seriously, “write changelog” and “hardcoding changelog” as commit messages? How about some creativity next time? That\'s all for now, humans. Keep in mind that I\'m constantly evolving, so stay on your toes.\n\nPrevious Releases:\nvx.x.x - The Release - DD MMM YYYY\nvx.x.x - The Release - DD MMM YYYY'
-    });
-
-    changelogContextData.push({
-      role: 'user',
-      content: 'If you are have unversioned changes please suggest a release name, this is a good format:  Release: “My Custom Name”\nChanges since: vx.x.x - DD MMMM YYYY \n- [git hash] Description of the change (Issue #XX if available). \n- [git hash] Description of the change.\n- [git hash] Description of the change.\n\nSummary:\n[Your Description of the changes and anything else your want to add].\n\nPrevious Releases:\nvx.x.x - The Release - DD MMM YYYY\nvx.x.x - The Release - DD MMM YYYY'
-    });
-
-    changelogContextData.push({
-      role: 'user',
-      content: 'Git log:  ' + string
-    });
-
-    changelogContextData.push({
-      role: 'user',
-      content: 'Ensure your response is under 1500 Characters.'
-    });
-    console.info('ChatGPTClient.sendChangeLog in ' + channel.guild.name + ' - ' + channel.name + ' - ' + model);
-    await this.sendChatCompletion(changelogContextData, channel, model); 
-  }
+ 
 
 
   // address a message (used in chat-gpt channels)
@@ -133,6 +106,30 @@ class ChatGPTClient {
         console.log(`OPENAI ERR: ${error}`);
     });
   }
+
+  async getChatCompletion(contextData, model) {
+    return new Promise(async (resolve, reject) => {
+      await this.openai.createChatCompletion({
+        model: model,
+        messages: contextData,
+        })
+        .then(async (result) => {
+          //console.log(result);
+          try {
+            const responseText = result.data.choices[0].message.content.toString();
+            console.log('ChatGPTClient: Response: ' + responseText);
+            resolve(responseText);
+          } catch (error) {
+            console.error("ChatGPTClient: Send Error");
+            console.error(error);
+          }
+          })
+          .catch((error) => {
+          console.log(`OPENAI ERR: ${error}`);
+      });
+    });
+  }
+  
 
   async getTriviaQuestions(numberQuestions, category, difficulty, oldQuestionContextData, model) {
     
