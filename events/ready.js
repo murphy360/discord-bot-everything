@@ -1,17 +1,13 @@
 require('../colors.js');
 require('../greetings.js');
 require('dotenv').config({ path: './../data/.env' });
+const { Events } = require ('discord.js');
 const { CronJob } = require('cron');
-const { exec } = require('child_process');
 const { QuestionManager } = require('./../classes/trivia/questionManager.js');
 const { ChatGPTClient } = require('./../classes/chatGPT/ChatGPTClient.js');
-const fs = require('fs');
 const { SystemCommands } = require('./../classes/Helpers/systemCommands.js');
-
+const { ChangeLog } = require('./../classes/Helpers/changeLog.js');
 const DEV_GUILD_ID = process.env.DEV_GUILD_ID;
-
-
-const { Events } = require ('discord.js');
 
 module.exports = {
     name: Events.ClientReady,
@@ -43,17 +39,8 @@ module.exports = {
             if (guild.id == DEV_GUILD_ID){
                 let chatGPTClient = new ChatGPTClient();
                 const devChannel = await guild.channels.cache.find(channel => channel.name === "trivia_bot");
-
-                fs.readFile('changelog.txt', 'utf8', (err, data) => {
-                    if (err) {
-                      console.error(err);
-                      chatGPTClient.sendChangeLog(data, devChannel);
-                      return;
-                    }
-                    console.log(data);
-                    
-                    chatGPTClient.sendChangeLog(data, devChannel, 'gpt-3.5-turbo');
-                  });
+                const changeLog = new ChangeLog(client);
+                await changeLog.sendChangeLogToChannel(devChannel);
 
                 scheduleNightlyTriviaGame(guild);
                 // Create a cron job to run every morning at 0600 to schedule tonight's game
