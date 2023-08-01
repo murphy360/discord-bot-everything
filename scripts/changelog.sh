@@ -67,6 +67,9 @@ if [ "$(git rev-parse "$last_tag")"  != "$(git rev-parse HEAD)" ]; then
   for change in "${changes_array[@]}"; do
     read -ra change_array <<< "$change"
     hash=${change_array[0]} # first element of the array
+    if [ "$hash" == "" ]; then
+      continue
+    fi
     date=${change_array[-1]} # last element of the array
     date=${date//\(/} # remove the opening parenthesis
     date=${date//\)/} # remove the closing parenthesis
@@ -81,13 +84,16 @@ if [ "$(git rev-parse "$last_tag")"  != "$(git rev-parse HEAD)" ]; then
   done
   change_elements+=']' # close the array
 
-  # Add the tag to the json string
-  if [ "$json" != "[" ]; then
-    json+=','
-  fi
-  unversioned_date=$(git log -1 --format=%ai HEAD) # Get the date of the tag
 
-  json+='{"version": "HEAD", "tag_date": "'$unversioned_date'", "version_name": "HEAD", "changes": '$change_elements'}'
+  unversioned_date=$(git log -1 --format=%ai HEAD) # Get the date of the tag
+  if $change_array.length > 1; then
+    # Add the tag to the json string
+    if [ "$json" != "[" ]; then
+      json+=','
+    fi
+    json+='{"version": "HEAD", "tag_date": "'$unversioned_date'", "version_name": "HEAD", "changes": '$change_elements'}'
+  fi
+  
 fi
 
 json+=']' # Add the closing bracket to create a valid JSON array
@@ -99,5 +105,5 @@ formatted_json=$(echo $json | jq '.')
 # Use `echo` to print the formatted JSON string
 echo "$formatted_json"
 
-# Use `echo` to write the updated JSON string to a file
+# write the formatted JSON string to the changelog file
 echo $formatted_json > changelog.json
