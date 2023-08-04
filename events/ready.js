@@ -40,7 +40,7 @@ module.exports = {
                 let chatGPTClient = new ChatGPTClient();
                 const devChannel = await guild.channels.cache.find(channel => channel.name === "trivia_bot");
                 const changeLog = new ChangeLog(client);
-                //await changeLog.sendChangeLogToChannel(devChannel);
+                await changeLog.sendChangeLogToChannel(devChannel);
 
                 scheduleNightlyTriviaGame(guild);
                 // Create a cron job to run every morning at 0600 to schedule tonight's game

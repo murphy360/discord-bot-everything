@@ -1,6 +1,5 @@
 #!/bin/bash
 
-change_log_file="changelog.txt"
 change_log_json="changelog.json"
 last_tag="e4a858c"
 echo $last_tag
@@ -11,15 +10,15 @@ for tag in $(git tag --sort=taggerdate)
 # Write an entry for each tag to the changelog json object
 
 do
-  echo $tag
-  echo $tag_comment
+  #echo $tag
+  #echo $tag_comment
   # Get the date of the tag
   tag_date=$(git log -1 --format=%ai $tag)
   # Get the comments for the tag
   tag_comment=$(git tag -n1 --format='%(subject)' $tag)
 
   # Get the changes for the tag
-  echo 'Changes between '$last_tag' and '$tag':'
+  #echo 'Changes between '$last_tag' and '$tag':'
   tag_changes=$(git log --pretty=format:"%h %s (%ad)" --date=short $last_tag..$tag)
 
   
@@ -105,5 +104,7 @@ formatted_json=$(echo $json | jq '.')
 # Use `echo` to print the formatted JSON string
 echo "$formatted_json"
 
+echo "Writing to $change_log_json"
+
 # write the formatted JSON string to the changelog file
-echo $formatted_json > changelog.json
+echo "$formatted_json" > $change_log_json

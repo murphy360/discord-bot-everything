@@ -13,7 +13,15 @@ class ChangeLog {
     }
 
     async readChangeLog() {
+      console.info('readChangeLog');
+      // Check if the changelog file exists
+      if (!fs.existsSync('changelog.json')) {
+        
+        console.log('changelog.json does not exist');
+        return;
+      }
       let rawdata = fs.readFileSync('changelog.json');
+      console.log(rawdata);
       this.changelog = JSON.parse(rawdata);
       return this.changelog;
     }
