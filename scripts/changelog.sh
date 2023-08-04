@@ -53,7 +53,7 @@ do
 done
 
 # Is last tag on latest commit
-if [ "$(git rev-parse "$last_tag")"  != "$(git rev-parse HEAD)" ]; then
+if [ "$(git rev-parse "$last_tag")" != "$(git rev-parse HEAD)" ]; then
   # Get the changes for the last tag
   echo 'Changes between '$last_tag' and HEAD:'
   tag_changes=$(git log --pretty=format:"%h %s (%ad)" --date=short $last_tag..HEAD)
@@ -83,20 +83,28 @@ if [ "$(git rev-parse "$last_tag")"  != "$(git rev-parse HEAD)" ]; then
   done
   change_elements+=']' # close the array
 
-
-  unversioned_date=$(git log -1 --format=%ai HEAD) # Get the date of the tag
-  if $change_array.length > 1; then
+  # Check the size of change_array
+  # If it is greater than 1, then there are changes since the last tag
+  if [ "${#changes_array[@]}" -gt 1 ]; then
     # Add the tag to the json string
     if [ "$json" != "[" ]; then
       json+=','
     fi
-    json+='{"version": "HEAD", "tag_date": "'$unversioned_date'", "version_name": "HEAD", "changes": '$change_elements'}'
+    json+='{"version": "Unversioned", "tag_date": "'$unversioned_date'", "version_name": "Unversioned", "changes": '$change_elements'}'
   fi
-  
+
+
+
+
+else 
+  echo "No changes since last tag"
+  echo $(git rev-parse HEAD)
+  echo $(git rev-parse "$last_tag")
+
 fi
 
 json+=']' # Add the closing bracket to create a valid JSON array
-echo $json
+#echo $json
 
 # Use `jq` to format the JSON string
 formatted_json=$(echo $json | jq '.')
