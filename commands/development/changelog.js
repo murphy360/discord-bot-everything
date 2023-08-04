@@ -12,7 +12,5 @@ module.exports = {
 		const changeLog = new ChangeLog(interaction.client);
 		const embed = await changeLog.createChangeLogEmbed();
 		interaction.editReply({ embeds: [embed] });
-		
 	},
-	
 };
