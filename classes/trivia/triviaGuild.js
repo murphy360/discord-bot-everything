@@ -120,11 +120,15 @@ class TriviaGuild {
         let winner = null;
         let guildWinnerString = "No Guild Winner";
         let scoreString = "No Scores";
+        let color = '#0099ff'; // blue
 
         if (this.players.length > 0) {
             // Sort players by points
             this.players.sort((a, b) => (a.currentScore > b.currentScore) ? 1 : -1);
             this.players.reverse();
+
+            // Set Color to green
+            color = '#00ff00'; // green
 
             // Get Game winner
             winner = this.players[0];
@@ -147,6 +151,7 @@ class TriviaGuild {
                 {name: 'Guild Score', value: this.currentScore.toString(), inline: true},
                 {name: 'Scores', value: scoreString, inline: false}
             )
+            .setColor(color)
             .setThumbnail(worldChampionUser.displayAvatarURL())
             .setFooter({ text: 'Wasn\'t that a fun game?' });  
         return embed;
