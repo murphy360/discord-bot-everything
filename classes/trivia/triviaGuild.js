@@ -326,7 +326,7 @@ class TriviaGuild {
             const tiedHighestScorerIds = tiedHighestScorers.map((scorer) => scorer.dataValues.user_id);
             const highestXpUser = await Users.findOne({
             where: {
-                id: {
+                user_id: {
                 [Sequelize.Op.in]: tiedHighestScorerIds,
                 },
             },
