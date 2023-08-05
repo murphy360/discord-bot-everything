@@ -81,8 +81,6 @@ class Question {
         this.correct_choice = this.findCorrectChoice();                         // Integer value indicating correct answer in Choices Array
         this.num_choices = this.choices.length;                                 // Number of Answer Choices (2 or 4)
         this.max_points = this.num_choices * 5;                                 // Max Point Value
-        this.createQuestionEmbed();                                             // Discord Message Embed for the Question
-
     }
 
     async syncQuestion() {
@@ -311,7 +309,8 @@ class Question {
                 {name: 'Answer', value: this.answer, inline: false},
                 {name: 'Scores', value: scoreString, inline: false}
             )
-            .setThumbnail('https://webstockreview.net/images/knowledge-clipart-quiz-time-4.png')
+            .setColor('#00ff00') // Green
+            .setThumbnail(winner.user.avatarURL())
             .setFooter({ text: 'Question provided by ' + this.source + ' ' + this.sourceURL });
            
         return channel.send({ embeds: [winnerEmbed] });
@@ -379,9 +378,6 @@ class Question {
 			.addComponents(this.buttons);
         return this.row;
     }
-
-
-    
     
     // Display Question in the given Discord channel
     async ask(channel) {
@@ -389,7 +385,7 @@ class Question {
         const numGuilds = this.client.guilds.cache.size;
         this.client.setMaxListeners(numGuilds * 8); 
         this.last_asked = Sequelize.fn('datetime', 'now');
-        this.times_asked++;
+        await this.createQuestionEmbed();
         const actionRow = this.createQuestionActionRow();
         const question_message = await channel.send({ embeds: [this.embed], components: [actionRow] });
 

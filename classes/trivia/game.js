@@ -158,6 +158,7 @@ class Game {
             console.info('game.js: Asking Question: ' + question.question_num+ ', ' + question.question + '\nAnswer: ' + question.answer);
             const promises = [];
             question.questionNumber = this.current_round + 1;
+            question.times_asked++;
             this.triviaGuilds.forEach((triviaGuild) => {
                 
                 // Find TRIVIA_CHANNEL
