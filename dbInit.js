@@ -21,9 +21,10 @@ const Answers = require('./models/Answers')(sequelize, Sequelize.DataTypes);
 //Users.belongToMany(Games, (through: 'Responses' });
 
 // force true will remake database every time
-const force = true;
+const force = false;
+const alter = true;
 
-sequelize.sync({ force }).then(async () => {
+sequelize.sync({ force: force, alter: alter }).then(async () => {
 		console.log('Database synced');
 		sequelize.close();
 }).catch(console.error);
