@@ -32,7 +32,7 @@ class TriviaGuild {
         this.players = new Array(); // Array of current game players in the guild
         this.allGuildPlayers = new Array(); // Array of all players in the guild
         this.currentScore = 0;
-        this.triviaChannel = this.guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
+        this.triviaChannel = this.getGuildTriviaChannel();
         this.defaultChannel = this.guild.systemChannel;
         this.chatGPTChannel = this.guild.channels.cache.find(channel => channel.name === CHAT_GPT_CHANNEL);
         this.guildTriviaChampion = null;    // The user with the highest trivia_points_total (Member Object)
@@ -253,10 +253,10 @@ class TriviaGuild {
         
 		const DBguild = await Guilds.findOne({ where: { guild_id: this.guild.id } });
         if (DBguild) {      
-            // Guild already exists in database
+            await Guilds.update({ guild_name: this.guild.name, trivia_channel_id: this.triviaChannel.id }, { where: { guild_id: this.guild.id } });
         } else {
             // Create Guild in database
-            await Guilds.create({ guild_id: this.guild.id, guild_name: this.guild.name, trivia_points_total: 0});
+            await Guilds.create({ guild_id: this.guild.id, guild_name: this.guild.name, trivia_points_total: 0, trivia_channel_id: this.triviaChannel.id });
         } 
         const gameXP = this.getGuildsGameXP();
         await Guilds.increment({
@@ -266,6 +266,44 @@ class TriviaGuild {
             where: { guild_id: this.guild.id }
           });
     }
+
+    async getGuildTriviaChannel() {
+        const guild = await Guilds.findOne({ where: { guild_id: this.guild.id } });
+        let triviaChannel = null;
+        console.info('triviaGuild.js: getGuildTriviaChannel: ' + guild.guild_name);
+        if (guild) {
+            triviaChannel = await this.guild.channels.cache.find(channel => channel.id == guild.trivia_channel_id);
+            if (triviaChannel) {
+                console.info('triviaGuild.js: ' + this.guild.name + ': ' + triviaChannel.name + ' channel found in database');
+                this.triviaChannel = triviaChannel;
+                return triviaChannel;
+            }
+        }
+
+        // Try to find TRIVIA channel
+        triviaChannel = await this.guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
+        if (triviaChannel) {
+            await Guilds.update({ trivia_channel_id: triviaChannel.id }, { where: { guild_id: this.guild.id } });
+            console.info('triviaGuild.js: ' + this.guild.name + ': ' + triviaChannel.name + ' channel found and stored in database');
+            this.triviaChannel = triviaChannel;
+            return triviaChannel;
+        } else {
+            console.info('triviaGuild.js: ' + this.guild.name + ': ' + TRIVIA_CHANNEL + ' channel not found');
+            return null;
+        }
+    }
+
+    async setGuildTriviaChannel(channel) {
+        const guild = await Guilds.findOne({ where: { guild_id: this.guild.id } });
+        if (guild) {
+            await Guilds.update({ trivia_channel_id: channel.id }, { where: { guild_id: this.guild.id } });
+        } else {
+            await Guilds.create({ guild_id: this.guild.id, guild_name: this.guild.name, trivia_channel_id: channel.id });
+        }
+
+        
+    }
+
 
     getGuildsGameXP() {                   // Returns the XP earned in the last game 
         // Questions answered correctly * 2
@@ -349,11 +387,18 @@ class TriviaGuild {
     }
 
     async checkGuildCriticalSetup() {
-        const helper = new SystemCommands(this.client);
-        const contextData = await helper.checkGuildCriticalSetup(this.guild);
-        if (contextData.length == 0) {
+        let helper = new SystemCommands();
+        // TODO There may be efficiencies to check here as we grow. 
+        await this.getGuildTriviaChannel();
+        this.contextData = helper.checkGuildCriticalSetup(this.guild, this.triviaChannel);
+        if (this.contextData.length == 0) {
+            console.info('triviaGuild.js: ' + this.guild.name + ': Critical setup complete');
             this.isReady = true;
+        } else {
+            console.info('triviaGuild.js: ' + this.guild.name + ': Critical setup incomplete');
+            this.isReady = false;
         }
+        return this.isReady;
     }
 }
 
