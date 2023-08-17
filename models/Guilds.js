@@ -17,5 +17,10 @@ module.exports = (sequelize, Sequelize) => {
 			defaultValue: 0,
 			allowNull: false
 		},
+		trivia_channel_id: {
+			type: Sequelize.STRING,
+			defaultValue: null,
+			allowNull: true
+		}
 	});
 };

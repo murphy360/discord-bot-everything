@@ -3,6 +3,7 @@ const { Game } = require('./../../classes/trivia/game.js');
 const { LeaderBoard } = require('./../../classes/trivia/leaderBoard.js');
 const { LeaderBoardGuild } = require('./../../classes/trivia/leaderBoardGuild.js');
 const { SystemCommands } = require('./../../classes/Helpers/systemCommands.js');
+const { TriviaGuild } = require('./../../classes/trivia/triviaGuild.js');
 
 require('dotenv').config({ path: './../data/.env' });
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
@@ -101,11 +102,11 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('leaderboard')
-                .setDescription('Will show the leaderboard... Someday'))
+                .setDescription('Shows the world leaderboard'))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('leaderboard-guild')
-                .setDescription('Will show the guild leaderboard... Someday'))                  
+                .setDescription('Shows the guild leaderboard'))                 
         .addSubcommand(subcommand =>
             subcommand
                 .setName('rules')
@@ -115,15 +116,13 @@ module.exports = {
 	async execute(interaction) {
 
         const helper = new SystemCommands();
-        // Check if the bot has the permissions it needs to work properly
-        let contextData = await helper.checkGuildCriticalSetup(interaction.guild);
-        if (contextData.length > 0) {
-            const embed = await helper.getHelpEmbedErrors(contextData, interaction.client);
+		const triviaGuild = new TriviaGuild(interaction.guild);
+		await triviaGuild.checkGuildCriticalSetup();
+
+        if (!triviaGuild.isReady) {
+            const embed = await helper.getHelpEmbedErrors(triviaGuild.contextData, interaction.client);
             return interaction.reply({ embeds: [embed] });
-        } else {
-            console.info('I have the permissions I need to post in the ' + interaction.guild.name + ' guild!');
-        }
-        
+        }         
         // Check which subcommand was called
         if (interaction.options.getSubcommand() === 'about') {
             return interaction.reply('This is a trivia game! Written by Corey Murphy');

@@ -3,7 +3,6 @@ const Sequelize = require('sequelize');
 Sequelize.options.logging = console.log;
 require('dotenv').config({ path: './../data/.env' });
 const { ChatGPTClient } = require('./../chatGPT/ChatGPTClient.js');
-
 const { PermissionsBitField, EmbedBuilder, Guild } = require('discord.js');
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 const DEV_GUILD_ID = process.env.DEV_GUILD_ID;
@@ -31,23 +30,23 @@ class SystemCommands {
  * 4. The bot can send Messages in the Trivia Channel
  * 5. The bot can add reactions in the Trivia Channel
  */
-    async checkGuildCriticalSetup(guild) {
+    async checkGuildCriticalSetup(guild, triviaChannel) {
       let contextData = [];
-      let triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
       if (!triviaChannel) {
         // Check if we have manage channels permission
         if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
           contextData.push({
             role: 'user',
-            content: 'Missing ' + TRIVIA_CHANNEL + ' channel. Please create the channel and give me SendMessages, AddReactions, ViewChannel, ReadMessageHistory and EmbedLinks Permissions.'
+            content: 'Missing ' + TRIVIA_CHANNEL + ' channel. Please create the channel and give me SendMessages, AddReactions, ViewChannel, ReadMessageHistory and EmbedLinks Permissions. You can also use the /set-channel command to set the channel.'
             });
+        // If we have manage channels permission, create the channel
         } else {
           if (await this.createTriviaChannel(guild)) {
             console.log('I have created the ' + TRIVIA_CHANNEL + ' channel in ' + guild.name + '. Please assign me the SendMessages permission in the channel and try again.');
           } else {
             contextData.push({
               role: 'user',
-              content: 'Missing ' + TRIVIA_CHANNEL + ' channel. Please create the channel and give me  SendMessages, AddReactions, ViewChannel, ReadMessageHistory and EmbedLinks Permissions. If you assign me the ManageChannels permission, I will create the channel for you. '
+              content: 'Missing ' + TRIVIA_CHANNEL + ' channel. Please create the channel and give me  SendMessages, AddReactions, ViewChannel, ReadMessageHistory and EmbedLinks Permissions. If you assign me the ManageChannels permission, I will create the channel for you. You can also use the /set-channel command to set the channel. '
               });
           }
         }
@@ -57,7 +56,7 @@ class SystemCommands {
         if (!triviaChannelSendMessagesPermission) {
           contextData.push({
             role: 'user',
-            content: 'Missing Send Messages Permission in ' + TRIVIA_CHANNEL + ' channel'
+            content: 'Missing Send Messages Permission in ' + triviaChannel.name + ' channel'
           });
         }
         // Check if bot has AddReactions permission in Trivia Channel
@@ -65,7 +64,7 @@ class SystemCommands {
         if (!triviaChannelAddReactionsPermission) {
           contextData.push({
             role: 'user',
-            content: 'Missing Add Reactions Permission in ' + TRIVIA_CHANNEL + ' channel'
+            content: 'Missing Add Reactions Permission in ' + triviaChannel.name + ' channel'
           });
         }
 
@@ -74,7 +73,7 @@ class SystemCommands {
         if (!triviaChannelViewChannelPermission) {
           contextData.push({
             role: 'user',
-            content: 'Missing View Channel Permission in ' + TRIVIA_CHANNEL + ' channel'
+            content: 'Missing View Channel Permission in ' + triviaChannel.name + ' channel'
           });
         }
 
@@ -83,7 +82,7 @@ class SystemCommands {
         if (!triviaChannelReadMessageHistoryPermission) {
           contextData.push({
             role: 'user',
-            content: 'Missing Read Message History Permission in ' + TRIVIA_CHANNEL + ' channel'
+            content: 'Missing Read Message History Permission in ' + triviaChannel.name + ' channel'
           });
         }
 
@@ -92,128 +91,19 @@ class SystemCommands {
         if (!triviaChannelEmbedLinksPermission) {
           contextData.push({
             role: 'user',
-            content: 'Missing Embed Links Permission in ' + TRIVIA_CHANNEL + ' channel'
+            content: 'Missing Embed Links Permission in ' + triviaChannel.name + ' channel'
           });
         }
       }
-      console.info('SystemCommands: checkGuildCriticalSetup ' + guild.name);
-      console.info(contextData);
-      return contextData;
-    }
-
-  /**
-   * Checks if the guild is set up correctly and returns an array of context data that can be used by the OpenAI API.
-   * @param {Guild} guild - The guild object to check.
-   * @returns {Array} An array of objects containing any setup issues with the guild. 
-   * If contextData.length == 0, then the guild is set up correctly.
-   */
-    async checkGuildSetup(guild) {
-  
-      let contextData = [];
-      // Check if the bot has the required permissions
-      if (!guild.members.me.permissions.has(PermissionsBitField.Flags.SendMessages)) {
-        this.sendMessages = false;
-        contextData.push({
-          role: 'user',
-          content: 'Missing SendMessages Permission'
-          });
-      } 
-
-      if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
-        contextData.push({
-          role: 'user',
-          content: 'Missing ManageChannels Permission'
-          });
-      } else {
-        let triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
-        if (!triviaChannel){
-          await this.createTriviaChannel(guild);
-        }
-        triviaChannel = await guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
-        if (!triviaChannel) {
-          contextData.push({
-            role: 'user',
-            content: 'Missing ' + TRIVIA_CHANNEL + ' channel. Please create the channel and try again. '
-          });
-        } else {
-          const triviaChannelViewChannelPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.ViewChannel);
-          if (!triviaChannelViewChannelPermission) {
-             console.log('I do not have the View Channel Permission in the ' + TRIVIA_CHANNEL + ' channel in ' + guild.name + '. Please assign the View Channel permission to the bot and try again.');
-              contextData.push({
-                role: 'user',
-                content: 'Missing View Channel Permission in ' + TRIVIA_CHANNEL + ' channel'
-              });
-          }
-    
-          const triviaChannelSendMessagesPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.SendMessages);
-          if (!triviaChannelSendMessagesPermission) {
-            contextData.push({
-              role: 'user',
-              content: 'Missing Send Messages Permission in ' + TRIVIA_CHANNEL + ' channel'
-            });
-          }
-
-          const triviaChannelEmbedLinksPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.EmbedLinks);
-          if (!triviaChannelEmbedLinksPermission) {
-            contextData.push({
-              role: 'user',
-              content: 'Missing Embed Links Permission in ' + TRIVIA_CHANNEL + ' channel'
-            });
-          }
-
-          const triviaChannelReadMessageHistoryPermission = await guild.members.me.permissionsIn(triviaChannel).has(PermissionsBitField.Flags.ReadMessageHistory);
-          if (!triviaChannelReadMessageHistoryPermission) {
-            contextData.push({
-              role: 'user',
-              content: 'Missing Read Message History Permission in ' + TRIVIA_CHANNEL + ' channel'
-            });
-          }
-        }
-      }
-
-      if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
-        contextData.push({
-          role: 'user',
-          content: 'Missing ManageRoles Permission'
-          });
-      } else {
-        await this.createGuildRoles(guild);
-              // Check Role Positions
-        if (!await this.checkRolePositions(guild)) {
-          contextData.push({
-            role: 'user',
-            content: 'Incorrect Role Positions - Please make sure I have a higher position than the roles I am supposed to assign. (World Champion, Guild Champion, Player, Noob)'
-        });
-      }
-      }
-
-      // Add Reaction Permissions
-      if (!guild.members.me.permissions.has(PermissionsBitField.Flags.AddReactions)) {
-        contextData.push({
-          role: 'user',
-          content: 'Missing AddReactions Permission'	
-          });
-      }
-
-      // Manage Events Permissions
-      if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageEvents)) {
-        contextData.push({
-          role: 'user',
-          content: 'Missing ManageEvents Permission'
-          });
-      } 
-
-      // Mention Everyone Permissions
-      if (!guild.members.me.permissions.has(PermissionsBitField.Flags.MentionEveryone)) {
-        contextData.push({
-          role: 'user',
-          content: 'Missing MentionEveryone Permission'
-        });
+      
+      if (contextData.length > 0) {
+        console.info('SystemCommands: checkGuildCriticalSetup: Errors Found With ' + guild.name);
+        console.info(contextData);
       }
       return contextData;
     }
 
-// Create Trivia Channel
+    // Create Trivia Channel
     async createTriviaChannel(guild) {
       console.info('Creating ' + TRIVIA_CHANNEL + ' in ' + guild.name);
       let defaultChannel = guild.systemChannel;
@@ -225,10 +115,8 @@ class SystemCommands {
       await guild.channels.create({
         name: TRIVIA_CHANNEL,
         type: 0,
-        parent: parentTextChannelId
-      }).then(async channel => {
-        console.info('Trivia Channel Created: ' + channel.name + ' in ' + guild.name);
-        channel.permissionOverwrites.set([
+        parent: parentTextChannelId,
+        permissionOverwrites: [
           {
             id: guild.id,
             allow: [PermissionsBitField.Flags.SendMessages],
@@ -239,7 +127,9 @@ class SystemCommands {
             id: guild.id,
             allow: [PermissionsBitField.Flags.ReadMessageHistory]
           }
-        ]);
+        ]
+      }).then(async channel => {
+        console.info('Trivia Channel Created: ' + channel.name + ' in ' + guild.name);
         return true;
       }).catch(async error => {
         console.info('Error creating Trivia Channel in ' + guild.name + ': ');
@@ -422,7 +312,8 @@ class SystemCommands {
 			}
 			helpEmbed.addFields(
 				{ name: "Invite link with correct permissions", value: 'https://discord.com/oauth2/authorize?client_id=828100639866486795&permissions=17601044621392&scope=bot' },
-				{ name: "An invite to my support Server", value: 'https://discord.gg/8QZQ6XZ8' }
+				{ name: "An invite to my support Server", value: 'https://discord.gg/8QZQ6XZ8' },
+        { name: '/set-channel:[CHANNEL-NAME]', value: 'ADMIN ONLY: Set the channel where I will send trivia questions. This is required to play trivia.'}
       );
 			return helpEmbed;
 		}

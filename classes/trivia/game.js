@@ -36,14 +36,19 @@ class Game {
         this.chatGPTClient = new ChatGPTClient();
         this.manager = new QuestionManager(this.client);
         this.triviaGuilds = new Array();
-        this.getTriviaGuilds();
-        
     }
 
     async getTriviaGuilds() {
         const guilds = this.client.guilds.cache;
-        guilds.forEach((guild) => {
-            this.triviaGuilds.push(new TriviaGuild(guild));
+        guilds.forEach(async (guild) => {
+            const triviaGuild = new TriviaGuild(guild);
+            await triviaGuild.checkGuildCriticalSetup();
+            if (triviaGuild.isReady) {
+                console.info('getTriviaGuilds: ' + triviaGuild.guild.name + ' is ready');
+                this.triviaGuilds.push(triviaGuild);
+            } else {
+                console.info('getTriviaGuilds: ' + triviaGuild.guild.name + ' is not ready');
+            }
         });
     }
     
@@ -288,6 +293,7 @@ class Game {
     async init() {
         // Display intro and add game to database
         console.info('Game Init');
+        await this.getTriviaGuilds();
         await this.storeGame('Initialized');
     }
 

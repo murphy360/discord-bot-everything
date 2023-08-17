@@ -4,9 +4,9 @@ require('dotenv').config({ path: './../data/.env' });
 const { Events } = require ('discord.js');
 const { CronJob } = require('cron');
 const { QuestionManager } = require('./../classes/trivia/questionManager.js');
-const { ChatGPTClient } = require('./../classes/chatGPT/ChatGPTClient.js');
 const { SystemCommands } = require('./../classes/Helpers/systemCommands.js');
 const { ChangeLog } = require('./../classes/Helpers/changeLog.js');
+const { TriviaGuild } = require('./../classes/trivia/triviaGuild.js');
 const DEV_GUILD_ID = process.env.DEV_GUILD_ID;
 
 module.exports = {
@@ -22,22 +22,18 @@ module.exports = {
         }
 
         client.guilds.cache.forEach(async (guild) => {
-
-            console.info(`Checking setups for + ${guild.name}`);
-            
-
             guild.commands.set([]); // Clear the commands cache for this guild
 
             let helper = new SystemCommands();
-            let contextData = await helper.checkGuildCriticalSetup(guild);
+            const triviaGuild = new TriviaGuild(guild);
+            await triviaGuild.checkGuildCriticalSetup();
 
-            if (contextData.length > 0) {
-                await helper.reportErrorToGuild(guild, contextData, false);
+            if (!triviaGuild.isReady) {
+                await helper.reportErrorToGuild(guild, triviaGuild.contextData, false);
             } 
           
             // Setup only for Discord Bot Development Server
             if (guild.id == DEV_GUILD_ID){
-                let chatGPTClient = new ChatGPTClient();
                 const devChannel = await guild.channels.cache.find(channel => channel.name === "trivia_bot");
                 const changeLog = new ChangeLog(client);
                 await changeLog.sendChangeLogToChannel(devChannel);
@@ -63,10 +59,8 @@ module.exports = {
             for (let i = 0; i < questions.length; i++) {
                 questions[i].questionNumber = i + 1;
             }
-            console.info('ready.js: Added ' + questions.length + ' questions to the database');
             manager.reportNewQuestionsToDeveloperChannel(questions, category, 'all');          
         }
-
 
         // Schedule a Trivia Night Event at 8pm tonight if it doesn't exist
         function scheduleNightlyTriviaGame(guild) {
@@ -98,9 +92,7 @@ module.exports = {
                 categories.push(await manager.getRandomCategoryFromDataBase());
                 categories.push(await manager.getRandomCategoryFromDataBase());
                 let description = categories.join(', ');
-                console.info('ready.js: Categories: ' + description);
-                
-                
+
                 if (!tonightsEvent) {
                     guild.scheduledEvents.create({
                         name: 'Trivia Night',
@@ -115,8 +107,6 @@ module.exports = {
                     })                        
                     .then(event => console.info(event.creator.username + ': Created ' + event.name + ' in ' + guild.name + ' at ' + event.scheduledStartTimestamp))
                     .catch(console.error);
-                } else {
-                    console.info(guild.name + ': Trivia Night Event Exists');
                 }
             }
             ).catch(console.error);
