@@ -270,14 +270,22 @@ class TriviaGuild {
         const guild = await Guilds.findOne({ where: { guild_id: this.guild.id } });
         let triviaChannel = null;
         if (guild) {
+            // Try to find the channel by ID stored in the database
             triviaChannel = await this.guild.channels.cache.find(channel => channel.id == guild.trivia_channel_id);
             if (triviaChannel) {
                 this.triviaChannel = triviaChannel;
                 return triviaChannel;
-            } else {
-                console.info('triviaGuild.js: ' + this.guild.name + ': ' + guild.trivia_channel_id + ' channel not found');
-                return null;
-            }
+            } 
+            // Try to find a channel with default name
+            triviaChannel = await this.guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
+            if (triviaChannel) {
+                this.triviaChannel = triviaChannel;
+                return triviaChannel;
+            } 
+            
+            console.info('triviaGuild.js: ' + this.guild.name + ': ' + guild.trivia_channel_id + ' channel not found');
+            return null;
+            
         }
 
         // Try to find TRIVIA channel

@@ -8,6 +8,5 @@ module.exports = {
 		
 		console.info("error.js");
 		console.info(error);
-		error.client.channels.cache.get(DEV_GUILD_ID).send("Error: " + error);
 	},
   };
