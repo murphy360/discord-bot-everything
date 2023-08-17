@@ -284,6 +284,16 @@ class TriviaGuild {
                 this.triviaChannel = triviaChannel;
                 return triviaChannel;
             } 
+
+            // Find a channel you have permissions to send messages to
+            const channels = await this.guild.channels.cache.filter(channel => channel.permissionsFor(this.client.user).has(PermissionsBitField.FLAGS.SEND_MESSAGES));
+            if (channels.size > 0) {
+                this.triviaChannel = channels.first();
+                return this.triviaChannel;
+            } else {
+                console.info('triviaGuild.js: ' + this.guild.name + ': No channels found with SEND_MESSAGES permission');
+                return null;
+            }
             
             console.info('triviaGuild.js: ' + this.guild.name + ': ' + guild.trivia_channel_id + ' channel not found');
             return null;
