@@ -117,7 +117,6 @@ class ChatGPTClient {
           //console.log(result);
           try {
             const responseText = result.data.choices[0].message.content.toString();
-            console.log('ChatGPTClient: Response: ' + responseText);
             resolve(responseText);
           } catch (error) {
             console.error("ChatGPTClient: Send Error");
@@ -172,9 +171,6 @@ class ChatGPTClient {
 
       })
       .then((result) => {
-        
-        //console.info('ChatGPTClient: result: ');
-        //console.log(result);
 
         //log number of choices
         modelString = result.data.model;
@@ -299,7 +295,6 @@ class ChatGPTClient {
   // Intro Description
   async introDescription(contextData, model) {
     return new Promise(async (resolve, reject) => {
-      console.info('ChatGPTClient.introDescription()');
       contextData.push({
         role: 'system',
         content: 'You are a friendly, funny and whimsicle Trivia Host Chatbot who can often be snarky.'
@@ -309,7 +304,6 @@ class ChatGPTClient {
         content: 'Please provide a short (100 word or less) introduction to this Game of Trivia'
       });
 
-      console.info('ChatGPTClient.introDescription()');
       await this.openai.createChatCompletion({
         model: model,
         messages: contextData,
@@ -317,13 +311,8 @@ class ChatGPTClient {
 
         })
         .then((result) => {
-          //console.info('ChatGPTClient: result: ');
-          //console.log(result);
           let introduction = result.data.choices[0].message.content;
-          console.info('Result: ');
-          console.info(introduction);
           resolve(introduction);   
-          
         })
           .catch((error) => {
           console.log(`ChatGPTClient: Request ERROR : ${error}`);  

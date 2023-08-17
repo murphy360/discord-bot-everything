@@ -22,9 +22,6 @@ module.exports = {
         }
 
         client.guilds.cache.forEach(async (guild) => {
-
-            console.info(`Checking setups for + ${guild.name}`);
-            
             guild.commands.set([]); // Clear the commands cache for this guild
 
             let helper = new SystemCommands();
@@ -62,7 +59,6 @@ module.exports = {
             for (let i = 0; i < questions.length; i++) {
                 questions[i].questionNumber = i + 1;
             }
-            console.info('ready.js: Added ' + questions.length + ' questions to the database');
             manager.reportNewQuestionsToDeveloperChannel(questions, category, 'all');          
         }
 
@@ -96,9 +92,7 @@ module.exports = {
                 categories.push(await manager.getRandomCategoryFromDataBase());
                 categories.push(await manager.getRandomCategoryFromDataBase());
                 let description = categories.join(', ');
-                console.info('ready.js: Categories: ' + description);
-                
-                
+
                 if (!tonightsEvent) {
                     guild.scheduledEvents.create({
                         name: 'Trivia Night',
@@ -113,8 +107,6 @@ module.exports = {
                     })                        
                     .then(event => console.info(event.creator.username + ': Created ' + event.name + ' in ' + guild.name + ' at ' + event.scheduledStartTimestamp))
                     .catch(console.error);
-                } else {
-                    console.info(guild.name + ': Trivia Night Event Exists');
                 }
             }
             ).catch(console.error);

@@ -95,8 +95,11 @@ class SystemCommands {
           });
         }
       }
-      console.info('SystemCommands: checkGuildCriticalSetup ' + guild.name);
-      console.info(contextData);
+      
+      if (contextData.length > 0) {
+        console.info('SystemCommands: checkGuildCriticalSetup: Errors Found With ' + guild.name);
+        console.info(contextData);
+      }
       return contextData;
     }
 
