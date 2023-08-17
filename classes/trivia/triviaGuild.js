@@ -32,13 +32,12 @@ class TriviaGuild {
         this.players = new Array(); // Array of current game players in the guild
         this.allGuildPlayers = new Array(); // Array of all players in the guild
         this.currentScore = 0;
-        this.triviaChannel = this.getGuildTriviaChannel();
+        this.triviaChannel = null;
         this.defaultChannel = this.guild.systemChannel;
         this.chatGPTChannel = this.guild.channels.cache.find(channel => channel.name === CHAT_GPT_CHANNEL);
         this.guildTriviaChampion = null;    // The user with the highest trivia_points_total (Member Object)
         this.isReady = false;
         this.highestScorers = new Array(); // Array of highest scorers in the guild
-        this.checkGuildCriticalSetup();
     }
     
     getStreak() {                   // Return the player's win streak
@@ -270,13 +269,14 @@ class TriviaGuild {
     async getGuildTriviaChannel() {
         const guild = await Guilds.findOne({ where: { guild_id: this.guild.id } });
         let triviaChannel = null;
-        console.info('triviaGuild.js: getGuildTriviaChannel: ' + guild.guild_name);
         if (guild) {
             triviaChannel = await this.guild.channels.cache.find(channel => channel.id == guild.trivia_channel_id);
             if (triviaChannel) {
-                console.info('triviaGuild.js: ' + this.guild.name + ': ' + triviaChannel.name + ' channel found in database');
                 this.triviaChannel = triviaChannel;
                 return triviaChannel;
+            } else {
+                console.info('triviaGuild.js: ' + this.guild.name + ': ' + guild.trivia_channel_id + ' channel not found');
+                return null;
             }
         }
 
@@ -387,10 +387,10 @@ class TriviaGuild {
     }
 
     async checkGuildCriticalSetup() {
-        let helper = new SystemCommands();
+        const helper = new SystemCommands();
         // TODO There may be efficiencies to check here as we grow. 
         await this.getGuildTriviaChannel();
-        this.contextData = helper.checkGuildCriticalSetup(this.guild, this.triviaChannel);
+        this.contextData = await helper.checkGuildCriticalSetup(this.guild, this.triviaChannel);
         if (this.contextData.length == 0) {
             console.info('triviaGuild.js: ' + this.guild.name + ': Critical setup complete');
             this.isReady = true;

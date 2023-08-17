@@ -116,7 +116,7 @@ module.exports = {
 	async execute(interaction) {
 
         const helper = new SystemCommands();
-		const triviaGuild = new TriviaGuild(guild);
+		const triviaGuild = new TriviaGuild(interaction.guild);
 		await triviaGuild.checkGuildCriticalSetup();
 
         if (!triviaGuild.isReady) {
