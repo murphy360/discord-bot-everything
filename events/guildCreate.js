@@ -1,6 +1,7 @@
 const { Events, EmbedBuilder, PermissionsBitField } = require('discord.js');
 require('dotenv').config({ path: './../data/.env' });
 const { SystemCommands } = require('./../classes/Helpers/systemCommands.js');
+const { TriviaGuild } = require('./../classes/trivia/triviaGuild.js');
 
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 const DEV_GUILD_ID = process.env.DEV_GUILD_ID;
@@ -13,19 +14,14 @@ module.exports = {
 		console.info(`Entering new guild: + ${guild.name} + checking setups`);
 
 		const helper = new SystemCommands();
-		let criticalContextData = await helper.checkGuildCriticalSetup(guild);
-		let contextData = await helper.checkGuildSetup(guild);
-		
-		if (contextData.length == 0) {
+		const triviaGuild = new TriviaGuild(guild);
+		await triviaGuild.checkGuildCriticalSetup();
+
+		if (triviaGuild.isReady) {
 			devChannelReport("FullSetup");
-			helper.introduceBotToGuild(guild, contextData);
-			
-		} else if (criticalContextData.length == 0) {
-			devChannelReport("CriticalSetup");
-			
+			helper.introduceBotToGuild(guild, triviaGuild.contextData);
 		} else {
 			devChannelReport("NoSetup");
-			helper.reportErrorToGuild(guild, contextData, true);
 		}
 
 		async function devChannelReport(setupType) {
