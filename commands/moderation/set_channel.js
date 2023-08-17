@@ -17,7 +17,7 @@ module.exports = {
 		console.info('set_channel.js: ' + interaction.guild.name + ' / ' + interaction.channel.name + ' / ' + interaction.user.username + ' / ' + interaction.commandName + ' / ' + interaction.options.getString('channel_name') + ' / ' + interaction.options.getString('channel_id') + ' / ' + interaction.options.getString('channel_type') + ' / ' + interaction.options.getString('channel_created_at') + ' / ' + interaction.options.getS);
 		
 		// Check if user is an admin
-		if (!interaction.member.permissions.has('ADMINISTRATOR')) {
+		if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
 			return interaction.reply({ content: 'You must be an administrator to use this command.', ephemeral: true });
 		}
 
