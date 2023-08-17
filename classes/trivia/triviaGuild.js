@@ -275,7 +275,9 @@ class TriviaGuild {
             if (triviaChannel) {
                 this.triviaChannel = triviaChannel;
                 return triviaChannel;
-            } 
+            } else {
+                console.info('triviaGuild.js: ' + this.guild.name + ': ' + guild.trivia_channel_id + ' channel not found');
+            }
             // Try to find a channel with default name
             triviaChannel = await this.guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
             if (triviaChannel) {
@@ -285,7 +287,6 @@ class TriviaGuild {
             
             console.info('triviaGuild.js: ' + this.guild.name + ': ' + guild.trivia_channel_id + ' channel not found');
             return null;
-            
         }
 
         // Try to find TRIVIA channel
