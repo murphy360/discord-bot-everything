@@ -72,8 +72,6 @@ class Intro {
             .setTitle('A New Game is about to start!')
             // Set the color of the embed
             .setColor(0x0066ff)
-            // Set the main content of the embed
-            .setDescription(`<@&${playerRole.id}> ${this.description}`)
             // Add originGuild icon to embedd
             .setThumbnail(this.hostGuild.iconURL())
             .addFields(
@@ -86,6 +84,14 @@ class Intro {
             )
             .setTimestamp()
             .setFooter({ text: 'Trivia Game# ' + this.gameId, iconURL: this.client.user.displayAvatarURL() });
+
+            if (playerRole) {
+                // Set the main content of the embed
+                embed.setDescription(`<@&${playerRole.id}> ${this.description}`)
+            } else {
+                console.log('intro.js: Player Role Does Not Exist');
+                embed.setDescription(this.description);
+            }
             // Send the embed to the trivia channel
             if (channel) {
                 channel.send({ embeds: [embed] });  
