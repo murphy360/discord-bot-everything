@@ -2,7 +2,6 @@ const { REST, Routes } = require('discord.js');
 require('dotenv').config({ path: './data/.env' })
 const token = process.env.TOKEN;
 const clientId = process.env.CLIENT_ID;
-const guildId = process.env.GUILD_ID;
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -12,6 +11,9 @@ const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
+	if (folder == "developer") {
+		continue;
+	}
 	// Grab all the command files from the commands directory you created earlier
 	const commandsPath = path.join(foldersPath, folder);
 	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
