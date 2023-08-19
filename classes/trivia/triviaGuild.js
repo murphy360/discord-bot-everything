@@ -5,7 +5,6 @@ const Sequelize = require('sequelize');
 require('dotenv').config({ path: './../data/.env' });
 // Names of channels to use
 const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
-const CHAT_GPT_CHANNEL = process.env.CHAT_GPT_CHANNEL;
 const PLAYER_ROLE = process.env.PLAYER_ROLE;
 const GUILD_CHAMPION_ROLE = process.env.GUILD_CHAMPION_ROLE;
 const WORLD_CHAMPION_ROLE = process.env.WORLD_CHAMPION_ROLE;
@@ -34,7 +33,6 @@ class TriviaGuild {
         this.currentScore = 0;
         this.triviaChannel = null;
         this.defaultChannel = this.guild.systemChannel;
-        this.chatGPTChannel = this.guild.channels.cache.find(channel => channel.name === CHAT_GPT_CHANNEL);
         this.guildTriviaChampion = null;    // The user with the highest trivia_points_total (Member Object)
         this.isReady = false;
         this.highestScorers = new Array(); // Array of highest scorers in the guild
@@ -323,6 +321,35 @@ class TriviaGuild {
         const isGuildWinner = this.answers.filter(answer => answer.isGuildWinner);
         const xp = (correctAnswers.length * 2) + (incorrectAnswers.length * 1) + (isGlobalWinner.length * 5) + (isGuildWinner.length * 3);
         return xp;
+    }
+
+    async setGuildPlayers() {
+        this.players = await Answers.findAll({
+            attributes: [
+                'user_id',
+                [Sequelize.fn('sum', Sequelize.col('points')), 'total_points'],
+            ],
+            where: {
+                guild_id: this.guild.id,
+            },
+            group: ['user_id'],
+            order: [[Sequelize.fn('sum', Sequelize.col('points')), 'DESC']],
+        });
+
+    }
+
+    async setGuildTriviaUsers() {
+        this.allGuildPlayers = await Answers.findAll({
+            attributes: [
+                'user_id',
+                [Sequelize.fn('sum', Sequelize.col('points')), 'total_points'],
+            ],
+            where: {
+                guild_id: this.guild.id,
+            },
+            group: ['user_id'],
+            order: [[Sequelize.fn('sum', Sequelize.col('points')), 'DESC']],
+        });
     }
 
      // Find the top 10 highest scoring players in the guild
