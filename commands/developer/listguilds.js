@@ -63,6 +63,8 @@ module.exports = {
 			// check if client has permission to create invite
 			if (!triviaGuilds[i].guild.members.me.permissions.has(PermissionsBitField.Flags.CreateInstantInvite)) {
 				channelInvite = "No Permission";
+			} else if (triviaGuilds[i].triviaChannel == null) {
+				channelInvite = "No Channel";
 			} else {
 				await triviaGuilds[i].triviaChannel.createInvite({ unique: true, temporary: false }).then(invite => {
 					console.log(invite.code);
