@@ -16,7 +16,7 @@ module.exports = {
 			await interaction.editReply({ content: "You are not authorized to use this command.", ephemeral: true });
 			return;
 		}
-		
+		interaction.deferReply();
 		const guilds = await interaction.client.guilds.cache;
 		console.info("Guilds: " + guilds.size);
 		let triviaGuilds = await this.getTriviaGuilds(guilds);
