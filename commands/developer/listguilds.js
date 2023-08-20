@@ -81,11 +81,11 @@ module.exports = {
 			} else {
 				guildString += "❌ - " + triviaGuilds[i].guild.name + "\n";
 			}
-			guildString += "Channel: " + triviaChannelName + "\n";
-			guildString += "Invite: " + channelInvite + "\n";
-			guildString += "Members: " + triviaGuilds[i].guild.memberCount.toString() + "\n";
-			guildString += "Trivia Players: " + triviaUsers + "\n";
-			guildString += "\n";
+			guildString += "Channel: " + triviaChannelName + ", Invite: " + channelInvite + "\n\n";
+			//guildString += "Invite: " +  + "\n";
+			//guildString += "Members: " + triviaGuilds[i].guild.memberCount.toString() + "\n";
+			//guildString += "Trivia Players: " + triviaUsers + "\n";
+			//guildString += "\n";
 			
 
 		}
