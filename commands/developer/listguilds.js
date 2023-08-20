@@ -9,11 +9,11 @@ module.exports = {
 		
 	async execute(interaction) {
 		console.info('listguilds.js');
-
+		await interaction.deferReply({ ephemeral: true });
 		const authorizedUsers = ["515153941558984705"];
 
 		if (!authorizedUsers.includes(interaction.user.id)) {
-			await interaction.reply({ content: "You are not authorized to use this command.", ephemeral: true });
+			await interaction.editReply({ content: "You are not authorized to use this command.", ephemeral: true });
 			return;
 		}
 		interaction.deferReply();
@@ -44,7 +44,6 @@ module.exports = {
 	async getGuildsEmbed(triviaGuild) {
 		console.info('getGuildsEmbed');
 		let guildEmbed = new EmbedBuilder()
-			.setTitle(triviaGuild.guild.name)
 			.setDescription('Status of Don\'t Panic! in this guild.')
 			.setColor('#0099ff')
 			.setTimestamp();
@@ -77,13 +76,9 @@ module.exports = {
 		}
 
 		if (triviaGuild.isReady) {
-			guildEmbed.addFields(
-				{ name: "✅ - " + triviaChannelName, value: channelInvite, inline: true }
-			);
+			guildEmbed.setTitle("✅ - " + triviaGuild.guild.name);
 		} else {
-			guildEmbed.addFields(
-				{ name: "❌ - " + triviaChannelName, value: channelInvite, inline: true }
-			);
+			guildEmbed.setTitle("❌ - "  + triviaGuild.guild.name);
 		}
 
 		guildEmbed.addFields(
