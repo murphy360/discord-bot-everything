@@ -1,6 +1,12 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField  } = require('discord.js');
 const { }  = require('discord.js');
 const { TriviaGuild } = require('./../../classes/trivia/triviaGuild.js');
+require('dotenv').config({ path: './../data/.env' });
+const PLAYER_ROLE = process.env.PLAYER_ROLE;
+const GUILD_CHAMPION_ROLE = process.env.GUILD_CHAMPION_ROLE;
+const WORLD_CHAMPION_ROLE = process.env.WORLD_CHAMPION_ROLE;
+const NOOB_ROLE = process.env.NOOB_ROLE;
+
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -80,11 +86,42 @@ module.exports = {
 			guildEmbed.setTitle("❌ - "  + triviaGuild.guild.name);
 		}
 
+		let hasRolePerms = "False";
+		if (triviaGuild.guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
+			hasRolePerms = "True";
+		}
+
 		guildEmbed.addFields(
 			{ name: triviaChannelName, value: channelInvite, inline: true },
 			{ name: 'Members', value: triviaGuild.guild.memberCount.toString(), inline: true },
-			{ name: 'Trivia Players', value: triviaUsers, inline: true }
+			{ name: 'Trivia Players', value: triviaUsers, inline: true },
+			{ name: 'ManageRoles Permissions', value: hasRolePerms, inline: false },
 		);
+
+		// check if guild has NOOB_ROLE
+		if (triviaGuild.checkGuildRole(NOOB_ROLE)) {
+			guildEmbed.addFields( {name: "NR", value: "✅", inline: true} );
+		} else {
+			guildEmbed.addFields( {name: "NR", value: "❌", inline: true} );
+		}
+		// check if guild has PLAYER_ROLE
+		if (triviaGuild.checkGuildRole(PLAYER_ROLE)) {
+			guildEmbed.addFields( {name: "PR", value: "✅", inline: true} );
+		} else {
+			guildEmbed.addFields( {name: "PR", value: "❌", inline: true} );
+		}
+		// check if guild has GUILD_CHAMPION_ROLE
+		if (triviaGuild.checkGuildRole(GUILD_CHAMPION_ROLE)) {
+			guildEmbed.addFields( {name: "GR", value: "✅", inline: true} );
+		} else {
+			guildEmbed.addFields( {name: "GR", value: "❌", inline: true} );
+		}
+		// check if guild has WORLD_CHAMPION_ROLE
+		if (triviaGuild.checkGuildRole(WORLD_CHAMPION_ROLE)) {
+			guildEmbed.addFields( {name: "WR", value: "✅", inline: true} );
+		} else {
+			guildEmbed.addFields( {name: "WR", value: "❌", inline: true} );
+		}
 		return guildEmbed;
 	},
 };

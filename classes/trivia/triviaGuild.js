@@ -186,8 +186,9 @@ class TriviaGuild {
         } 
         
         let guildChampRole = await this.guild.roles.cache.find(role => role.name === GUILD_CHAMPION_ROLE);
+        let setRolesPerm = await this.guild.me.permissions.has(PermissionsBitField.Flags.ManageRoles);
 
-        if (guildChampRole) {      
+        if (guildChampRole && setRolesPerm) {      
             console.info(this.guild.name + ': ' + guildChampRole.name + ' Role found - Now checking for current champions');
             const currentChampions = await guildChampRole.members.map(member => member);
             if (!currentChampions.length > 0) {
@@ -204,6 +205,15 @@ class TriviaGuild {
             }
         } else {
             console.info(this.guild.name + ': ' + GUILD_CHAMPION_ROLE + ' Role not found');
+        }
+    }
+
+    async checkGuildRole(roleName) {
+        const role = await this.guild.roles.cache.find(role => role.name === roleName);
+        if (role.name == roleName) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -238,7 +248,8 @@ class TriviaGuild {
     // remove the Noob role from the member
     async removeRole(guildMember, roleName) {   
         const role = await this.guild.roles.cache.find(role => role.name === roleName);
-        if (role) {
+        const setRolesPerm = await this.guild.me.permissions.has(PermissionsBitField.Flags.ManageRoles);
+        if (role && setRolesPerm) {
             if (guildMember.roles.cache.has(role.id)) {
                 guildMember.roles.remove(role.id);
                 return;
@@ -307,10 +318,7 @@ class TriviaGuild {
         } else {
             await Guilds.create({ guild_id: this.guild.id, guild_name: this.guild.name, trivia_channel_id: channel.id });
         }
-
-        
     }
-
 
     getGuildsGameXP() {                   // Returns the XP earned in the last game 
         // Questions answered correctly * 2
