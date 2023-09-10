@@ -36,6 +36,7 @@ class TriviaGuild {
         this.guildTriviaChampion = null;    // The user with the highest trivia_points_total (Member Object)
         this.isReady = false;
         this.highestScorers = new Array(); // Array of highest scorers in the guild
+        this.contextData = [];
     }
     
     getStreak() {                   // Return the player's win streak
@@ -186,7 +187,13 @@ class TriviaGuild {
         } 
         
         let guildChampRole = await this.guild.roles.cache.find(role => role.name === GUILD_CHAMPION_ROLE);
-        let setRolesPerm = await this.guild.me.permissions.has(PermissionsBitField.Flags.ManageRoles);
+        let setRolesPerm = false; 
+        if (this.guild.me){
+            setRolesPerm = await this.guild.me.permissions.has(PermissionsBitField.Flags.ManageRoles);
+        } else {
+            console.info('triviaGuild.js: ' + this.guild.name + ': Bot not found in guild');
+        }
+       
 
         if (guildChampRole && setRolesPerm) {      
             console.info(this.guild.name + ': ' + guildChampRole.name + ' Role found - Now checking for current champions');
@@ -210,6 +217,9 @@ class TriviaGuild {
 
     async checkGuildRole(roleName) {
         const role = await this.guild.roles.cache.find(role => role.name === roleName);
+        if (!role) {
+            return false;
+        }
         if (role.name == roleName) {
             return true;
         } else {
@@ -276,39 +286,67 @@ class TriviaGuild {
     }
 
     async getGuildTriviaChannel() {
-        const guild = await Guilds.findOne({ where: { guild_id: this.guild.id } });
+        const dbGuild = await Guilds.findOne({ where: { guild_id: this.guild.id } });
         let triviaChannel = null;
-        if (guild) {
+        if (dbGuild) {
             // Try to find the channel by ID stored in the database
-            triviaChannel = await this.guild.channels.cache.find(channel => channel.id == guild.trivia_channel_id);
+            triviaChannel = await this.guild.channels.cache.find(channel => channel.id == dbGuild.trivia_channel_id);
             if (triviaChannel) {
-                this.triviaChannel = triviaChannel;
+                console.info('triviaGuild.js: ' + this.guild.name + ': ' + dbGuild.trivia_channel_id + ' channel found');
+                await this.setGuildTriviaChannel(triviaChannel);
                 return triviaChannel;
             } else {
-                console.info('triviaGuild.js: ' + this.guild.name + ': ' + guild.trivia_channel_id + ' channel not found');
+                console.info('triviaGuild.js: ' + this.guild.name + ': ' + dbGuild.trivia_channel_id + ' channel not found');
             }
             // Try to find a channel with default name
             triviaChannel = await this.guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
             if (triviaChannel) {
-                this.triviaChannel = triviaChannel;
+                await this.setGuildTriviaChannel(triviaChannel);
                 return triviaChannel;
             } 
             
-            console.info('triviaGuild.js: ' + this.guild.name + ': ' + guild.trivia_channel_id + ' channel not found');
-            return null;
-        }
-
-        // Try to find TRIVIA channel
-        triviaChannel = await this.guild.channels.cache.find(channel => channel.name === TRIVIA_CHANNEL);
-        if (triviaChannel) {
-            await Guilds.update({ trivia_channel_id: triviaChannel.id }, { where: { guild_id: this.guild.id } });
-            console.info('triviaGuild.js: ' + this.guild.name + ': ' + triviaChannel.name + ' channel found and stored in database');
-            this.triviaChannel = triviaChannel;
-            return triviaChannel;
-        } else {
             console.info('triviaGuild.js: ' + this.guild.name + ': ' + TRIVIA_CHANNEL + ' channel not found');
             return null;
+        } else {
+            console.info('triviaGuild.js: ' + this.guild.name + ': Guild not found in database');
+            return null;
         }
+    }
+
+       // Create Trivia Channel
+    async createTriviaChannel() {
+        const manageChannelsPerm = this.guild.members.me.permissions.has(PermissionsBitField.Flags.ManageChannels);
+        if (!manageChannelsPerm) {
+            console.info('triviaGuild.js: ' + this.guild.name + ': Missing Manage Channels Permission. Cannot create Trivia Channel');
+            return false;
+        }
+        console.info('Creating ' + TRIVIA_CHANNEL + ' in ' + this.guild.name);
+        //let parentTextChannelId = this.defaultChannel.parentId;
+        await this.guild.channels.create({
+          name: TRIVIA_CHANNEL,
+          type: 0,
+          //parent: parentTextChannelId,
+          permissionOverwrites: [
+            {
+              id: this.guild.id,
+              allow: [PermissionsBitField.Flags.SendMessages],
+            }, {
+              id: this.guild.id,
+              allow: [PermissionsBitField.Flags.ViewChannel],
+            }, {
+              id: this.guild.id,
+              allow: [PermissionsBitField.Flags.ReadMessageHistory]
+            }
+          ]
+        }).then(async channel => {
+          console.info('Trivia Channel Created: ' + channel.name + ' in ' + this.guild.name);
+          this.setGuildTriviaChannel(channel);
+          return true;
+        }).catch(async error => {
+          console.info('Error creating Trivia Channel in ' + this.guild.name + ': ');
+          console.error(error);
+          return false;
+        });    
     }
 
     async setGuildTriviaChannel(channel) {
@@ -318,6 +356,7 @@ class TriviaGuild {
         } else {
             await Guilds.create({ guild_id: this.guild.id, guild_name: this.guild.name, trivia_channel_id: channel.id });
         }
+        this.triviaChannel = channel;
     }
 
     getGuildsGameXP() {                   // Returns the XP earned in the last game 
@@ -343,7 +382,6 @@ class TriviaGuild {
             group: ['user_id'],
             order: [[Sequelize.fn('sum', Sequelize.col('points')), 'DESC']],
         });
-
     }
 
     async setGuildTriviaUsers() {
@@ -430,11 +468,84 @@ class TriviaGuild {
         }
     }
 
+
+    /**
+     * 
+     * 
+     * If contextData.length == 0, then the guild is set up correctly.
+     * Critical Requirements are:
+     * 1. There is a Trivia Channel
+     * 2. The bot can View Messages in the Trivia Channel
+     * 3. The bot can View Message History in the Trivia Channel
+     * 4. The bot can send Messages in the Trivia Channel
+     * 5. The bot can add reactions in the Trivia Channel
+     */
     async checkGuildCriticalSetup() {
-        const helper = new SystemCommands();
+        this.contextData = [];
+        
+        
         // TODO There may be efficiencies to check here as we grow. 
         await this.getGuildTriviaChannel();
-        this.contextData = await helper.checkGuildCriticalSetup(this.guild, this.triviaChannel);
+        if (!this.triviaChannel ) {
+            console.info('triviaGuild.js: ' + this.guild.name + ': Trivia Channel not found. Trying to create it');
+            await this.createTriviaChannel();
+        } else {
+            console.info('triviaGuild.js: ' + this.guild.name + ': Trivia Channel found: ' + this.triviaChannel.name);
+        }
+
+        if (!this.triviaChannel) {
+            this.contextData.push({
+              role: 'user',
+              content: 'Missing ' + TRIVIA_CHANNEL + ' channel. Please create the channel and give me  SendMessages, AddReactions, ViewChannel, ReadMessageHistory and EmbedLinks Permissions. If you assign me the ManageChannels permission, I will create the channel for you. You can also use the /set-channel command to set the channel. '
+              });
+            
+          } else {
+            const triviaChannelSendMessagesPermission = await this.guild.members.me.permissionsIn(this.triviaChannel).has(PermissionsBitField.Flags.SendMessages);
+            const triviaChannelAddReactionsPermission = await this.guild.members.me.permissionsIn(this.triviaChannel).has(PermissionsBitField.Flags.AddReactions);
+            const triviaChannelViewChannelPermission = await this.guild.members.me.permissionsIn(this.triviaChannel).has(PermissionsBitField.Flags.ViewChannel);
+            const triviaChannelReadMessageHistoryPermission = await this.guild.members.me.permissionsIn(this.triviaChannel).has(PermissionsBitField.Flags.ReadMessageHistory);
+            const triviaChannelEmbedLinksPermission = await this.guild.members.me.permissionsIn(this.triviaChannel).has(PermissionsBitField.Flags.EmbedLinks);
+            
+            // Check if bot has SendMessages permission in Trivia Channel
+           if (!triviaChannelSendMessagesPermission) {
+                this.contextData.push({
+                role: 'user',
+                content: 'Missing Send Messages Permission in ' + this.triviaChannel.name + ' channel'
+              });
+            }
+            // Check if bot has AddReactions permission in Trivia Channel
+           if (!triviaChannelAddReactionsPermission) {
+                this.contextData.push({
+                role: 'user',
+                content: 'Missing Add Reactions Permission in ' + this.triviaChannel.name + ' channel'
+              });
+            }
+    
+            // Check if the bot has the ViewChannel permission in the Trivia Channel
+            if (!triviaChannelViewChannelPermission) {
+                this.contextData.push({
+                role: 'user',
+                content: 'Missing View Channel Permission in ' + this.triviaChannel.name + ' channel'
+              });
+            }
+    
+            // Check if the bot has the ReadMessageHistory permission in the Trivia Channel
+           if (!triviaChannelReadMessageHistoryPermission) {
+                this.contextData.push({
+                role: 'user',
+                content: 'Missing Read Message History Permission in ' + this.triviaChannel.name + ' channel'
+              });
+            }
+    
+            // Check if the bot has the EmbedLinks permission in the Trivia Channel
+            if (!triviaChannelEmbedLinksPermission) {
+                this.contextData.push({
+                role: 'user',
+                content: 'Missing Embed Links Permission in ' + this.triviaChannel.name + ' channel'
+              });
+            }
+        }
+          
         if (this.contextData.length == 0) {
             console.info('triviaGuild.js: ' + this.guild.name + ': Critical setup complete');
             this.isReady = true;
