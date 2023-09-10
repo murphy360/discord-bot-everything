@@ -270,6 +270,10 @@ class TriviaGuild {
     // remove the Noob role from the member
     async removeRole(guildMember, roleName) {   
         const role = await this.guild.roles.cache.find(role => role.name === roleName);
+        if (!this.guild.me) {
+            console.info('triviaGuild.js: ' + this.guild.name + ': Bot not found in guild. Cannot remove role');
+            return;
+        }
         const setRolesPerm = await this.guild.me.permissions.has(PermissionsBitField.Flags.ManageRoles);
         if (role && setRolesPerm) {
             if (guildMember.roles.cache.has(role.id)) {
