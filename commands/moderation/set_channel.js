@@ -36,12 +36,12 @@ module.exports = {
 		// Check if new channel exists
 		if (newChannel) {
 			// Check if channel has correct permissions
-			const contextData = await helper.checkGuildCriticalSetup(triviaGuild.guild, newChannel);
-			if (contextData.lentgh > 0) {
-				const embed = await getHelpEmbedErrors(contextData, client)
+			await triviaGuild.setGuildTriviaChannel(newChannel);
+			await triviaGuild.checkGuildCriticalSetup();
+			if (!triviaGuild.isReady) {
+				const embed = await getHelpEmbedErrors(triviaGuild.contextData, client);
 				return interaction.reply({ embeds: [embed], ephemeral: true });
 			} else {
-				await triviaGuild.setGuildTriviaChannel(newChannel);
 				return interaction.reply({ content: 'Trivia channel set to ' + newChannelName + '.', ephemeral: true });
 			}
 		} else {
