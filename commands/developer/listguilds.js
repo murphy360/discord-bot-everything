@@ -11,20 +11,34 @@ const NOOB_ROLE = process.env.NOOB_ROLE;
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('listguilds')
-		.setDescription('God-Mode!'),
+		.setDescription('God-Mode!')
+		.addStringOption(option =>
+			option.setName('problems')
+			.setDescription('Only Report Problem Guilds')
+			.setRequired(false)
+			.addChoices(
+				{ name: 'True', value: 'true' },
+				{ name: 'False', value: 'false' }
+			)
+		),
 		
 	async execute(interaction) {
 		console.info('listguilds.js');
 		await interaction.deferReply({ ephemeral: true });
 		const authorizedUsers = ["515153941558984705"];
+		const problems = interaction.options.getString('problems');
 
 		if (!authorizedUsers.includes(interaction.user.id)) {
 			await interaction.editReply({ content: "You are not authorized to use this command.", ephemeral: true });
 			return;
 		}
+
+
+
 		const guilds = await interaction.client.guilds.cache;
 		console.info("Guilds: " + guilds.size);
 		let triviaGuilds = await this.getTriviaGuilds(guilds);
+		triviaGuilds = await this.sortTriviaGuildsByScore(triviaGuilds, problems);
 		console.info("Trivia Guilds: " + triviaGuilds.length);
 		interaction.editReply("Here you go!");
 		for (let i = 0; i < triviaGuilds.length; i++) {
@@ -46,18 +60,38 @@ module.exports = {
 	return triviaGuilds;
 	},
 
+	async sortTriviaGuildsByScore(triviaGuilds, problems) {
+		for (let i = 0; i < triviaGuilds.length; i++) {
+			console.log(triviaGuilds[i].guild.name);
+			await triviaGuilds[i].checkGuildCriticalSetup();
+			await triviaGuilds[i].setGuildTriviaUsers();
+			await triviaGuilds[i].setGuildScore();
+			if (problems == "true" && triviaGuilds[i].isReady) {
+				triviaGuilds.splice(i, 1); // remove healthy guild from array
+				i--;
+			}
+		}
+		console.info('sortTriviaGuildsByScore');
+		triviaGuilds.sort((a, b) => (a.totalScore < b.totalScore) ? 1 : -1);
+		return triviaGuilds;
+	},
+
 	async getGuildsEmbed(triviaGuild) {
 		console.info('getGuildsEmbed');
 		let guildEmbed = new EmbedBuilder()
-			.setDescription('Status of Don\'t Panic! in this guild.')
+			.setDescription(triviaGuild.guild.id)
 			.setColor('#0099ff')
 			.setTimestamp();
 
 		await triviaGuild.checkGuildCriticalSetup();
 		await triviaGuild.setGuildTriviaUsers();
+		await triviaGuild.setGuildScore();
+		console.info("Guild: " + triviaGuild.guild.name + " - " + triviaGuild.totalScore);
 
 		let triviaChannelName = "None";
 		let channelInvite = "None";
+		
+
 
 		// check if channel is set
 		if (triviaGuild.triviaChannel != null) {
@@ -86,42 +120,62 @@ module.exports = {
 			guildEmbed.setTitle("❌ - "  + triviaGuild.guild.name);
 		}
 
-		let hasRolePerms = "False";
-		if (triviaGuild.guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
-			hasRolePerms = "True";
-		}
 
-		guildEmbed.addFields(
-			{ name: triviaChannelName, value: channelInvite, inline: true },
-			{ name: 'Members', value: triviaGuild.guild.memberCount.toString(), inline: true },
-			{ name: 'Trivia Players', value: triviaUsers, inline: true },
-			{ name: 'ManageRoles Permissions', value: hasRolePerms, inline: false },
-		);
 
+
+
+		let rolesString = "";
 		// check if guild has NOOB_ROLE
 		if (triviaGuild.checkGuildRole(NOOB_ROLE)) {
-			guildEmbed.addFields( {name: "NR", value: "✅", inline: true} );
+			rolesString += "✅ - NOOB \n";
 		} else {
-			guildEmbed.addFields( {name: "NR", value: "❌", inline: true} );
+			rolesString += "❌ - NOOB \n";
+			
 		}
 		// check if guild has PLAYER_ROLE
 		if (triviaGuild.checkGuildRole(PLAYER_ROLE)) {
-			guildEmbed.addFields( {name: "PR", value: "✅", inline: true} );
+			rolesString += "✅ - PLAYER \n";
 		} else {
-			guildEmbed.addFields( {name: "PR", value: "❌", inline: true} );
+			rolesString += "❌ - PLAYER \n";
 		}
 		// check if guild has GUILD_CHAMPION_ROLE
 		if (triviaGuild.checkGuildRole(GUILD_CHAMPION_ROLE)) {
-			guildEmbed.addFields( {name: "GR", value: "✅", inline: true} );
+			rolesString += "✅ - GUILD CHAMPION \n";
 		} else {
-			guildEmbed.addFields( {name: "GR", value: "❌", inline: true} );
+			rolesString += "❌ - GUILD CHAMPION \n";
 		}
 		// check if guild has WORLD_CHAMPION_ROLE
 		if (triviaGuild.checkGuildRole(WORLD_CHAMPION_ROLE)) {
-			guildEmbed.addFields( {name: "WR", value: "✅", inline: true} );
+			rolesString += "✅ - WORLD CHAMPION";
 		} else {
-			guildEmbed.addFields( {name: "WR", value: "❌", inline: true} );
+			rolesString += "❌ - WORLD CHAMPION";
 		}
+
+		let guildPermissionsString = "";
+
+		if (triviaGuild.guild.members.me.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
+			guildPermissionsString += "✅ - Manage Roles \n";
+		} else {
+			guildPermissionsString += "❌ - Manage Roles \n";
+		}
+
+		if (triviaGuild.guild.members.me.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
+			guildPermissionsString += "✅ - Manage Channels \n";
+		} else {
+			guildPermissionsString += "❌ - Manage Channels \n";
+		}
+
+
+		guildEmbed.addFields(
+			
+			{ name: 'Guild Score', value: triviaGuild.totalScore.toString(), inline: true},
+			{ name: 'Trivia Players', value: triviaUsers, inline: true },
+			{ name: 'Members', value: triviaGuild.guild.memberCount.toString(), inline: true },
+			{ name: "Trivia Channel", value: triviaChannelName, inline: false },
+			{ name: "Invite Link", value: channelInvite, inline: true},
+			{ name: 'Permissions', value: guildPermissionsString, inline: false },
+			{ name: 'Roles', value: rolesString, inline: false } 
+		);
 		return guildEmbed;
 	},
 };
