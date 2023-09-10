@@ -31,12 +31,24 @@ class TriviaGuild {
         this.players = new Array(); // Array of current game players in the guild
         this.allGuildPlayers = new Array(); // Array of all players in the guild
         this.currentScore = 0;
+        this.totalScore = 0;
         this.triviaChannel = null;
         this.defaultChannel = this.guild.systemChannel;
         this.guildTriviaChampion = null;    // The user with the highest trivia_points_total (Member Object)
         this.isReady = false;
         this.highestScorers = new Array(); // Array of highest scorers in the guild
         this.contextData = [];
+    }
+
+    async setGuildScore() {
+        // Get the guild from the database
+        const guild = await Guilds.findOne({ where: { guild_id: this.guild.id } });
+        if (guild) {
+            this.totalScore = guild.trivia_points_total;
+            console.info('triviaGuild.js: setGuildScore: ' + this.guild.name + ': Guild Score: ' + this.totalScore);
+        } else {
+            this.totalScore = 0;
+        }
     }
     
     getStreak() {                   // Return the player's win streak
