@@ -50,7 +50,7 @@ module.exports = {
 				const embed = await getHelpEmbedErrors(triviaGuild.contextData, client);
 				return interaction.reply({ embeds: [embed], ephemeral: true });
 			} else {
-				return interaction.reply({ content: 'Trivia channel set to ' + newChannelName + '.', ephemeral: true });
+				return interaction.reply({ content: 'Trivia channel set to ' + newChannel.name + '.', ephemeral: true });
 			}
 		} else {
 			return interaction.reply({ content: 'I couldn\'t find a channel with that ID.', ephemeral: true });
