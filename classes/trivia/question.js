@@ -77,6 +77,10 @@ class Question {
             this.incorrect_choices = questionData.incorrect_answers;                // Array of Incorrect Answers
         }
 
+        if (this.source == 'User') {
+            this.sourceID = questionData.sourceID;                                  // ID of the question from the source
+        }
+
         this.choices = this.createChoices(this.incorrect_choices);              // Array of Choices (incorrect and correct answers)   
         this.correct_choice = this.findCorrectChoice();                         // Integer value indicating correct answer in Choices Array
         this.num_choices = this.choices.length;                                 // Number of Answer Choices (2 or 4)
@@ -326,6 +330,13 @@ class Question {
         if (ownerUser) {
             descriptionString += ' owned by ' + ownerUser.username;
         }
+
+        let footerString = 'Question: ' + this.ID + ' provided by ' + this.source;
+        if (this.source == 'User') {
+            const user = await this.client.users.fetch(this.sourceID);
+            footerString = 'Question: ' + this.ID + ' provided by ' + user.username;
+        }
+
         
         this.embed = new EmbedBuilder()
             .setDescription(descriptionString)
@@ -343,8 +354,25 @@ class Question {
             // Add originGuild icon to embedd
             //.setThumbnail(this.hostGuild.iconURL())
             .setTimestamp()
-            .setFooter({ text: 'Question: ' + this.ID + ' provided by ' + this.source});
+            .setFooter({ text: footerString});
         return this.embed;
+    }
+
+    createValidationActionRow() {
+        const actionRow = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('accept')
+                    .setLabel('Accept')
+                    .setStyle(ButtonStyle.Success)
+                    .setDisabled(false),
+                new ButtonBuilder()
+                    .setCustomId('reject')
+                    .setLabel('Reject')
+                    .setStyle(ButtonStyle.Danger)
+                    .setDisabled(false)
+            );
+        return actionRow;
     }
 
     createQuestionActionRow() {

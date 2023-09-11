@@ -48,7 +48,8 @@ module.exports = {
 					{name: '/trivia play', value: 'All you need to play a single round of trivia'},
 					{name: '/trivia play rounds:[ROUNDS] category:[CATEGORY] difficulty:[DIFFICULTY]', value: 'Optionally specify the number of rounds, the categories, and the difficulty'},
 					{name: '/trivia play custom_category:[CUSTOM_CATEGORY]', value: 'Optionally specify a custom category. I\'ll do my best to find questions that match your custom category.'},
-					{name: '/set-channel:[CHANNEL-NAME]', value: 'ADMIN ONLY: Set the channel where I will send trivia questions. This is required to play trivia.'}
+					{name: '/set-channel:[CHANNEL-NAME]', value: 'ADMIN ONLY: Set the channel where I will send trivia questions. This is required to play trivia.'},
+					{name: '/question add:[question] [answer]', value: 'Add a question to the database. This is a great way to help me grow!'}
 				)
 				.setThumbnail(interaction.client.user.displayAvatarURL())
 				.setTimestamp();
