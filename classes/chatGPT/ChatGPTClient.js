@@ -5,7 +5,13 @@ const exampleResponse = "[{category:Science,type:boolean,difficulty:Easy,questio
 const examplePrompt = "Generate 7 trivia questions related to All category and all difficulty";
 const exampleResponse2 = "[{category:Science,type:boolean,difficulty:Easy,question:O is the chemical symbol for the element oxygen.,incorrect_answers:[False],correct_answer:True,source:gpt-3.5-turbo}]";
 const examplePrompt2 = "Generate 1 trivia questions related to All category and all difficulty";
-      
+const exampleValidationPrompt = "Please check this question for accuracy: Question: O is the chemical symbol for the element oxygen. Answer: True, Category: None, Difficulty: Easy Incorrect Answers: False Source: 515153941558984705";
+const exampleValidationResponse = "[{valid:true,category:Science,type:boolean,difficulty:Easy,question:O is the chemical symbol for the element oxygen.,incorrect_answers:[False],correct_answer:True,source:515153941558984705}]";
+const exampleValidationPrompt2 = "Please check this question for accuracy: Question: What is the capital of the United States? Answer: San Diego CA., Category: Geography, Difficulty: Easy Incorrect Answers: None, Source: 515153941558984705";
+const exampleValidationResponse2 = "[{valid:false,category:Geography,type:multiple,difficulty:Easy,question:What is the capital of the United States?,incorrect_answers:[San Diego CA.,New York City,Annapolis MD.],correct_answer:Washington DC,source:515153941558984705}]";
+const exampleValidationPrompt3 = "Please check this question for accuracy and return a corrected question and answer if it's inacurate: Question: Who created Mickey Mouse? Answer: Corey Murphy, Category: None, Difficulty: None Incorrect Answers: None, Source: 515153941558984705.";
+const exampleValidationResponse3 = "[{ \"valid\": false, \"category\": \"Entertainment: Cartoon & Animations\", \"type\": \"multiple\", \"difficulty\": \"Easy\", \"question\": \"Who created Mickey Mouse?\", \"incorrect_answers\": [\"Ollie Johnston\",\"John Lasseter\",\"Norm Ferguson\",\"Stan Lee\"], \"correct_answer\": \"Walt Disney\", \"source\": \"515153941558984705\" }]"
+
 /**
  * Class for creating a Discord.JS ChatGPTClient.
  */
@@ -66,7 +72,7 @@ class ChatGPTClient {
       let categoryContextData = [{ role: 'system', content: 'You are a Discord Bot Tasked to act as a trivia host.  You are creating a new Trivia Event and need to choose the categories that will be used in the next event.  It is important to be creative, eclectic and surprising in your selections.' }];
       categoryContextData.push({
         role: 'user',
-        content: 'Please Generate ' + numberCategories + ' random trivia categories. Return only the categoroes, separated by commas. For example: History, Pokemen, Gray\'s Anatomy' 
+        content: 'Please Generate ' + numberCategories + ' random trivia categories. Return only the categories, separated by commas. For example: History, Pokemen, Gray\'s Anatomy' 
       });
       await this.openai.createChatCompletion({
         model: model,
@@ -128,12 +134,33 @@ class ChatGPTClient {
       });
     });
   }
-  
 
+  // Validate a user's new question
+  async validateQuestion(question, answer, category, difficulty, incorrect_answers, source, model) {
+    
+      let questionContextData = [{ role: 'system', content: 'You are a Discord Bot Tasked to act as a trivia host.  You are validating a new trivia question.  It is important to ensure the question is valid and that the answer is correct.' }];
+
+         
+      questionContextData.push({
+      role: 'user',
+      content: 'Example Prompt: ' + exampleValidationPrompt + ' Example Response: ' + exampleValidationResponse,
+      });   
+
+      questionContextData.push({
+        role: 'user',
+        content: 'Example Prompt: ' + exampleValidationPrompt3 + ' Example Response: ' + exampleValidationResponse3,
+      });
+      questionContextData.push({
+        role: 'user',
+        content: 'Please check this question for accuracy: Question: ' + question + ' Answer: ' + answer + ' Category: ' + category + ' Difficulty: ' + difficulty + ' Incorrect Answers: ' + incorrect_answers + ' Source: ' + source + 'For each question (if not defined, difficulty should be Easy, Medium or Hard), include the following information in JSON format: valid, category, difficulty, question, incorrect_answers. (Provide four unique incorrect answers for multiple choice questions. Each incorrect answer should be different than the correct answer), correct_answer, and source. Do your best to classify your responses into common trivia categories.  Return the questions as a JSON string:'
+      });
+      console.info('ChatGPTClient.validateQuestion()');
+      return await this.getJsonFromAi(model, questionContextData);
+  }
+  
   async getTriviaQuestions(numberQuestions, category, difficulty, oldQuestionContextData, model) {
     
     let triviaContextData = [];
-
 
     triviaContextData.push({
          role: 'system', 
@@ -179,7 +206,6 @@ class ChatGPTClient {
         const endIndex = jsonString.lastIndexOf(']');
         jsonString = jsonString.substring(startIndex, endIndex + 1); 
         jsonString = jsonString.replace(/\\/g, '');      
-        
       })
         .catch((error) => {
         console.log(`ChatGPTClient: Request ERROR : ${error}`);
@@ -206,7 +232,6 @@ class ChatGPTClient {
 
       json = JSON.parse(jsonString);  
       json = this.cleanTriviaJSON(json, modelString);
-
       return json;
 
     } catch (error) {

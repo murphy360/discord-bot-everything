@@ -200,10 +200,42 @@ class QuestionManager {
         return questions;
     }
 
+    // Fact Check a question
+    async factCheckQuestion(question, answer, category, difficulty, incorrect_answers, source) {
+        return new Promise((resolve, reject) => {
+            this.chatGPTClient.validateQuestion(question, answer, category, difficulty, incorrect_answers, source, 'gpt-3.5-turbo')
+            .then((json) => {
+                let questions = new Array()
+                
+                //console.log(json);
+                for (let i = 0; i < json.length; i++) {
+                    //console.log(json[i].source + ' ' + json[i].question);
+                    questions.push(new Question(this.client, json[i], (i + 1), "User", 'https://openai.com/' ));
+                    questions[i].sourceID = source; // set sourceID to user id
+                    
+                    if(!json[i].valid) {
+                        console.info("Qestion was modified by AI");
+                        questions[i].dislikes = 1;
+                    } else {
+                        console.info("Question was not modified by AI");
+                        questions[i].dislikes = 0;
+                    }
+                    console.info('QuestionManager: factCheckQuestions() Validating ' + question + ' and got ' + json[i].valid + ' new question: ' + json[i].question + ' with answer: ' + json[i].correct_answer + ' from OpenAI ');
+                }
+                
+                resolve(questions[0]);
+                
+            });
+
+        });
+
+    }
+
     // get questions least asked
     async getOpenAIQuestions(numQuestions, category, difficulty, oldQuestionContextData, model) {
         return new Promise((resolve, reject) => {
-            this.chatGPTClient.getTriviaQuestions(numQuestions, category, difficulty, oldQuestionContextData, model).then((json) => {
+            this.chatGPTClient.getTriviaQuestions(numQuestions, category, difficulty, oldQuestionContextData, model)
+            .then((json) => {
                 let questions = new Array()
                 
                 //console.log(json);
