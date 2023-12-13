@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionsBitField  } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const { Game } = require('./../../classes/trivia/game.js');
 const { LeaderBoard } = require('./../../classes/trivia/leaderBoard.js');
 const { LeaderBoardGuild } = require('./../../classes/trivia/leaderBoardGuild.js');
@@ -6,7 +6,6 @@ const { SystemCommands } = require('./../../classes/Helpers/systemCommands.js');
 const { TriviaGuild } = require('./../../classes/trivia/triviaGuild.js');
 
 require('dotenv').config({ path: './../data/.env' });
-const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 
 let game_in_progress = false;
 const triviaCategories = [
@@ -117,6 +116,7 @@ module.exports = {
 
         const helper = new SystemCommands();
 		const triviaGuild = new TriviaGuild(interaction.guild);
+        console.log('trivia.js, deferReply')
         await interaction.deferReply();
 		await triviaGuild.checkGuildCriticalSetup();
 

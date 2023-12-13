@@ -18,17 +18,20 @@ module.exports = {
                 .setRequired(true)),
 		
 	async execute(interaction) {
+
 		console.info('set_guild_channel.js: ' + interaction.guild.name + ' / ' + interaction.channel.name + ' / ' + interaction.user.username + ' / ' + interaction.commandName + ' / ' + interaction.options.getString('channel_name') + ' / ' + interaction.options.getString('channel_id') + ' / ' + interaction.options.getString('channel_type') + ' / ' + interaction.options.getString('channel_created_at') + ' / ' + interaction.options.getS);
 		
+		// Defer Reply
+		await interaction.deferReply();
 		// Check if user is an admin
 		if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-			return interaction.reply({ content: 'You must be an administrator to use this command.', ephemeral: true });
+			return interaction.editreply({ content: 'You must be an administrator to use this command.', ephemeral: true });
 		}
 
 		// get triviaGuild object
         const targetGuild = interaction.client.guilds.cache.find(guild => guild.id === interaction.options.getString('guild_id'));
 		if (!targetGuild) {
-            return interaction.reply({ content: 'I couldn\'t find a guild with that ID.', ephemeral: true });
+            return interaction.editreply({ content: 'I couldn\'t find a guild with that ID.', ephemeral: true });
         }
         
         const triviaGuild = new TriviaGuild(targetGuild);
@@ -48,12 +51,12 @@ module.exports = {
 			await triviaGuild.checkGuildCriticalSetup();
 			if (!triviaGuild.isReady) {
 				const embed = await getHelpEmbedErrors(triviaGuild.contextData, client);
-				return interaction.reply({ embeds: [embed], ephemeral: true });
+				return interaction.editreply({ embeds: [embed], ephemeral: true });
 			} else {
-				return interaction.reply({ content: 'Trivia channel set to ' + newChannel.name + '.', ephemeral: true });
+				return interaction.editreply({ content: 'Trivia channel set to ' + newChannel.name + '.', ephemeral: true });
 			}
 		} else {
-			return interaction.reply({ content: 'I couldn\'t find a channel with that ID.', ephemeral: true });
+			return interaction.editreply({ content: 'I couldn\'t find a channel with that ID.', ephemeral: true });
 		}
 	},
 };

@@ -8,11 +8,13 @@ module.exports = {
 		
 	async execute(interaction) {
 		console.info('about.js');
+		// Defer Reply
+		await interaction.deferReply();
 		const client = interaction.client;
 		const botname = client.user.username;
 
 		const embed = await aboutEmbed();
-		return interaction.reply({ embeds: [embed] });
+		return interaction.editreply({ embeds: [embed] });
 		
 		// Function to create an about embed
 		async function aboutEmbed() {
