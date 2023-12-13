@@ -6,6 +6,7 @@ module.exports = {
 		.setDescription('Replies with Pong!'),
 	async execute(interaction) {
     console.info('ping.js');
+	
 	// Defer Reply
 	await interaction.deferReply();
 	return interaction.editReply('Pong!');
