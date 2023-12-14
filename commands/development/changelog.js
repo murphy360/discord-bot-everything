@@ -10,7 +10,7 @@ module.exports = {
 		console.info('develop.js');
 		// Defer Reply
 		await interaction.deferReply();
-		await interaction.editreply('Sure, hold on a minute...');
+		await interaction.editReply('Sure, hold on a minute...');
 		const changeLog = new ChangeLog(interaction.client);
 		const embed = await changeLog.createChangeLogEmbed();
 		interaction.editReply({ embeds: [embed] });

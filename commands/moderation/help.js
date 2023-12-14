@@ -34,11 +34,11 @@ module.exports = {
 			}
 
 			const embed = await helper.getHelpEmbedErrors(contextData, client);
-			return interaction.editreply({ embeds: [embed] });
+			return interaction.editReply({ embeds: [embed] });
 		} 
 
 		const embed = await helpEmbed();
-		return interaction.editreply({ embeds: [embed] });
+		return interaction.editReply({ embeds: [embed] });
 		
 		// Function to create an about embed
 		async function helpEmbed() {

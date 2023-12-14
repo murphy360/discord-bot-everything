@@ -43,7 +43,7 @@ class LeaderBoard {
         console.info('postWorldLeaderBoard World Trivia Champion: ');
         await this.findHighScores();
         let embed = await this.getWorldLeaderBoardEmbed();
-        interaction.reply({ embeds: [embed] }); 
+        interaction.editReply({ embeds: [embed] }); 
     }
 
     async getWorldLeaderBoardEmbed() {
