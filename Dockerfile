@@ -1,8 +1,7 @@
-FROM node:latest
+FROM node:21.6.1-slim
 
 # Create the directory!
 RUN mkdir -p /usr/src/bot
-
 
 WORKDIR /usr/src/bot
 
