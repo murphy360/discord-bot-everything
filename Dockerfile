@@ -7,8 +7,9 @@ WORKDIR /usr/src/bot
 
 # Copy and Install our bot
 COPY package.json /usr/src/bot
-RUN npm install
 RUN apt update && apt install vim jq -y 
+RUN npm install
+
 
 # Upgrade installed packages and hopefully address vulnerabilities
 RUN apt upgrade -y
