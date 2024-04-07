@@ -28,7 +28,8 @@
     "yt-search": "^2.7.6",
     "ytdl": "^1.4.1",
     "ytdl-core": "^4.5.0",
-    "jq": "^1.6"
+    "jq": "^1.6",
+    "xmlhttprequest": "^1.7.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
