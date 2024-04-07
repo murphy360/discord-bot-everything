@@ -31,12 +31,28 @@ This code base was forked from [https://github.com/sitepoint-editors/discord-bot
 
 1. Clone repo
 3. Build Docker Container
-
+docker build . -t murphy360/discord-bot-everything-146
 4. Load Container
 
 5. Create Volume Mount point on host
+- ../data
 - Add Discord credentials (Bot Token) in a `.env` file
 
+6. Docker Run
+docker run -d --name discord_bot -v ../data:/usr/src/bot/data murphy360/everythingbot:nightly
+
+## Docker Compose
+version: '3'
+services:
+        everythingbot:
+                image: murphy360/everythingbot:nightly
+                container_name: discord_everythingbot
+                dns:
+                        - "8.8.8.8"
+                        - "8.8.4.4"
+                volumes:
+                        - /docker/discord_bot_everything:/usr/src/bot/data
+                restart: unless-stopped
 ## License
 
 SitePoint's code archives and code examples are licensed under the MIT license.
