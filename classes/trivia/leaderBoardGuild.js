@@ -78,7 +78,7 @@ class LeaderBoardGuild {
         console.info('postManualGuildLeaderBoard');
         await this.findGuildHighScores(interaction.guild);
         let embed = await this.getGuildLeaderBoardEmbed();
-        interaction.reply({ embeds: [embed] }); 
+        interaction.editReply({ embeds: [embed] }); 
     }
 
     async getGuildLeaderBoardEmbed() {

@@ -12,6 +12,8 @@ module.exports = {
 		
 	async execute(interaction) {
 		console.info('help.js');
+		// Defer Reply
+		await interaction.deferReply();
 
 		const client = interaction.client;
 		const botname = client.user.username;
@@ -32,11 +34,11 @@ module.exports = {
 			}
 
 			const embed = await helper.getHelpEmbedErrors(contextData, client);
-			return interaction.reply({ embeds: [embed] });
+			return interaction.editReply({ embeds: [embed] });
 		} 
 
 		const embed = await helpEmbed();
-		return interaction.reply({ embeds: [embed] });
+		return interaction.editReply({ embeds: [embed] });
 		
 		// Function to create an about embed
 		async function helpEmbed() {

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionsBitField  } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const { Game } = require('./../../classes/trivia/game.js');
 const { LeaderBoard } = require('./../../classes/trivia/leaderBoard.js');
 const { LeaderBoardGuild } = require('./../../classes/trivia/leaderBoardGuild.js');
@@ -6,7 +6,6 @@ const { SystemCommands } = require('./../../classes/Helpers/systemCommands.js');
 const { TriviaGuild } = require('./../../classes/trivia/triviaGuild.js');
 
 require('dotenv').config({ path: './../data/.env' });
-const TRIVIA_CHANNEL = process.env.TRIVIA_CHANNEL;
 
 let game_in_progress = false;
 const triviaCategories = [
@@ -117,19 +116,19 @@ module.exports = {
 
         const helper = new SystemCommands();
 		const triviaGuild = new TriviaGuild(interaction.guild);
+        console.log('trivia.js, deferReply')
+        await interaction.deferReply();
 		await triviaGuild.checkGuildCriticalSetup();
 
         if (!triviaGuild.isReady) {
             const embed = await helper.getHelpEmbedErrors(triviaGuild.contextData, interaction.client);
-            return interaction.reply({ embeds: [embed] });
+            return interaction.editreply({ embeds: [embed] });
         }         
         // Check which subcommand was called
         if (interaction.options.getSubcommand() === 'about') {
-            return interaction.reply('This is a trivia game! Written by Corey Murphy');
+            return interaction.editReply('This is a trivia game! Written by Corey Murphy');
         } else if (interaction.options.getSubcommand() === 'play') {
             
-  
-
             console.info('Play Subcommand');
             let rounds = 1;
             let difficulty = 'all';
@@ -176,14 +175,11 @@ module.exports = {
             if (game_in_progress === false) {
 
                   //Respond to hostMember
-                interaction.reply(hostMember.user.username + ', OK! ' + rounds + ' rounds! Difficulty: ' + difficulty + ' New game coming up!').catch(error => {
+                  interaction.editReply(hostMember.user.username + ', OK! ' + rounds + ' rounds! Difficulty: ' + difficulty + ' New game coming up!').catch(error => {
                     console.log(console.error);
-                    defaultChannel.send(' Error replying to hostMember: ' + error + ' Have you given me the message permissions?');
                 });
 
-                // find the trivia channel
-                const triviaChannel = await hostGuild.channels.cache.find(channel => channel.name === 'trivia');
-
+                // Start the game
                 const game = new Game(interaction.client, hostMember.user, hostGuild, rounds, difficulty, categoryValue, categoryName);
                 await game.init();           
                 game_in_progress = true;
@@ -195,7 +191,7 @@ module.exports = {
                 await leaderboard.setWorldTriviaChampionRole()
             } else {
                 // Respond that a game is already in play
-                return interaction.reply(hostMember.user.username + ', Sorry! a game is already in progress.  Check the Trivia Room!');
+                return interaction.editReply(hostMember.user.username + ', Sorry! a game is already in progress.  Check the Trivia Room!');
             }
           
         } else if (interaction.options.getSubcommand() === 'leaderboard') {
@@ -209,7 +205,7 @@ module.exports = {
             leaderBoard.postManualGuildLeaderBoard(interaction);
             return;        
         } else if (interaction.options.getSubcommand() === 'rules') {
-            return interaction.reply('This will be the rules!');
+            return interaction.editReply('This will be the rules!');
         }    
 	},
 };
