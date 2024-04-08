@@ -20,7 +20,7 @@ module.exports = {
 		await interaction.deferReply();
 		// Check if user is an admin
 		if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-			return interaction.editreply({ content: 'You must be an administrator to use this command.', ephemeral: true });
+			return interaction.editReply({ content: 'You must be an administrator to use this command.', ephemeral: true });
 		}
 
 		// get triviaGuild object
@@ -42,12 +42,12 @@ module.exports = {
 			await triviaGuild.checkGuildCriticalSetup();
 			if (!triviaGuild.isReady) {
 				const embed = await getHelpEmbedErrors(triviaGuild.contextData, client);
-				return interaction.editreply({ embeds: [embed], ephemeral: true });
+				return interaction.editReply({ embeds: [embed], ephemeral: true });
 			} else {
-				return interaction.editreply({ content: 'Trivia channel set to ' + newChannelName + '.', ephemeral: true });
+				return interaction.editReply({ content: 'Trivia channel set to ' + newChannelName + '.', ephemeral: true });
 			}
 		} else {
-			return interaction.editreply({ content: 'I couldn\'t find a channel with that name.', ephemeral: true });
+			return await interaction.editReply({ content: 'I couldn\'t find a channel with that name.', ephemeral: true });
 		}
 	},
 };
