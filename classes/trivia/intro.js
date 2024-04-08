@@ -61,7 +61,8 @@ class Intro {
         });
     }
 
-    async send(channel) {
+    async send(channel) {    
+        console.info('intro.js: send to Guild: ' + channel.guild + ' Host: ' + this.hostUser.username);
         return new Promise(async (resolve, reject) => {
             // Get Player Role
             const playerRole = channel.guild.roles.cache.find(role => role.name === 'Player');
