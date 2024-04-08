@@ -1,51 +1,40 @@
 # Discord Bot for Everything
 
 This bot aims to incorporate a lot of different ideas into one bot. Currently in development for the bot are the following:
- - trivia. Play a trivia game. Trivia questions pulled from [Open Trivia Database](https://theopentdb.com).
- - jokes. Tell random jokes. Jokes are pulled from [https://sv443.net/](https://sv443.net/jokeapi/v2/) and [Dad Jokes API](https://github.com/KegenGuyll/DadJokes)
- - play. Play youtube audio to an audio channel.
+ - trivia. Play a trivia game. Trivia questions pulled from:
+ -- [Open Trivia Database](https://theopentdb.com).
+ -- [OpenAI](https://openai.com/)
 
 This code base was forked from [https://github.com/sitepoint-editors/discord-bot-sitepoint](https://github.com/sitepoint-editors/discord-bot-sitepoint)
 
-## Requirements
+## Dependencies
+- Docker
 
-- [Node.js](http://nodejs.org/)
-- [Discord](https://discordapp.com/) account
-- [Sequelize](https://sequelize.org) `npm install --save sequelize`
-- [HTML Entities](https://github.com/mathiasbynens/he) `npm install --save he`
-- [Youtube Download Core](https://github.com/fent/node-ytdl-core) `npm install --save ytdl-core`
-- [Node Fetch](https://github.com/node-fetch/node-fetch) `npm install --save node-fetch`
-- [Node Sqlite](https://github.com/kriasoft/node-sqlite) `npm install --save sqlite`
-
-## Installation Steps (Standalone)
+## Installation Steps (Docker)
 
 1. Clone repo
-2. Add Discord credentials (Bot Token) in a `.env` file
-3. npm install
-4. Install [Requirements listed above](README.md#requirements)
-5. apt install ffmpeg
-6. Run `node index.js` or `npm run dev` (ensure package.json properly configured)
-7. Interact with your Discord bot via your web browser
+2. Create volume-mapped directory
+3. Update .env file (Rename template.env -> .env) and add appropriate variables from Discord Developer Page
+4. docker build . -t murphy360/discord-bot-everything
+5. docker run -d --name discord_bot -v ~/my-windows-home/Software/GitHub/discord-bot-everything/data/:/usr/src/bot/data docker.io/murphy360/discord-bot-everything
 
-## Installation Steps (Docker) <--- Needs Tested
-
-1. Clone repo
-3. Build Docker Container
-docker build . -t murphy360/discord-bot-everything-146
-4. Load Container
-
-5. Create Volume Mount point on host
-- ../data
-- Add Discord credentials (Bot Token) in a `.env` file
-
-6. Docker Run
-docker run -d --name discord_bot -v ../data:/usr/src/bot/data murphy360/everythingbot:nightly
 
 ## Docker Compose
+This project is hosted on docker hub at: https://hub.docker.com/repository/docker/murphy360/everythingbot
+Source for this project is on github at: https://github.com/murphy360/discord-bot-everything 
+
+Tags: 
+- latest - Latest Release with a tag in format: /^v([0-9]+)\.([0-9]+)\.([0-9]+)$/
+- develop - Latest commit to develop branch
+- nightly - Latest commit to main branch (Regardless of TAG)
+- release-0 - Latest Major v0.X.X Release
+- release-0.5 - Latest Minor v0.5.X Release (Recommended)
+- release-0.5.X - Latest Patch Release
+
 version: '3'
 services:
         everythingbot:
-                image: murphy360/everythingbot:nightly
+                image: murphy360/everythingbot:release-0.5
                 container_name: discord_everythingbot
                 dns:
                         - "8.8.8.8"
@@ -53,6 +42,8 @@ services:
                 volumes:
                         - /docker/discord_bot_everything:/usr/src/bot/data
                 restart: unless-stopped
+
+
 ## License
 
 SitePoint's code archives and code examples are licensed under the MIT license.

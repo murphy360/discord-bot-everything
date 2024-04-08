@@ -122,7 +122,7 @@ module.exports = {
 
         if (!triviaGuild.isReady) {
             const embed = await helper.getHelpEmbedErrors(triviaGuild.contextData, interaction.client);
-            return interaction.editreply({ embeds: [embed] });
+            return interaction.editReply({ embeds: [embed] });
         }         
         // Check which subcommand was called
         if (interaction.options.getSubcommand() === 'about') {
