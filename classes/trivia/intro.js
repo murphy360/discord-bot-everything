@@ -61,12 +61,9 @@ class Intro {
         });
     }
 
-    async send(channel) {
+    async send(channel) {    
+        console.info('intro.js: send to Guild: ' + channel.guild.name + ' Host: ' + this.hostUser.username);
         return new Promise(async (resolve, reject) => {
-            // Get Player Role
-            const playerRole = channel.guild.roles.cache.find(role => role.name === 'Player');
-            
-
             const embed = new EmbedBuilder()
             // Set the title of the field
             .setTitle('A New Game is about to start!')
@@ -85,18 +82,21 @@ class Intro {
             .setTimestamp()
             .setFooter({ text: 'Trivia Game# ' + this.gameId, iconURL: this.client.user.displayAvatarURL() });
 
+            // Get Player Role for Guild (If it exists)
+            const playerRole = channel.guild.roles.cache.find(role => role.name === 'Player');
+            
             if (playerRole) {
                 // Set the main content of the embed
                 embed.setDescription(`<@&${playerRole.id}> ${this.description}`)
             } else {
-                console.log('intro.js: Player Role Does Not Exist');
+                console.log('intro.js: Player Role Does Not Exist in Guild: ' + channel.guild.name);
                 embed.setDescription(this.description);
             }
             // Send the embed to the trivia channel
             if (channel) {
                 channel.send({ embeds: [embed] });  
             } else {
-                console.log('intro.js: Channel Does Not Exist');
+                console.log('intro.js: Channel Does Not Exist in Guild: ' + channel.guild.name);
                 resolve("Channel Does Not Exist");
             }
             
