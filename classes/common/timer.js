@@ -19,6 +19,7 @@ class Timer {
         this.systemInterval = null;                     // null variable to hold reference to systemInterval
         this.message = null; 
         this.isActive = false;                           // Reference to the timer message
+        console.info('Timer: Created Timer with ' + this.MAX_TIME + ' seconds. in channel: ' + this.CHANNEL.name);
     }
 
     // Create the progress bar to display
