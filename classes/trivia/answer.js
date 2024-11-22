@@ -41,7 +41,7 @@ class Answer {
 
     gradeAnswer(numPlayers) {
         console.info('gradeAnswer: ' + this.user.username + ' being graded against ' + numPlayers + ' players');
-        log_string = this.user.username + ' answered in guild: ' + this.guild.name + '. ';
+        let log_string = this.user.username + ' answered in guild: ' + this.guild.name + '. ';
         if (this.isCorrect) {
             
             // Assign points based on difficulty
