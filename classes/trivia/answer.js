@@ -41,9 +41,10 @@ class Answer {
 
     gradeAnswer(numPlayers) {
         console.info('gradeAnswer: ' + this.user.username + ' being graded against ' + numPlayers + ' players');
+        log_string = this.user.username + ' answered in guild: ' + this.guild.name + '. ';
         if (this.isCorrect) {
+            
             // Assign points based on difficulty
-            console.info('gradeAnswer: ' + this.user.username + ' answered correctly! ' + this.difficulty + ' difficulty');
             const difficulty = this.difficulty.toLowerCase();
             switch (difficulty) {
                 case "easy":
@@ -60,20 +61,26 @@ class Answer {
                     break;
                 default:
                     this.points = 1;
-                    break;
+                    break;            
             }
+            log_string += ' Correct Answer, ' + this.difficulty + ' difficulty. (' + this.points + ' points). ';
+        } else {
+            log_string += ' Incorrect Answer. (0 points). ';
         }
         if (this.isGuildWinner) {
+            log_string += ' Guild Winner: (' + 2 + ' points). ';
             this.points += 2;
         }
 
         if (this.isGlobalWinner) {
+            log_string += ' Global Winner: (' + 3 + ' points). ';
             this.points += 3;
         }
-
+        
         // You get more points based on the number of players in the game
-        this.points = this.points * (numPlayers / 2); // 1 player x .5 points, 2 players x 1 point, 3 players x 1.5 points, 4 players x 2 points 
-        console.info('gradeAnswer: ' + this.user.username + ' earned ' + this.points + ' points');
+        this.points = this.points * (numPlayers / 2); // 1 player x .5 points, 2 players x 1 point, 3 players x 1.5 points, 4 players x 2 points
+        log_string += 'Oponent multiplier: (x' + (numPlayers / 2) + '). Total points: ' + this.points;
+        console.info('gradeAnswer: ' + log_string);
     }
 }
   

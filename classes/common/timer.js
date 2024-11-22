@@ -13,13 +13,15 @@ class Timer {
         this.DEC_INTV = Math.floor(interval_sec);       // Value to decrement the timer by in Seconds
         this.INTV_LEN = Math.floor(interval_sec) * 1000;// Interval length to pass to setTimeout
         this.CHANNEL = channel;                         // Channel in which the trivia game is running
+        this.GUILD = channel.guild;                     // Guild in which the trivia game is running
         this.DISP_TEXT = text;                          // Text to display with the progress bar
 
         this.timeLeft = Math.floor(time_len);           // Time remaining for the timer
         this.systemInterval = null;                     // null variable to hold reference to systemInterval
         this.message = null; 
         this.isActive = false;                           // Reference to the timer message
-        console.info('Timer: Created Timer with ' + this.MAX_TIME + ' seconds. in channel: ' + this.CHANNEL.name);
+        console.info('Timer: Created Timer with ' + this.MAX_TIME + ' seconds. Channel: ' + this.CHANNEL.name + ' in guild: ' + this.GUILD.name);
+
     }
 
     // Create the progress bar to display
