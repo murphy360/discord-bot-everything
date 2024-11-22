@@ -94,7 +94,12 @@ class Intro {
             }
             // Send the embed to the trivia channel
             if (channel) {
-                channel.send({ embeds: [embed] });  
+                try {
+                    await channel.send({ embeds: [embed] });
+                } catch (error) {
+                    console.error('intro.js: Error sending embed to channel: ' + channel.guild.name);
+                    console.error(error);
+                }  
             } else {
                 console.log('intro.js: Channel Does Not Exist in Guild: ' + channel.guild.name);
                 resolve("Channel Does Not Exist");
@@ -102,9 +107,16 @@ class Intro {
             
 
             const timer = new Timer(this.timerSec, 1, channel, "A new game is starting!");
-            timer.start().then(() => {
+            try {
+                timer.start().then(() => {
+                    resolve("Resolved");
+                });
+            } catch (error) {
+                console.error('intro.js: Error starting timer in channel: ' + channel.guild.name);
+                console.error(error);
                 resolve("Resolved");
-            });
+            }
+            
         });
     }
 }
