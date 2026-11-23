@@ -1,0 +1,39 @@
+# CI from murphy360/standards (templates/ci.yml), trimmed for a repository with no build or tests:
+# the secret scan and actionlint, and the fixed-name result job the main ruleset requires.
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: murphy360/standards/actions/take-ownership@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0  # the secret scan reads the commits of the change, so it needs the history
+      - uses: murphy360/standards/actions/checks@v3
+        with:
+          # Only the checks that need nothing of the project. standards-check and the lints wait until the
+          # project adopts the standard's templates.
+          checks: actionlint secret-scan
+  # The one job a ruleset requires (templates/rulesets/main.json).
+  result:
+    name: result
+    if: always()
+    needs: [checks]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every job that ran passed
+        run: |
+          echo '${{ toJSON(needs) }}' > needs.json
+          cat needs.json
+          jq -e 'all(.[]; .result == "success" or .result == "skipped")' needs.json
